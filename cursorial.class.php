@@ -16,6 +16,12 @@ class Cursorial {
 	 */
 	public $pages;
 
+	/**
+	 * Array with available areas defined by self::register_area()
+	 * @see Cursorial::register_area
+	 */
+	public $areas;
+
 	// CONSTRUCTOR
 
 	/**
@@ -23,6 +29,7 @@ class Cursorial {
 	 */
 	function __construct() {
 		$this->pages = new Cursorial_Pages();
+		$this->areas = array();
 	}
 
 	// PUBLIC METHODS
@@ -47,6 +54,8 @@ class Cursorial {
 
 	/**
 	 * Add administration pages
+	 * @see add_action
+	 * @return void
 	 */
 	public function admin_menu() {
 		add_menu_page(
@@ -56,6 +65,29 @@ class Cursorial {
 			'cursorial',
 			array( $this->pages, 'admin' )
 		);
+
+		foreach ( $this->areas as $area ) {
+			add_submenu_page(
+				'cursorial',
+				sprintf( __( 'Edit cursorial area %s', 'cursorial' ), $area->label ),
+				$area->label,
+				'manage_options',
+				$area->name,
+				array( $this->pages, 'admin_area' )
+			);
+		}
+	}
+
+	/**
+	 * Registers an area for placing content.
+	 * @param string $name An unique name used to identify your area.
+	 * @param string $label A readable label used in the administrative
+	 * interface
+	 * @param array $args Arguments
+	 * @return void
+	 */
+	public function register_area( $name, $label, $args ) {
+		$this->areas[ $name ] = new Cursorial_Area( $name, $label, $args );
 	}
 
 	// PRIVATE METHODS

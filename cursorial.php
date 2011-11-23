@@ -46,6 +46,7 @@ define( 'CURSORIAL_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
  */
 require_once( dirname( __FILE__ ) . '/cursorial.class.php' );
 require_once( dirname( __FILE__ ) . '/cursorial_pages.class.php' );
+require_once( dirname( __FILE__ ) . '/cursorial_area.class.php' );
 $cursorial = new Cursorial();
 
 /**
@@ -54,6 +55,16 @@ $cursorial = new Cursorial();
  */
 if ( is_admin() ) {
 	require_once( dirname( __FILE__ ) . '/admin.php' );
+}
+
+/**
+ * Wrapper for Cursorial::register_area
+ * @see Cursorial::register_area
+ * @return void
+ */
+function register_cursorial_area( $name, $label, $args ) {
+	global $cursorial;
+	$cursorial->register_area( $name, $label, $args );
 }
 
 // Add the plugin initiator function to Wordpress
