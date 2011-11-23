@@ -1,13 +1,22 @@
 <?php
 
+/**
+ * All the cursorial generated pages
+ */
 class Cursorial_Pages {
 
+	/**
+	 * The general administration page
+	 */
 	public function admin() {
-		echo 'cursorial';
+		include( dirname( __FILE__ ) . '/templates/admin.php' );
 	}
 
-	public function admin_area() {
-		echo 'area';
+	/**
+	 * Area administration page
+	 */
+	public function admin_area( $area ) {
+		include( dirname( __FILE__ ) . '/templates/admin-area.php' );
 	}
 
 }

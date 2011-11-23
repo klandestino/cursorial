@@ -50,6 +50,16 @@ class Cursorial {
 	 * @return void
 	 */
 	public function admin_init() {
+		wp_enqueue_script(
+			'cursorial-admin',
+			CURSORIAL_PLUGIN_URL . 'js/admin.js',
+			array(
+				'jquery',
+				'jquery-ui-sortable',
+				'jquery-ui-draggable',
+				'jquery-ui-droppable'
+			)
+		);
 	}
 
 	/**
@@ -73,7 +83,7 @@ class Cursorial {
 				$area->label,
 				'manage_options',
 				$area->name,
-				array( $this->pages, 'admin_area' )
+				array( $area, 'admin' )
 			);
 		}
 	}
@@ -87,7 +97,7 @@ class Cursorial {
 	 * @return void
 	 */
 	public function register_area( $name, $label, $args ) {
-		$this->areas[ $name ] = new Cursorial_Area( $name, $label, $args );
+		$this->areas[ $name ] = new Cursorial_Area( $this, $name, $label, $args );
 	}
 
 	// PRIVATE METHODS

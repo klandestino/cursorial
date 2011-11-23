@@ -39,7 +39,7 @@ if ( ! function_exists( 'add_action' ) ) {
  * Define plugin constants
  */
 define( 'CURSORIAL_VERSION', '0.1' );
-define( 'CURSORIAL_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'CURSORIAL_PLUGIN_URL', plugin_dir_url( plugin_basename( $plugin ) ) );
 
 /**
  * Inlude and define a global cursorial object
