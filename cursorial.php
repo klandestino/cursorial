@@ -45,6 +45,7 @@ define( 'CURSORIAL_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
  * Inlude and define a global cursorial object
  */
 require_once( dirname( __FILE__ ) . '/cursorial.class.php' );
+require_once( dirname( __FILE__ ) . '/cursorial_pages.class.php' );
 $cursorial = new Cursorial();
 
 /**

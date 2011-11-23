@@ -5,11 +5,27 @@
  */
 class Cursorial {
 
-	/**
-	 * Some crucial constants
-	 */
+	// CONSTANTS
 	const POST_TYPE = 'cursorial';
 	const TAXONOMY = 'cursorial_area';
+
+	// PUBLIC PROPERTIES
+
+	/**
+	 * Object with Wordpress pages Cursorial_Pages
+	 */
+	public $pages;
+
+	// CONSTRUCTOR
+
+	/**
+	 * Constructs Cursorial plugin object
+	 */
+	function __construct() {
+		$this->pages = new Cursorial_Pages();
+	}
+
+	// PUBLIC METHODS
 
 	/**
 	 * Initiates the Cursorial plugin.
@@ -28,6 +44,21 @@ class Cursorial {
 	 */
 	public function admin_init() {
 	}
+
+	/**
+	 * Add administration pages
+	 */
+	public function admin_menu() {
+		add_menu_page(
+			'Cursorial',
+			'Cursorial',
+			'manage_options',
+			'cursorial',
+			array( $this->pages, 'admin' )
+		);
+	}
+
+	// PRIVATE METHODS
 
 	/**
 	 * Registers the post-type we use to store all content and a taxonomy

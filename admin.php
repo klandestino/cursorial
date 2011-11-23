@@ -16,3 +16,6 @@ if ( ! isset( $cursorial ) ) {
 
 // Add the plugin administration initiator function to Wordpress
 add_action( 'admin_init', array( $cursorial, 'admin_init' ) );
+
+// Add an administrative menu
+add_action( 'admin_menu', array( $cursorial, 'admin_menu' ) );
