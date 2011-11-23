@@ -42,19 +42,18 @@ define( 'CURSORIAL_VERSION', '0.1' );
 define( 'CURSORIAL_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 /**
+ * Inlude and define a global cursorial object
+ */
+require_once( dirname( __FILE__ ) . '/cursorial.class.php' );
+$cursorial = new Cursorial();
+
+/**
  * If we're working in the administration interface we need the 
  * administration code.
  */
 if ( is_admin() ) {
-	require_once ( dirname( __FILE__ ) . '/admin.php' );
-}
-
-/**
- * Initiate Cursorial plugin.
- * @return void
- */
-function cursorial_init() {
+	require_once( dirname( __FILE__ ) . '/admin.php' );
 }
 
 // Add the plugin initiator function to Wordpress
-add_action( 'init', 'cursorial_init' );
+add_action( 'init', array( $cursorial, 'init' ) );

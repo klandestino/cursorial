@@ -7,11 +7,12 @@
  */
 
 /**
- * Initiates cursorial administration
- * @return void
+ * If this file is loaded outside Cursorial plugin it will fail.
  */
-function cursorial_admin_init() {
+if ( ! isset( $cursorial ) ) {
+	echo "Hello! I'm not even a plugin, not even close to much I can do when called directly.";
+	exit;
 }
 
 // Add the plugin administration initiator function to Wordpress
-add_action( 'admin_init', 'cursorial_admin_init' );
+add_action( 'admin_init', array( $cursorial, 'admin_init' ) );
