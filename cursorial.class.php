@@ -61,6 +61,11 @@ class Cursorial {
 				'jquery-ui-droppable'
 			)
 		);
+
+		wp_enqueue_style(
+			'cursorial-admin',
+			CURSORIAL_PLUGIN_URL . 'css/admin.css'
+		);
 	}
 
 	/**

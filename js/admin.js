@@ -9,10 +9,12 @@ jQuery( function() {
 				e.data( 'search-last', val );
 				e.parents( 'form' ).ajaxForm( {
 					form: e.parents( 'form' ),
+					element: e,
 					type: 'POST',
 					dataType: 'json',
 					success: searchResult
 				} ).submit();
+				e.addClass( 'working' );
 			}
 		}
 
@@ -34,6 +36,7 @@ jQuery( function() {
 		 */
 		function searchResult( data ) {
 			var target = $( this.form.find( 'input[name=target]' ).val() );
+			this.element.removeClass( 'working' );
 
 			if ( target.length > 0 ) {
 				target.find( '.template-clone' ).remove();
