@@ -11,7 +11,7 @@
 				</h3>
 				<div class="inside">
 					<div class="cursorial-search-form">
-						<form method="post" action="<?php echo CURSORIAL_PLUGIN_URL . 'json.php'; ?>">
+						<form method="post" action="<?php echo CURSORIAL_PLUGIN_URL . 'json.php'; ?>" onsubmit="return false;">
 							<input type="hidden" name="target" value=".cursorial-search-result" />
 							<p>
 								<input id="cursorial-search-field" class="widefat" type="text" value="" name="query" />
