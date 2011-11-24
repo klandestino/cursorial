@@ -11,13 +11,22 @@
 				</h3>
 				<div class="inside">
 					<div class="cursorial-search-form">
-						<form method="post" action="">
+						<form method="post" action="<?php echo CURSORIAL_PLUGIN_URL . 'json.php'; ?>">
+							<input type="hidden" name="target" value=".cursorial-search-result" />
 							<p>
-								<input id="cursorial-search-field" class="widefat" type="text" value="" name="cursorial-search" />
+								<input id="cursorial-search-field" class="widefat" type="text" value="" name="query" />
 							</p>
 						</form>
 					</div>
 					<div class="cursorial-search-result">
+						<div class="cursorial-search-result-item template">
+							<h4 class="post-title"><span class="template-data-post_title"></span></h4>
+							<p class="post-meta">
+								<span class="template-data-post_author"></span>
+								<span class="template-data-post_date"></span>
+							</p>
+							<p class="post-excerpt template-data-post_excerpt"></p>
+						</div>
 					</div>
 				</div>
 			</div>

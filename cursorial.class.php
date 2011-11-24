@@ -55,6 +55,7 @@ class Cursorial {
 			CURSORIAL_PLUGIN_URL . 'js/admin.js',
 			array(
 				'jquery',
+				'jquery-form',
 				'jquery-ui-sortable',
 				'jquery-ui-draggable',
 				'jquery-ui-droppable'
