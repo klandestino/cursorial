@@ -19,3 +19,6 @@ add_action( 'admin_init', array( $cursorial, 'admin_init' ) );
 
 // Add an administrative menu
 add_action( 'admin_menu', array( $cursorial, 'admin_menu' ) );
+
+// Add the plugin action for admin_head
+add_action( 'admin_head', array( $cursorial, 'head' ) );

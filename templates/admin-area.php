@@ -28,7 +28,7 @@
 					<div id="cursorial-search-form" class="widget">
 						<div class="widget-inside">
 							<p class="description"><?php _e( 'Enter keywords below to find content to add into the cursorial area.', 'cursorial' ); ?></p>
-							<form method="post" action="<?php echo CURSORIAL_PLUGIN_URL . 'json.php'; ?>" onsubmit="return false;">
+							<form method="post" action="" onsubmit="return false;">
 								<input type="hidden" name="action" value="search" />
 								<input type="hidden" name="target" value="#cursorial-search-result" />
 								<label for="cursorial-search-field"><?php _e( 'Search keywords:', 'cursorial' ); ?></label>

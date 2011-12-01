@@ -94,8 +94,30 @@ class Cursorial_Query {
 
 			foreach ( $posts as $post ) {
 				$this->populateResults( $post );
-				
 			}
+		}
+	}
+
+	/**
+	 * Makes a query for all posts in specified area and populates the results-array.
+	 *
+	 * @param string $area Area name
+	 * @return void
+	 */
+	public function area( $name ) {
+		$query = new WP_Query( array(
+			'post_type' => Cursorial::POST_TYPE,
+			'tax_query' => array(
+				array(
+					'taxonomy' => Cursorial::TAXONOMY,
+					'field' => 'slug',
+					'terms' => $name
+				)
+			)
+		) );
+
+		foreach ( $query->get_posts() as $post ) {
+			$this->populateResults( $post );
 		}
 	}
 }

@@ -1,5 +1,49 @@
+/**
+ * Wrapp all js-functionality in the jQuery-document-ready-event with $ as an alias for jQuery
+ */
 jQuery( function() {
 	( function( $ ) {
+		$.fn.cursorialArea = function( options ) {
+			function getAreaPosts( callback ) {
+				var area = $( this );
+				$.ajax( {
+					url: CURSORIAL_PLUGIN_URL + 'json.php',
+					type: 'POST',
+					data: 'action=area&area=' + area.data( 'cursorial_area' ),
+					dataType: 'json',
+					success: function( data ) {
+						area.data( 'cursorial_area_posts', data );
+						renderAreaPosts.apply( area );
+						callback.apply( area );
+					}
+				} );
+			}
+
+			function renderAreaPosts() {
+				var posts = $( this ).data( 'cursorial_area_posts' );
+			}
+
+			return this.each( function() {
+				// Try to extract the area name from class attribute with pattern "cursorial-area-NAME"
+				var extractedName = $( this ).attr( 'class' ).match( /["\s]cursorial-area-([^"\s]+)/ );
+				if ( extractedName ) {
+					extractedName = extractedName[ 1 ];
+				}
+
+				options = $.extend( {
+					name: extractedName
+				}, options );
+
+				$( this ).data( 'cursorial-name', options.name );
+
+				getAreaPosts.apply( this, [ function() {
+					$( this ).sortable( {
+						revert: true
+					} );
+				}	] );
+			} );
+		};
+
 		/**
 		 * Executes a search
 		 */
@@ -8,6 +52,7 @@ jQuery( function() {
 			if ( e.data( 'search-last' ) != val ) {
 				e.data( 'search-last', val );
 				e.parents( 'form' ).ajaxForm( {
+					url: CURSORIAL_PLUGIN_URL + 'json.php',
 					form: e.parents( 'form' ),
 					element: e,
 					type: 'POST',
@@ -44,6 +89,7 @@ jQuery( function() {
 
 				for ( var i in data ) {
 					var item = template.clone();
+					item.data( 'cursorial_post', data[ i ] );
 					item.removeClass( 'template' );
 					item.addClass( 'template-clone' );
 
@@ -55,11 +101,19 @@ jQuery( function() {
 					}
 
 					target.append( item );
+					item.draggable( {
+						connectToSortable: '.cursorial-area',
+						helper: 'clone',
+						revert: 'invalid'
+					} );
 				}
 			}
 		}
 
 		// Set events
 		$( 'input#cursorial-search-field' ).keydown( searchByTimeout );
+
+		// Setup cursorial areas
+		$( '.cursorial-area' ).cursorialArea();
 	} )( jQuery );
 } );

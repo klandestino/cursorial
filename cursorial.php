@@ -69,3 +69,6 @@ function register_cursorial_area( $name, $label, $args ) {
 
 // Add the plugin initiator function to Wordpress
 add_action( 'init', array( $cursorial, 'init' ) );
+
+// Add the plugin action for wp_head
+add_action( 'wp_head', array( $cursorial, 'head' ) );

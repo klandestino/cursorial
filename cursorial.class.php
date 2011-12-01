@@ -98,6 +98,19 @@ class Cursorial {
 	}
 
 	/**
+	 * Insert code into the header tag <head>
+	 * @see add_action
+	 * @return void
+	 */
+	public function head() {
+		?><script language="javascript" type="text/javascript">
+			//<![CDATA[
+			var CURSORIAL_PLUGIN_URL = '<?php echo CURSORIAL_PLUGIN_URL; ?>';
+			//]]>
+		</script><?php
+	}
+
+	/**
 	 * Registers an area for placing content.
 	 * @param string $name An unique name used to identify your area.
 	 * @param string $label A readable label used in the administrative
