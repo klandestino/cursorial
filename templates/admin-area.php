@@ -10,6 +10,7 @@
 				</div>
 				<div class="widget-holder">
 					<p class="description"><?php _e( "Here's a list of content. To add content into this list, search content in the box to the right.", 'cursorial' ); ?></p>
+					<div id="widget-list" class="cursorial-area cursorial-area-<?php echo $area->name; ?>"></div>
 				</div>
 			</div>
 		</div>
@@ -28,6 +29,7 @@
 						<div class="widget-inside">
 							<p class="description"><?php _e( 'Enter keywords below to find content to add into the cursorial area.', 'cursorial' ); ?></p>
 							<form method="post" action="<?php echo CURSORIAL_PLUGIN_URL . 'json.php'; ?>" onsubmit="return false;">
+								<input type="hidden" name="action" value="search" />
 								<input type="hidden" name="target" value="#cursorial-search-result" />
 								<label for="cursorial-search-field"><?php _e( 'Search keywords:', 'cursorial' ); ?></label>
 								<input id="cursorial-search-field" class="widefat" type="text" value="" name="query" />
