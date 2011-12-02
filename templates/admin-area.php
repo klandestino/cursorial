@@ -5,12 +5,21 @@
 	<div class="widget-liquid-left">
 		<div id="widgets-left">
 			<div class="widgets-holder-wrap">
-				<div class="sidebar-name">
+				<div id="nav-menu-header" class="sidebar-name">
+					<div class="publishing-actions">
+						<input type="submit" value="<?php _e( 'Save Area', 'cursorial' ); ?>" class="button-primary cursorial-area-save" id="" name="save_area" />
+					</div>
 					<h3><?php echo $area->label; ?></h3>
+					<div class="clear"></div>
 				</div>
 				<div class="widget-holder">
 					<p class="description"><?php _e( "Here's a list of content. To add content into this list, search content in the box to the right.", 'cursorial' ); ?></p>
 					<div id="widget-list" class="cursorial-area cursorial-area-<?php echo $area->name; ?>"></div>
+					<div class="clear"></div>
+					<div class="publishing-actions">
+						<input type="submit" value="<?php _e( 'Save Area', 'cursorial' ); ?>" class="button-primary cursorial-area-save" id="" name="save_area" />
+					</div>
+					<div class="clear"></div>
 				</div>
 			</div>
 		</div>

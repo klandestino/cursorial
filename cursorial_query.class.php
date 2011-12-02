@@ -104,14 +104,14 @@ class Cursorial_Query {
 	 * @param string $area Area name
 	 * @return void
 	 */
-	public function area( $name ) {
+	public function posts( $name ) {
 		$query = new WP_Query( array(
 			'post_type' => Cursorial::POST_TYPE,
 			'tax_query' => array(
 				array(
 					'taxonomy' => Cursorial::TAXONOMY,
 					'field' => 'slug',
-					'terms' => $name
+					'terms' => array( $name )
 				)
 			)
 		) );
