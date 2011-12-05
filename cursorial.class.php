@@ -51,14 +51,21 @@ class Cursorial {
 	 */
 	public function admin_init() {
 		wp_enqueue_script(
-			'cursorial-admin',
-			CURSORIAL_PLUGIN_URL . 'js/admin.js',
+			'jquery-cursorial',
+			CURSORIAL_PLUGIN_URL . 'js/jquery.cursorial.js',
 			array(
 				'jquery',
-				'jquery-form',
 				'jquery-ui-sortable',
 				'jquery-ui-draggable',
 				'jquery-ui-droppable'
+			)
+		);
+
+		wp_enqueue_script(
+			'cursorial-admin',
+			CURSORIAL_PLUGIN_URL . 'js/admin.js',
+			array(
+				'jquery-cursorial'
 			)
 		);
 

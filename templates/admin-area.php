@@ -37,12 +37,8 @@
 					<div id="cursorial-search-form" class="widget">
 						<div class="widget-inside">
 							<p class="description"><?php _e( 'Enter keywords below to find content to add into the cursorial area.', 'cursorial' ); ?></p>
-							<form method="post" action="" onsubmit="return false;">
-								<input type="hidden" name="action" value="search" />
-								<input type="hidden" name="target" value="#cursorial-search-result" />
-								<label for="cursorial-search-field"><?php _e( 'Search keywords:', 'cursorial' ); ?></label>
-								<input id="cursorial-search-field" class="widefat" type="text" value="" name="query" />
-							</form>
+							<label for="cursorial-search-field"><?php _e( 'Search keywords:', 'cursorial' ); ?></label>
+							<input id="cursorial-search-field" class="widefat" type="text" value="" name="query" />
 						</div>
 					</div>
 					<div id="cursorial-search-result">
