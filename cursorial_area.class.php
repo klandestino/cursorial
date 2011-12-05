@@ -101,7 +101,8 @@ class Cursorial_Area {
 	 */
 	public function removePosts() {
 		$query = new Cursorial_Query();
-		foreach ( $query->posts( $this->name ) as $post ) {
+		$query->area( $this->name );
+		foreach ( $query->results as $post ) {
 			wp_delete_post( $post->ID, true );
 		}
 	}

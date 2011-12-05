@@ -15,8 +15,8 @@ switch ( strtolower( $_POST[ 'action' ] ) ) {
 	case 'search':
 		$query->search( $_POST[ 'query' ] );
 		break;
-	case 'posts':
-		$query->posts( $_POST[ 'area' ] );
+	case 'area':
+		$query->area( $_POST[ 'area' ] );
 		break;
 	case 'save-area':
 		$area = new Cursorial_Area( $cursorial, $_POST[ 'area' ] );

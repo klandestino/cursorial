@@ -51,7 +51,7 @@
 				url: CURSORIAL_PLUGIN_URL + 'json.php',
 				type: 'POST',
 				data: {
-					action: 'posts',
+					action: 'area',
 					area: $( this ).data( 'cursorial-name' )
 				},
 				dataType: 'json',
