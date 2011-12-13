@@ -21,12 +21,14 @@ class Cursorial_Query {
 	 * @param object $post Post from a wp_query
 	 * @return void
 	 */
-	private function populateResults( $post ) {
+	private function populate_results( $post ) {
 		if ( ! array_key_exists( $post->ID, $this->results ) ) {
 			setup_postdata( $post );
+			$post->post_title = get_the_title();
 			$post->post_author = get_the_author();
 			$post->post_date = get_the_date();
 			$post->post_excerpt = get_the_excerpt();
+			$post->post_content = get_the_content();
 			$this->results[ $post->ID ] = $post;
 		}
 	}
@@ -85,15 +87,13 @@ class Cursorial_Query {
 			if ( is_string( $args ) ) {
 				add_filter( 'posts_where', array( &$this, $args ) );
 				$query = new WP_Query();
-				$posts = $query->get_posts();
 				remove_filter( 'posts_where', array( &$this, $args ) );
 			} else {
 				$query = new WP_Query( $args );
-				$posts = $query->get_posts();
 			}
 
-			foreach ( $posts as $post ) {
-				$this->populateResults( $post );
+			foreach ( $query->get_posts() as $post ) {
+				$this->populate_results( $post );
 			}
 		}
 	}
@@ -117,7 +117,7 @@ class Cursorial_Query {
 		) );
 
 		foreach ( $query->get_posts() as $post ) {
-			$this->populateResults( $post );
+			$this->populate_results( $post );
 		}
 	}
 }

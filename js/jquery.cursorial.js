@@ -75,7 +75,7 @@
 		function renderAreaPosts() {
 			var posts = $( this ).data( 'cursorial-posts' );
 			var template = $( options.templates.post );
-			$( this ).find( 'cursorial-post' ).remove();
+			$( this ).find( '.cursorial-post' ).remove();
 
 			for ( var i in posts ) {
 				var post = template.clone();
@@ -107,6 +107,8 @@
 				}
 			}
 
+			var area = this;
+
 			// Send data and start loader
 			startLoader.apply( this );
 			$.ajax( {
@@ -115,7 +117,11 @@
 				data: data,
 				dataType: 'json',
 				error: $.proxy( stopLoader, this ),
-				success: $.proxy( stopLoader, this )
+				success: function( data ) {
+					stopLoader.apply( area, [ data ] );
+					$( area ).data( 'cursorial-posts', data );
+					renderAreaPosts.apply( area );
+				}
 			} );
 		}
 

@@ -1,3 +1,7 @@
+#cursorial-admin .cursorial-blocks-table td {
+	vertical-align: top;
+}
+
 #cursorial-admin .widget-inside {
 	display: block;
 }

@@ -40,13 +40,14 @@ if ( ! function_exists( 'add_action' ) ) {
  */
 define( 'CURSORIAL_VERSION', '0.1' );
 define( 'CURSORIAL_PLUGIN_URL', plugin_dir_url( plugin_basename( $plugin ) ) );
+define( 'CURSORIAL_TEMPLATE_DIR', dirname( __FILE__ ) . '/templates' );
 
 /**
  * Inlude and define a global cursorial object
  */
 require_once( dirname( __FILE__ ) . '/cursorial.class.php' );
-require_once( dirname( __FILE__ ) . '/cursorial_pages.class.php' );
-require_once( dirname( __FILE__ ) . '/cursorial_area.class.php' );
+require_once( dirname( __FILE__ ) . '/cursorial_block.class.php' );
+require_once( dirname( __FILE__ ) . '/cursorial_admin.class.php' );
 $cursorial = new Cursorial();
 
 /**
@@ -58,13 +59,13 @@ if ( is_admin() ) {
 }
 
 /**
- * Wrapper for Cursorial::register_area
- * @see Cursorial::register_area
+ * Wrapper for Cursorial::register
+ * @see Cursorial::register
  * @return void
  */
-function register_cursorial_area( $name, $label, $args ) {
+function register_cursorial( $block_args, $admin_args ) {
 	global $cursorial;
-	$cursorial->register_area( $name, $label, $args );
+	$cursorial->register( $block_args, $admin_args );
 }
 
 // Add the plugin initiator function to Wordpress
@@ -72,3 +73,6 @@ add_action( 'init', array( $cursorial, 'init' ) );
 
 // Add the plugin action for wp_head
 add_action( 'wp_head', array( $cursorial, 'head' ) );
+
+// Add content filters for cursorial content type
+add_filter( 'the_title', array( $cursorial, 'the_title' ) );

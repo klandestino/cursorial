@@ -7,20 +7,31 @@ class Cursorial {
 
 	// CONSTANTS
 	const POST_TYPE = 'cursorial';
-	const TAXONOMY = 'cursorial_area';
+	const TAXONOMY = 'cursorial_block';
 
 	// PUBLIC PROPERTIES
 
 	/**
-	 * Object with Wordpress pages Cursorial_Pages
+	 * Array with available blocks defined by self::register()
+	 * @see Cursorial::register
 	 */
-	public $pages;
+	public $blocks;
 
 	/**
-	 * Array with available areas defined by self::register_area()
-	 * @see Cursorial::register_area
+	 * Array with admin-specs defined by self::register()
+	 * @see Cursorial::register
 	 */
-	public $areas;
+	public $admin;
+
+	// PRIVATE PROPERTIES
+
+	/**
+	 * Here is the current post.
+	 * the_title, the_content etc. are often called together and therefore it
+	 * could be smart to store the data locally instead of getting it everytime
+	 * we need it.
+	 */
+	private $current_original;
 
 	// CONSTRUCTOR
 
@@ -28,8 +39,8 @@ class Cursorial {
 	 * Constructs Cursorial plugin object
 	 */
 	function __construct() {
-		$this->pages = new Cursorial_Pages();
-		$this->areas = array();
+		$this->blocks = array();
+		$this->admin = array();
 	}
 
 	// PUBLIC METHODS
@@ -61,14 +72,6 @@ class Cursorial {
 			)
 		);
 
-		wp_enqueue_script(
-			'cursorial-admin',
-			CURSORIAL_PLUGIN_URL . 'js/admin.js',
-			array(
-				'jquery-cursorial'
-			)
-		);
-
 		wp_enqueue_style(
 			'cursorial-admin',
 			CURSORIAL_PLUGIN_URL . 'css/admin.css',
@@ -89,17 +92,17 @@ class Cursorial {
 			'Cursorial',
 			'manage_options',
 			'cursorial',
-			array( $this->pages, 'admin' )
+			array( $this, 'admin_page' )
 		);
 
-		foreach ( $this->areas as $area ) {
+		foreach ( $this->admin as $admin ) {
 			add_submenu_page(
 				'cursorial',
-				sprintf( __( 'Edit cursorial area %s', 'cursorial' ), $area->label ),
-				$area->label,
+				sprintf( __( 'Edit cursorial area %s', 'cursorial' ), $admin->label ),
+				$admin->label,
 				'manage_options',
-				$area->name,
-				array( $area, 'admin' )
+				sanitize_title( $admin->label ),
+				array( $admin, 'admin_page' )
 			);
 		}
 	}
@@ -119,17 +122,176 @@ class Cursorial {
 
 	/**
 	 * Registers an area for placing content.
-	 * @param string $name An unique name used to identify your area.
-	 * @param string $label A readable label used in the administrative
-	 * interface
-	 * @param array $args Arguments
+	 * @param array $block_args Arguments
+	 * 'main-feed' => array(
+	 *	'label' => __( 'Stuff you must read' ),
+	 *	'max' => 4, // Maximum amount of posts
+	 *	'related' => array( // Related content, child-post support
+	 *		'post_types' => array( 'post' ), // Version 2
+	 *		'max' => 2,
+	 *		'show' => array( // What to show
+	 *			'title' => array( // Post field
+	 *				'optional' => false, // If field is optional or required
+	 *				'overridable' => true // If field can be overrided with custom content
+	 *			)
+	 *		)
+	 *	),
+	 *	'show' => array(
+	 *		'title' => array(
+	 *			'optional' => false,
+	 *			'overridable' => true
+	 *		),
+	 *		'image' => array(
+	 *			'optional' => true,
+	 *			'overridable' => true
+	 *		)
+	 *	)
+	 * ),
+	 * 'second-feed' => array(
+	 *	'max' => 4,
+	 *	'show' => array(
+	 *		'title' => array(
+	 *			'optional' => false,
+	 *			'overridable' => true
+	 *		)
+	 *	)
+	 * )
+	 * @param array $admin_args Administration arguments
+	 * __( 'Home feeds' ) => array(
+	 *	'main-feed' => array(
+	 *		'x' => 0, // Column position
+	 *		'y' => 0, // Row position
+	 *		'width' => 2, // Width in columns
+	 *		'height' => 7 // Height in rows
+	 *	),
+	 *	'second-feed' => array(
+	 *		'x' => 2,
+	 *		'y' => 0,
+	 *		'width' => 1,
+	 *		'height' => 7
+	 *	)
+	 * ),
+	 * __( 'Sub page feeds' ) => array(
+	 *	'_dummy' => array( // Dummy to occupy space
+	 *		'x' => 0,
+	 *		'y' => 0,
+	 *		'width' => 2,
+	 *		'height' => 7,
+	 *		'dummy-block' => true, // Determines dummy status
+	 *		'dummy-description' => __( 'Some banners' )
+	 * 	),
+	 *	'second-feed' => array(
+	 *		'x' => 2,
+	 *		'y' => 0,
+	 *		'width' => 1,
+	 *		'height' => 7
+	 *	)
+	 * )
 	 * @return void
 	 */
-	public function register_area( $name, $label, $args ) {
-		$this->areas[ $name ] = new Cursorial_Area( $this, $name, $label, $args );
+	public function register( $block_args, $admin_args ) {
+		foreach( $block_args as $name => $settings ) {
+			if ( ! isset( $this->blocks[ name ] ) ) {
+				$this->blocks[ $name ] = new Cursorial_Block( $this, $name );
+			}
+
+			$this->blocks[ $name ]->add_settings( $settings );
+		}
+
+		foreach( $admin_args as $label => $blocks ) {
+			if ( ! isset( $this->admin[ $label ] ) ) {
+				$this->admin[ $label ] = new Cursorial_Admin( $this, $label );
+			}
+
+			$this->admin[ $label ]->add_blocks( $blocks );
+		}
+	}
+
+	/**
+	 * Renders a administration page
+	 * @return void
+	 */
+	public function admin_page() {
+		$this->get_template( 'cursorial-admin-index' );
+	}
+
+	/**
+	 * Locates and loads a template by using Wordpress locate_template.
+	 * If no template is found, it loads a template from this plugins template
+	 * directory.
+	 * @see locate_template
+	 * @param string $slug
+	 * @param string $name
+	 * @return void
+	 */
+	public function get_template( $slug, $name = '' ) {
+		$template_names = array(
+			$slug . '-' . $name . '.php',
+			$slug . '.php'
+		);
+
+		$located = locate_template( $template_names );
+
+		if ( empty( $located ) ) {
+			foreach( $template_names as $name ) {
+				if ( file_exists( CURSORIAL_TEMPLATE_DIR . '/' . $name ) ) {
+					load_template( CURSORIAL_TEMPLATE_DIR . '/' . $name, true );
+					return;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Content filter
+	 * Replaces the title with the original title unless there's an override
+	 * @see add_filter
+	 * @param string $title Post title
+	 * @return string
+	 */
+	public function the_title( $title ) {
+		return $this->replace_content( $title, 'title' );
 	}
 
 	// PRIVATE METHODS
+
+	/**
+	 * Content filter
+	 * A general content filter. Takes content and replaces
+	 */
+	private function replace_content( $content, $property ) {
+		global $id;
+		$post = $_GLOBALS[ 'post' ];
+
+		if ( empty( $content ) && ( is_object( $post ) || ! empty( $id ) ) ) {
+			$property = 'post_' . $property;
+
+			if ( ! is_object( $post ) ) {
+				$post = get_post( $id );
+			}
+
+			if ( $post->post_type == self::POST_TYPE && property_exists( $post, $property ) ) {
+				$original_id = get_post_meta( $post->ID, 'cursorial-post-id', true );
+				$original = null;
+
+				if ( is_object( $this->current_original ) ) {
+					if ( $this->current_original->ID == $original_id ) {
+						$original = $this->current_original;
+					}
+				}
+
+				if ( ! $original ) {
+					$original = get_post( $original_id );
+					$this->current_original = $original;
+				}
+
+				$content = $original->$property;
+			}
+		}
+
+		return $content;
+	}
+
 
 	/**
 	 * Registers the post-type we use to store all content and a taxonomy
