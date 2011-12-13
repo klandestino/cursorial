@@ -169,6 +169,7 @@
 			// Set default properties in options object
 			options = $.extend( {
 				name: extractedName,
+				target: '',
 				templates: {
 					post: ''
 				},
@@ -182,15 +183,15 @@
 
 			// Populate the area with posts from Wordpress and make it avaliable for new posts
 			// with jQuery-ui and sortable.
-			getAreaPosts.apply( this, [ function() {
+			getAreaPosts.apply( $( this ).find( options.target ), [ function() {
 				$( this ).sortable( {
 					revert: true
 				} );
 			}	] );
 
 			// Save area by click with the right scope
-			$( options.buttons.save ).unbind( 'click', $.proxy( saveArea, this ) );
-			$( options.buttons.save ).bind( 'click', $.proxy( saveArea, this ) );
+			$( this ).find( options.buttons.save ).unbind( 'click', $.proxy( saveArea, this ) );
+			$( this ).find( options.buttons.save ).bind( 'click', $.proxy( saveArea, this ) );
 		} );
 	};
 

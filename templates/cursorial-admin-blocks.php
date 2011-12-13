@@ -8,11 +8,12 @@
 			},
 			timeout: 1000,
 			target: '#cursorial-search-result',
-			area: '.cursorial-area'
+			area: '.cursorial-area .cursorial-posts'
 		} );
 
 		// Setup cursorial areas
 		$( '.cursorial-area' ).cursorialArea( {
+			target: '.cursorial-posts',
 			templates: {
 				post: '#cursorial-search-result .template'
 			},
@@ -45,22 +46,33 @@
 									) : ?>
 										<td colspan="<?php echo $block->settings[ 'width' ]; ?>" rowspan="<?php echo $block->settings[ 'height' ]; ?>">
 
-											<div class="sidebar-name">
-												<div class="publishing-actions">
-													<input type="submit" value="<?php _e( 'Save block', 'cursorial' ); ?>" class="button-primary cursorial-area-save" id="" name="save_area" />
+											<?php if ( $block->block ) : ?>
+												<div class="cursorial-area cursorial-area-<?php echo $block->block->name; ?>">
+													<div class="sidebar-name">
+														<div class="publishing-actions">
+															<input type="submit" value="<?php _e( 'Save block', 'cursorial' ); ?>" class="button-primary cursorial-area-save" id="" name="save_area" />
+														</div>
+														<h3><?php echo $block->block->label; ?></h3>
+														<div class="clear"></div>
+													</div>
+													<div class="widget-holder">
+														<p class="description"><?php _e( "Here's a list of content. To add content into this list, search content in the box to the right.", 'cursorial' ); ?></p>
+														<div class="cursorial-posts"></div>
+														<div class="clear"></div>
+														<div class="publishing-actions">
+															<input type="submit" value="<?php _e( 'Save block', 'cursorial' ); ?>" class="button-primary cursorial-area-save" id="" name="save_area" />
+														</div>
+														<div class="clear"></div>
+													</div>
 												</div>
-												<h3><?php echo $block->block->label; ?></h3>
-												<div class="clear"></div>
-											</div>
-											<div class="widget-holder">
-												<p class="description"><?php _e( "Here's a list of content. To add content into this list, search content in the box to the right.", 'cursorial' ); ?></p>
-												<div id="widget-list" class="cursorial-area cursorial-area-<?php echo $block->block->name; ?>"></div>
-												<div class="clear"></div>
-												<div class="publishing-actions">
-													<input type="submit" value="<?php _e( 'Save block', 'cursorial' ); ?>" class="button-primary cursorial-area-save" id="" name="save_area" />
+											<?php else : ?>
+												<div class="sidebar-name">
+													<h3><?php echo isset( $block->settings[ 'dummy-title' ] ) ? $block->settings[ 'dummy-title' ] : __( 'Dummy', 'cursorial' ); ?></h3>
 												</div>
-												<div class="clear"></div>
-											</div>
+												<div class="widget-holder">
+													<p class="description"><?php echo isset( $block->settings[ 'dummy-description' ] ) ? $block->settings[ 'dummy-description' ] : __( 'dummy', 'cursorial' ); ?></p>
+												</div>
+											<?php endif; ?>
 
 										</td>
 									<?php endif; ?>
