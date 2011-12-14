@@ -83,6 +83,9 @@ class Cursorial_Block {
 		global $user_ID;
 		get_currentuserinfo();
 
+		// Delete all current posts
+		$this->remove_posts();
+
 		// Order is defined by date/time. We begin with now and subtract a second for each
 		// new post below.
 		$time = current_time( 'timestamp' );
@@ -91,15 +94,6 @@ class Cursorial_Block {
 
 		foreach( $posts as $ref_id ) {
 			$post = get_post( $ref_id );
-
-			if ( ! empty( $post ) ) {
-				// Check if post is already a cursorial post.
-				// If so, replace $post and $ref_id with the original post.
-				if ( $post->post_type === Cursorial::POST_TYPE ) {
-					$ref_id = get_post_meta( $post->ID, 'cursorial-post-id', true );
-					$post = get_post( $ref_id );
-				}
-			}
 
 			if ( ! empty( $post ) ) {
 				$new_id = wp_insert_post( array(
@@ -120,13 +114,6 @@ class Cursorial_Block {
 				$keep[] = $new_id;
 			}
 		}
-
-		// Delete unused posts
-		foreach( $this->get_posts() as $post ) {
-			if ( ! in_array( $post->ID, $keep ) ) {
-				wp_delete_post( $post->ID );
-			}
-		}
 	}
 
 	/**
@@ -135,7 +122,7 @@ class Cursorial_Block {
 	 */
 	public function remove_posts() {
 		foreach ( $this->get_posts() as $post ) {
-			wp_delete_post( $post->ID, true );
+			wp_delete_post( $post->cursorial_ID, true );
 		}
 	}
 

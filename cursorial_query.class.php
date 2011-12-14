@@ -24,6 +24,15 @@ class Cursorial_Query {
 	private function populate_results( $post ) {
 		if ( ! array_key_exists( $post->ID, $this->results ) ) {
 			setup_postdata( $post );
+
+			// If this post has a cursorial-post-id stored as meta-data and is a cursorial post
+			// type, then replace post-id with the real post id.
+			$ref_id = get_post_meta( $post->ID, 'cursorial-post-id', true );
+			if ( $ref_id && $post->post_type == Cursorial::POST_TYPE ) {
+				$post->cursorial_ID = $post->ID;
+				$post->ID = $ref_id;
+			}
+
 			$post->post_title = get_the_title();
 			$post->post_author = get_the_author();
 			$post->post_date = get_the_date();

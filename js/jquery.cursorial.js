@@ -4,27 +4,24 @@
 ( function( $ ) {
 	/**
 	 * Defines a node-element as a cursorial post and adds content to it.
-	 * @param object options Options containing data and where to connect posts to
+	 * @param object data The data to render
+	 * @param string blocks Where to connect this post to
+	 * @param function callback If this post can exist, then this callback is called
 	 */
-	$.fn.cursorialPost = function( options ) {
-		options = $.extend( {
-			data: {},
-			blocks: ''
-		}, options );
-
+	$.fn.cursorialPost = function( data, blocks, callback ) {
 		/**
 		 * Adds content to node element. If a child has a defined class with pattern "template-data-DATA_NAME",
 		 * child element's text will be filled with matched data property.
 		 * @return void
 		 */
 		function render() {
-			$( this ).attr( 'id', 'cursorial-post-' + options.data.ID );
-			$( this ).addClass( 'cursorial-post cursorial-post-' + options.data.ID );
+			$( this ).attr( 'id', 'cursorial-post-' + data.ID );
+			$( this ).addClass( 'cursorial-post cursorial-post-' + data.ID );
 
-			for ( var i in options.data ) {
+			for ( var i in data ) {
 				var element = $( this ).find( '.template-data-' + i );
 				if ( element.length > 0 ) {
-					element.text( options.data[ i ] );
+					element.text( data[ i ] );
 				}
 			}
 		}
@@ -35,7 +32,7 @@
 		 */
 		function draggable() {
 			$( this ).draggable( {
-				connectToSortable: options.blocks,
+				connectToSortable: blocks,
 				revert: 'invalid',
 				helper: 'clone',
 				opacity: 0.75,
@@ -62,8 +59,8 @@
 			setTimeout( function() {
 				$( orig ).fadeOut( 'fast', function() {
 					$( this ).remove();
-					$( '.cursorial-post-' + options.data.ID ).fadeTo( 'fast', 1, function() {
-						$( this ).cursorialPost( { data: options.data, blocks: options.blocks } );
+					$( '.cursorial-post-' + data.ID ).fadeTo( 'fast', 1, function() {
+						$( this ).cursorialPost( data, blocks );
 					} );
 				} );
 			}, 500 );
@@ -73,8 +70,16 @@
 		 * Loops through each matched elements
 		 */
 		return this.each( function() {
-			render.apply( this );
-			draggable.apply( this );
+			// If this post doesn't already exists
+			if ( $( '#cursorial-post-' + data.ID ).length == 0 || $( '#cursorial-post-' + data.ID ).get( 0 ) === $( this ).get( 0 ) ) {
+				render.apply( this );
+				draggable.apply( this );
+				if ( callback ) {
+					callback.apply( this );
+				}
+			} else {
+				$( this ).remove();
+			}
 		} );
 	};
 
@@ -119,13 +124,14 @@
 		 * @return void
 		 */
 		function renderBlockPosts( posts ) {
+			var block = this;
 			var template = $( options.templates.post );
 			$( this ).find( '.cursorial-post' ).remove();
 
 			for ( var i in posts ) {
-				var post = template.first().clone();
-				post.cursorialPost( { data: posts[ i ], blocks: options.blocks } );
-				$( this ).find( options.target ).append( post );
+				template.first().clone().cursorialPost( posts[ i ], options.blocks, function() {
+					$( block ).find( options.target ).append( $( this ) );
+				}	);
 			}
 		}
 
@@ -281,10 +287,10 @@
 				target.find( '.cursorial-post' ).remove();
 
 				for ( var i in data ) {
-					var post = template.first().clone();
-					post.cursorialPost( { data: data[ i ], blocks: options.blocks } );
-					target.append( post );
-					post.show();
+					template.first().clone().cursorialPost( data[ i ], options.blocks, function() {
+						target.append( $( this ) );
+						$( this ).show();
+					}	);
 				}
 			}
 		}
