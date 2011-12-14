@@ -82,7 +82,10 @@
 		 */
 		return this.each( function() {
 			// If this post doesn't already exists
-			if ( $( '#cursorial-post-' + data.ID ).length == 0 || $( '#cursorial-post-' + data.ID ).get( 0 ) === $( this ).get( 0 ) ) {
+			if (
+				$( '#cursorial-post-' + data.ID ).length == 0
+				|| $( '#cursorial-post-' + data.ID ).get( 0 ) === $( this ).get( 0 )
+			) {
 				render.apply( this );
 				draggable.apply( this );
 				if ( callback ) {
@@ -99,6 +102,18 @@
 	 * @param object options Plugin options
 	 */
 	$.fn.cursorialBlock = function( options ) {
+		// Set default properties in options object
+		options = $.extend( {
+			target: '',
+			templates: {
+				post: ''
+			},
+			buttons: {
+				save: ''
+			},
+			show: {}
+		}, options );
+
 		/**
 		 * Fetches all posts connected to this block with a json-request
 		 * and then stores then in the data-property.
@@ -123,7 +138,8 @@
 				},
 				success: function( data ) {
 					$( block ).cursorialLoader( 'stop' );
-					renderBlockPosts.apply( block, [ data ] );
+					setBlockSettings.apply( block, [ data.blocks ] );
+					renderBlockPosts.apply( block, [ data.results ] );
 					callback.apply( block );
 				}
 			} );
@@ -142,6 +158,7 @@
 			for ( var i in posts ) {
 				template.first().clone().cursorialPost( posts[ i ], options.blocks, function() {
 					$( block ).find( options.target ).append( $( this ) );
+					receivePost.apply( block, [ this ] );
 				}	);
 			}
 		}
@@ -183,56 +200,100 @@
 				},
 				success: function( data ) {
 					$( block ).cursorialLoader( 'stop' );
-					renderBlockPosts.apply( block, [ data ] );
+					setBlockSettings.apply( block, [ data.blocks ] );
+					renderBlockPosts.apply( block, [ data.results ] );
 				}
 			} );
 		}
 
+		/**
+		 * Setting this blocks settings from a settings-array fetched from server
+		 * @param object settings Settings from server
+		 * @return void
+		 */
+		function setBlockSettings( settings ) {
+			if ( settings[ $( this ).data( 'cursorial-name' ) ] ) {
+				settings = settings[ $( this ).data( 'cursorial-name' ) ];
+			}
+
+			if ( settings ) {
+				$( this ).data( 'cursorial-settings', settings );
+			}
+		}
+
+		/**
+		 * Getting a setting
+		 * @param string setting The setting to get
+		 * @return mixed
+		 */
+		function getBlockSettings( setting ) {
+			var settings = $( this ).data( 'cursorial-settings' );
+			if ( settings ) {
+				if ( settings[ setting ] ) {
+					return settings[ setting ];
+				}
+				return null;
+			}
+		}
+
+		/**
+		 * Sets the block to active by giving it a css-class
+		 * @return void
+		 */
 		function setActive() {
 			$( this ).addClass( 'cursorial-block-active' );
 		}
 
+		/**
+		 * Sets the block to inactive by removing a css-class
+		 * @return void
+		 */
 		function setInActive() {
 			$( this ).removeClass( 'cursorial-block-active' );
+		}
+
+		function receivePost( post ) {
+			//
 		}
 
 		/**
 		 * Loops through each matched element
 		 */
 		return this.each( function() {
-			// Try to extract the block name from class attribute with pattern "cursorial-block-NAME"
-			var extractedName = $( this ).attr( 'id' ).match( /cursorial-block-([^$]+)/ );
-			if ( extractedName ) {
-				extractedName = extractedName[ 1 ];
-			}
-
-			// Set default properties in options object
-			options = $.extend( {
-				target: '',
-				templates: {
-					post: ''
-				},
-				buttons: {
-					save: ''
+			// If cursorial block aldready been initiated.
+			// It can be repoulated with options
+			if ( $( this ).data( 'cursorial-name' ) && $( this ).data( 'cursorial-options' ) ) {
+				$( this ).data( 'cursorial-options', $.extend( $( this ).data( 'cursorial-options' ), options ) );
+			} else {
+				// Try to extract the block name from class attribute with pattern "cursorial-block-NAME"
+				var extractedName = $( this ).attr( 'id' ).match( /cursorial-block-([^$]+)/ );
+				if ( extractedName ) {
+					extractedName = extractedName[ 1 ];
 				}
-			}, options );
 
-			// Save block name
-			$( this ).data( 'cursorial-name', extractedName );
+				// Save block name
+				$( this ).data( 'cursorial-name', extractedName );
 
-			// Populate the block with posts from Wordpress and make it avaliable for new posts
-			// with jQuery-ui and sortable.
-			getBlockPosts.apply( $( this ), [ function() {
-				$( this ).find( options.target ).sortable( {
-					over: $.proxy( setActive, this ),
-					out: $.proxy( setInActive, this ),
-					revert: true
-				} );
-			}	] );
+				// Save cursorial options
+				$( this ).data( 'cursorial-options', options );
 
-			// Save block by click with the right scope
-			$( this ).find( options.buttons.save ).unbind( 'click', $.proxy( saveBlock, this ) );
-			$( this ).find( options.buttons.save ).bind( 'click', $.proxy( saveBlock, this ) );
+				// Populate the block with posts from Wordpress and make it avaliable for new posts
+				// with jQuery-ui and sortable.
+				getBlockPosts.apply( $( this ), [ function() {
+					$( this ).find( options.target ).sortable( {
+						over: $.proxy( setActive, this ),
+						out: $.proxy( setInActive, this ),
+						receive: $.proxy( function( event, ui ) {
+							receivePost.apply( this, [ ui.item ] );
+						}, this ),
+						revert: true
+					} );
+				}	] );
+
+				// Save block by click with the right scope
+				$( this ).find( options.buttons.save ).unbind( 'click', $.proxy( saveBlock, this ) );
+				$( this ).find( options.buttons.save ).bind( 'click', $.proxy( saveBlock, this ) );
+			}
 		} );
 	};
 
@@ -297,7 +358,7 @@
 				var template = $( options.templates.post );
 				target.find( '.cursorial-post' ).remove();
 
-				for ( var i in data ) {
+				for ( var i in data.results ) {
 					template.first().clone().cursorialPost( data[ i ], options.blocks, function() {
 						target.append( $( this ) );
 						$( this ).show();

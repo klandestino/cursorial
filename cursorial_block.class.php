@@ -65,6 +65,14 @@ class Cursorial_Block {
 	}
 
 	/**
+	 * Get all settings in an array
+	 * @return array
+	 */
+	public function get_settings() {
+		return $this->settings;
+	}
+
+	/**
 	 * Get posts from block
 	 * @return array
 	 */

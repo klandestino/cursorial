@@ -48,6 +48,8 @@ define( 'CURSORIAL_TEMPLATE_DIR', dirname( __FILE__ ) . '/templates' );
 require_once( dirname( __FILE__ ) . '/cursorial.class.php' );
 require_once( dirname( __FILE__ ) . '/cursorial_block.class.php' );
 require_once( dirname( __FILE__ ) . '/cursorial_admin.class.php' );
+require_once( dirname( __FILE__ ) . '/cursorial_query.class.php' );
+
 $cursorial = new Cursorial();
 
 /**
