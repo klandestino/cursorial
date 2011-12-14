@@ -36,15 +36,17 @@
 				revert: 'invalid',
 				helper: 'clone',
 				opacity: 0.75,
-				start: $.proxy( startDragging, this ),
 				drag: $.proxy( whileDragging, this ),
 				stop: $.proxy( stopDragging, this )
 			} );
 		}
 
-		function startDragging( event, ui ) {
-		}
-
+		/**
+		 * Called when dragging is going on
+		 * @param object event The event
+		 * @param object ui Some ui data from jquery-ui
+		 * @return void
+		 */
 		function whileDragging( event, ui ) {
 			if ( $( this ).parents( '.cursorial-block-active' ).length > 0 ) {
 				$( this ).hide();
@@ -53,10 +55,19 @@
 			}
 		}
 
+		/**
+		 * Called when dragging stopped
+		 * @param object event The event
+		 * @param object ui Some ui data from jquery-ui
+		 * @return void
+		 */
 		function stopDragging( event, ui ) {
 			var orig = this;
 
+			// This timeout is not necessary, it just makes it a bit nicer
 			setTimeout( function() {
+				// Fade out the original, delete it and replace with the one left
+				// over.
 				$( orig ).fadeOut( 'fast', function() {
 					$( this ).remove();
 					$( '.cursorial-post-' + data.ID ).fadeTo( 'fast', 1, function() {
@@ -335,6 +346,9 @@
 			} );
 		}
 
+		/**
+		 * Loop and execute
+		 */
 		return this.each( function() {
 			switch( action ) {
 				case 'start' :
