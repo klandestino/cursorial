@@ -99,12 +99,12 @@ class Cursorial_Query {
 	}
 
 	/**
-	 * Makes a query for all posts in specified area and populates the results-array.
+	 * Makes a query for all posts in specified block and populates the results-array.
 	 *
-	 * @param string $area Area name
+	 * @param string $block Block name
 	 * @return void
 	 */
-	public function area( $name ) {
+	public function block( $name ) {
 		$query = new WP_Query( array(
 			'post_type' => Cursorial::POST_TYPE,
 			'tax_query' => array(

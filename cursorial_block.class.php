@@ -20,9 +20,9 @@ class Cursorial_Block {
 	// CONSTRUCTOR
 
 	/**
-	 * Constructs the Area
+	 * Constructs the Block
 	 * @param object $cursorial
-	 * @param string $name An unique name used to identify your area.
+	 * @param string $name An unique name used to identify your block.
 	 */
 	function __construct( $cursorial, $name ) {
 		$this->cursorial = $cursorial;
@@ -70,7 +70,7 @@ class Cursorial_Block {
 	 */
 	public function get_posts() {
 		$query = new Cursorial_Query();
-		$query->area( $this->name );
+		$query->block( $this->name );
 		return $query->results;
 	}
 
@@ -130,7 +130,7 @@ class Cursorial_Block {
 	 */
 	public function remove_posts() {
 		$query = new Cursorial_Query();
-		$query->area( $this->name );
+		$query->block( $this->name );
 		foreach ( $query->results as $post ) {
 			wp_delete_post( $post->ID, true );
 		}

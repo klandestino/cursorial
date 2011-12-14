@@ -35,7 +35,7 @@
 	padding: 8px 10px;
 }
 
-.cursorial-area-loader {
+.cursorial-block-loader {
 	position: absolute;
 	background: url('../../../../wp-includes/js/thickbox/loadingAnimation.gif') white center center no-repeat;
 }

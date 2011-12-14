@@ -4,22 +4,23 @@
 		// Setup cursorial search field
 		$( 'input#cursorial-search-field' ).cursorialSearch( {
 			templates: {
-				post: '#cursorial-search-result .template'
+				post: '#cursorial-search-result .template' // Where to find a template to use when render posts
 			},
-			timeout: 1000,
-			target: '#cursorial-search-result',
-			area: '.cursorial-area .cursorial-posts'
+			timeout: 1000, // For how long wait until search-query is posted to server
+			target: '#cursorial-search-result', // Where to place rendered posts
+			blocks: '.cursorial-block .cursorial-posts' // Where to find blocks to connect posts to
 		} );
 
-		// Setup cursorial areas
-		$( '.cursorial-area' ).cursorialArea( {
-			target: '.cursorial-posts',
+		// Setup cursorial blocks
+		$( '.cursorial-block' ).cursorialBlock( {
 			templates: {
-				post: '#cursorial-search-result .template'
+				post: '#cursorial-search-result .template' // Where to find a template to use when render posts
 			},
 			buttons: {
-				save: 'input.cursorial-area-save'
-			}
+				save: 'input.cursorial-block-save' // The save button
+			},
+			target: '.cursorial-posts', // Where to place posts
+			blocks: '.cursorial-block .cursorial-posts' // Where to find other blocks to connect posts to
 		} );
 	} );
 </script>
@@ -47,10 +48,10 @@
 										<td colspan="<?php echo $block->settings[ 'width' ]; ?>" rowspan="<?php echo $block->settings[ 'height' ]; ?>">
 
 											<?php if ( $block->block ) : ?>
-												<div class="cursorial-area cursorial-area-<?php echo $block->block->name; ?>">
+												<div id="cursorial-block-<?php echo $block->block->name; ?>" class="cursorial-block cursorial-block-<?php echo $block->block->name; ?>">
 													<div class="sidebar-name">
 														<div class="publishing-actions">
-															<input type="submit" value="<?php _e( 'Save block', 'cursorial' ); ?>" class="button-primary cursorial-area-save" id="" name="save_area" />
+															<input type="submit" value="<?php _e( 'Save block', 'cursorial' ); ?>" class="button-primary cursorial-block-save" name="save_block" />
 														</div>
 														<h3><?php echo $block->block->label; ?></h3>
 														<div class="clear"></div>
@@ -60,7 +61,7 @@
 														<div class="cursorial-posts"></div>
 														<div class="clear"></div>
 														<div class="publishing-actions">
-															<input type="submit" value="<?php _e( 'Save block', 'cursorial' ); ?>" class="button-primary cursorial-area-save" id="" name="save_area" />
+															<input type="submit" value="<?php _e( 'Save block', 'cursorial' ); ?>" class="button-primary cursorial-block-save" name="save_block" />
 														</div>
 														<div class="clear"></div>
 													</div>
@@ -100,7 +101,7 @@
 				<div class="widgets-sortables">
 					<div id="cursorial-search-form" class="widget">
 						<div class="widget-inside">
-							<p class="description"><?php _e( 'Enter keywords below to find content to add into the cursorial area.', 'cursorial' ); ?></p>
+							<p class="description"><?php _e( 'Enter keywords below to find content to add into a cursorial block.', 'cursorial' ); ?></p>
 							<label for="cursorial-search-field"><?php _e( 'Search keywords:', 'cursorial' ); ?></label>
 							<input id="cursorial-search-field" class="widefat" type="text" value="" name="query" />
 						</div>

@@ -15,13 +15,13 @@ switch ( strtolower( $_POST[ 'action' ] ) ) {
 	case 'search':
 		$query->search( $_POST[ 'query' ] );
 		break;
-	case 'area':
-		$query->area( $_POST[ 'area' ] );
+	case 'block':
+		$query->block( $_POST[ 'block' ] );
 		break;
-	case 'save-area':
-		$area = new Cursorial_Block( $cursorial, $_POST[ 'area' ] );
-		$area->set_posts( $_POST[ 'posts' ] );
-		$query->area( $_POST[ 'area' ] );
+	case 'save-block':
+		$block = new Cursorial_Block( $cursorial, $_POST[ 'block' ] );
+		$block->set_posts( $_POST[ 'posts' ] );
+		$query->block( $_POST[ 'block' ] );
 		break;
 }
 
