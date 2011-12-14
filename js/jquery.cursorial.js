@@ -37,8 +37,36 @@
 			$( this ).draggable( {
 				connectToSortable: options.blocks,
 				revert: 'invalid',
-				helper: 'clone'
+				helper: 'clone',
+				opacity: 0.75,
+				start: $.proxy( startDragging, this ),
+				drag: $.proxy( whileDragging, this ),
+				stop: $.proxy( stopDragging, this )
 			} );
+		}
+
+		function startDragging( event, ui ) {
+		}
+
+		function whileDragging( event, ui ) {
+			if ( $( this ).parents( '.cursorial-block-active' ).length > 0 ) {
+				$( this ).hide();
+			} else {
+				$( this ).fadeTo( 0, 0.5 );
+			}
+		}
+
+		function stopDragging( event, ui ) {
+			var orig = this;
+
+			setTimeout( function() {
+				$( orig ).fadeOut( 'fast', function() {
+					$( this ).remove();
+					$( '.cursorial-post-' + options.data.ID ).fadeTo( 'fast', 1, function() {
+						$( this ).cursorialPost( { data: options.data, blocks: options.blocks } );
+					} );
+				} );
+			}, 500 );
 		}
 
 		/**
@@ -143,6 +171,14 @@
 			} );
 		}
 
+		function setActive() {
+			$( this ).addClass( 'cursorial-block-active' );
+		}
+
+		function setInActive() {
+			$( this ).removeClass( 'cursorial-block-active' );
+		}
+
 		/**
 		 * Loops through each matched element
 		 */
@@ -171,6 +207,8 @@
 			// with jQuery-ui and sortable.
 			getBlockPosts.apply( $( this ), [ function() {
 				$( this ).find( options.target ).sortable( {
+					over: $.proxy( setActive, this ),
+					out: $.proxy( setInActive, this ),
 					revert: true
 				} );
 			}	] );

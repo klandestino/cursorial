@@ -83,28 +83,25 @@ class Cursorial_Block {
 		global $user_ID;
 		get_currentuserinfo();
 
-		// Remove all previous posts
-		$this->remove_posts();
-
 		// Order is defined by date/time. We begin with now and subtract a second for each
 		// new post below.
 		$time = current_time( 'timestamp' );
 		$count = 0;
+		$keep = array();
 
 		foreach( $posts as $ref_id ) {
 			$post = get_post( $ref_id );
 
 			if ( ! empty( $post ) ) {
 				// Check if post is already a cursorial post.
-				// If so, replace ref_id with the original reference id.
-				if ( $post->post_type == Cursorial::POST_TYPE ) {
-					$ref_id = get_post_meta( $ref_id, 'cursorial-post-id', true );
-					// Fix fucked savings
-					if ( $ref_id == $post->ID || empty( $ref_id ) ) {
-						continue;
-					}
+				// If so, replace $post and $ref_id with the original post.
+				if ( $post->post_type === Cursorial::POST_TYPE ) {
+					$ref_id = get_post_meta( $post->ID, 'cursorial-post-id', true );
+					$post = get_post( $ref_id );
 				}
+			}
 
+			if ( ! empty( $post ) ) {
 				$new_id = wp_insert_post( array(
 					'post_type' => Cursorial::POST_TYPE,
 					'post_title' => '-',
@@ -118,8 +115,16 @@ class Cursorial_Block {
 				add_post_meta( $new_id, 'cursorial-post-id', $ref_id, true );
 				wp_set_post_terms( $new_id, $this->name, Cursorial::TAXONOMY, false );
 
-				$time++;
+				$time--;
 				$count++;
+				$keep[] = $new_id;
+			}
+		}
+
+		// Delete unused posts
+		foreach( $this->get_posts() as $post ) {
+			if ( ! in_array( $post->ID, $keep ) ) {
+				wp_delete_post( $post->ID );
 			}
 		}
 	}
@@ -129,9 +134,7 @@ class Cursorial_Block {
 	 * @return void
 	 */
 	public function remove_posts() {
-		$query = new Cursorial_Query();
-		$query->block( $this->name );
-		foreach ( $query->results as $post ) {
+		foreach ( $this->get_posts() as $post ) {
 			wp_delete_post( $post->ID, true );
 		}
 	}
