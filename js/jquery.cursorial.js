@@ -18,6 +18,7 @@
 		 * @return void
 		 */
 		function render() {
+			$( this ).attr( 'id', 'cursorial-post-' + options.data.ID );
 			$( this ).addClass( 'cursorial-post cursorial-post-' + options.data.ID );
 
 			for ( var i in options.data ) {
@@ -28,6 +29,10 @@
 			}
 		}
 
+		/**
+		 * Makes post draggable
+		 * @return void
+		 */
 		function draggable() {
 			$( this ).draggable( {
 				connectToSortable: options.blocks,
@@ -74,8 +79,7 @@
 				},
 				success: function( data ) {
 					$( block ).cursorialLoader( 'stop' );
-					$( block ).data( 'cursorial-posts', data );
-					renderBlockPosts.apply( block );
+					renderBlockPosts.apply( block, [ data ] );
 					callback.apply( block );
 				}
 			} );
@@ -83,15 +87,15 @@
 
 		/**
 		 * Renders post items from data-property with specified template in options
+		 * @param array posts The posts to render
 		 * @return void
 		 */
-		function renderBlockPosts() {
-			var posts = $( this ).data( 'cursorial-posts' );
+		function renderBlockPosts( posts ) {
 			var template = $( options.templates.post );
 			$( this ).find( '.cursorial-post' ).remove();
 
 			for ( var i in posts ) {
-				var post = template.clone();
+				var post = template.first().clone();
 				post.cursorialPost( { data: posts[ i ], blocks: options.blocks } );
 				$( this ).find( options.target ).append( post );
 			}
@@ -114,7 +118,7 @@
 			for ( var i = 0; i < posts.length; i++ ) {
 				// data-property does not follow draggable items,
 				// therefore we've stored the post id in a class name :(
-				var id = $( posts[ i ] ).attr( 'class' ).match( /(?:^|\s)cursorial-post-([0-9]+)/ );
+				var id = $( posts[ i ] ).attr( 'id' ).match( /cursorial-post-([0-9]+)/ );
 				if ( id ) {
 					data.posts.push( id[ 1 ] );
 				}
@@ -134,27 +138,23 @@
 				},
 				success: function( data ) {
 					$( block ).cursorialLoader( 'stop' );
-					$( block ).data( 'cursorial-posts', data );
-					renderBlockPosts.apply( block );
+					renderBlockPosts.apply( block, [ data ] );
 				}
 			} );
 		}
-
-		
 
 		/**
 		 * Loops through each matched element
 		 */
 		return this.each( function() {
 			// Try to extract the block name from class attribute with pattern "cursorial-block-NAME"
-			var extractedName = $( this ).attr( 'class' ).match( /["\s]cursorial-block-([^"\s]+)/ );
+			var extractedName = $( this ).attr( 'id' ).match( /cursorial-block-([^$]+)/ );
 			if ( extractedName ) {
 				extractedName = extractedName[ 1 ];
 			}
 
 			// Set default properties in options object
 			options = $.extend( {
-				name: extractedName,
 				target: '',
 				templates: {
 					post: ''
@@ -165,12 +165,12 @@
 			}, options );
 
 			// Save block name
-			$( this ).data( 'cursorial-name', options.name );
+			$( this ).data( 'cursorial-name', extractedName );
 
 			// Populate the block with posts from Wordpress and make it avaliable for new posts
 			// with jQuery-ui and sortable.
-			getBlockPosts.apply( $( this ).find( options.target ), [ function() {
-				$( this ).sortable( {
+			getBlockPosts.apply( $( this ), [ function() {
+				$( this ).find( options.target ).sortable( {
 					revert: true
 				} );
 			}	] );
@@ -243,7 +243,7 @@
 				target.find( '.cursorial-post' ).remove();
 
 				for ( var i in data ) {
-					var post = template.clone();
+					var post = template.first().clone();
 					post.cursorialPost( { data: data[ i ], blocks: options.blocks } );
 					target.append( post );
 					post.show();
@@ -291,7 +291,7 @@
 			} );
 		}
 
-		return $( this ).each( function() {
+		return this.each( function() {
 			switch( action ) {
 				case 'start' :
 					start.apply( this );
