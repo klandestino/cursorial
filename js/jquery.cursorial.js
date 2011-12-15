@@ -359,7 +359,7 @@
 				target.find( '.cursorial-post' ).remove();
 
 				for ( var i in data.results ) {
-					template.first().clone().cursorialPost( data[ i ], options.blocks, function() {
+					template.first().clone().cursorialPost( data.results[ i ], options.blocks, function() {
 						target.append( $( this ) );
 						$( this ).show();
 					}	);
