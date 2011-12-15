@@ -76,5 +76,4 @@ add_action( 'init', array( $cursorial, 'init' ) );
 // Add the plugin action for wp_head
 add_action( 'wp_head', array( $cursorial, 'head' ) );
 
-// Add content filters for cursorial content type
-add_filter( 'the_title', array( $cursorial, 'the_title' ) );
+$cursorial->set_content_filters();

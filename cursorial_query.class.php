@@ -33,11 +33,11 @@ class Cursorial_Query {
 				$post->ID = $ref_id;
 			}
 
-			$post->post_title = get_the_title();
+			$post->post_title = apply_filters( 'the_title', $post->post_title );
 			$post->post_author = get_the_author();
-			$post->post_date = get_the_date();
-			$post->post_excerpt = get_the_excerpt();
-			$post->post_content = get_the_content();
+			$post->post_date = apply_filters( 'the_date', $post->post_date );
+			$post->post_excerpt = apply_filters( 'the_excerpt', $post->post_excerpt );
+
 			$this->results[ $post->ID ] = $post;
 		}
 	}

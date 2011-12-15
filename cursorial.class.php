@@ -243,6 +243,22 @@ class Cursorial {
 	}
 
 	/**
+	 * Add content filters
+	 * @return void
+	 */
+	public function set_content_filters() {
+		foreach( array(
+			'the_title',
+			'the_date',
+			'the_author',
+			'the_excerpt',
+			'the_content'
+		) as $filter ) {
+			add_filter( $filter, array( $this, $filter ) );
+		}
+	}
+
+	/**
 	 * Content filter
 	 * Replaces the title with the original title unless there's an override
 	 * @see add_filter
@@ -250,7 +266,51 @@ class Cursorial {
 	 * @return string
 	 */
 	public function the_title( $title ) {
-		return $this->replace_content( $title, 'title' );
+		return $this->replace_content( $title, 'post_title' );
+	}
+
+	/**
+	 * Content filter
+	 * Replaces the date the original date unless there's an override
+	 * @see add_filter
+	 * @param string $date Post date
+	 * @return string
+	 */
+	public function the_date( $date ) {
+		return $this->replace_content( $date, 'post_date' );
+	}
+
+	/**
+	 * Content filter
+	 * Replaces the author the original author unless there's an override
+	 * @see add_filter
+	 * @param string $author Post author
+	 * @return string
+	 */
+	public function the_author( $author ) {
+		return $this->replace_content( $author, 'post_author' );
+	}
+
+	/**
+	 * Content filter
+	 * Replaces the excerpt the original excerpt unless there's an override
+	 * @see add_filter
+	 * @param string $excerpt Post excerpt
+	 * @return string
+	 */
+	public function the_excerpt( $excerpt ) {
+		return $this->replace_content( $excerpt, 'post_excerpt' );
+	}
+
+	/**
+	 * Content filter
+	 * Replaces the content the original content unless there's an override
+	 * @see add_filter
+	 * @param string $content Post content
+	 * @return string
+	 */
+	public function the_content( $content ) {
+		return $this->replace_content( $content, 'post_content' );
 	}
 
 	// PRIVATE METHODS
@@ -258,20 +318,27 @@ class Cursorial {
 	/**
 	 * Content filter
 	 * A general content filter. Takes content and replaces
+	 * @param string $content The post content
+	 * @param string $property The property in the post object to handle
+	 * @return string
 	 */
 	private function replace_content( $content, $property ) {
 		global $id;
-		$post = $_GLOBALS[ 'post' ];
 
-		if ( empty( $content ) && ( is_object( $post ) || ! empty( $id ) ) ) {
-			$property = 'post_' . $property;
+		$post = get_post( $id );
 
-			if ( ! is_object( $post ) ) {
-				$post = get_post( $id );
-			}
+		if ( is_object( $post ) ) {
+			if (
+				( empty( $content ) || $content === '-' )
+				&& $post->post_type == self::POST_TYPE
+				&& property_exists( $post, $property )
+			) {
+				if ( property_exists( $post, 'cursorial_ID' ) ) {
+					$original_id = $post->ID;
+				} else {
+					$original_id = get_post_meta( $post->ID, 'cursorial-post-id', true );
+				}
 
-			if ( $post->post_type == self::POST_TYPE && property_exists( $post, $property ) ) {
-				$original_id = get_post_meta( $post->ID, 'cursorial-post-id', true );
 				$original = null;
 
 				if ( is_object( $this->current_original ) ) {
