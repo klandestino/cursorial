@@ -109,10 +109,25 @@ class Cursorial_Block {
 					'post_content' => ''
 				);
 
+				/**
+				 * This is really not the best way to do this. But if the cursorial content will
+				 * override the reference post content. The overriding content is saved as content
+				 * to the cursorial post. But how this is controlled is not that good.
+				 * Saved content are matched with posted content. If mismatch, the content is saved,
+				 * otherwise fetched from the reference through filters. In this way it's very
+				 * difficult to control where the content comes from in this plugins many layers.
+				 * In admin it whould be nice to hace a revert-button. How is this possible with
+				 * this solution? I need to rewrite this later on... Now it has be get finished.
+				 */
+
+				if ( empty( $ref->post_excerpt ) ) {
+					$ref->post_excerpt = apply_filters( 'the_excerpt', $ref->post_content );
+				}
+
 				foreach( $post as $field_name => $field ) {
 					if ( $field_name != 'id' && property_exists( $ref, $field_name ) ) {
-						if ( $ref->$field_name != $fields[ $field_name ] ) {
-							$fields[ $field_name ] = $field;
+						if ( trim( $ref->$field_name ) != trim( $field ) ) {
+							$fields[ $field_name ] = trim( $field );
 						}
 					}
 				}
