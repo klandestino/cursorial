@@ -1,20 +1,48 @@
 /**
  * Wrapp all js-functionality in the jQuery-document-ready-event with $ as an alias for jQuery
+ * @name anonymous
+ * @function
+ * @param {object} $ jQuery alias
  */
 ( function( $ ) {
 	/**
-	 * Defines a node-element as a cursorial post and adds content to it.
-	 * @param object data The data to render
-	 * @param string blocks Where to connect this post to
-	 * @param function callback If this post can exist, then this callback is called
+	 * jQuery object's methods
+	 * @name fn
+	 * @memberOf $
+	 * @see anonymous
+	 * @namespace jQuery user methods container (plugins)
 	 */
-	$.fn.cursorialPost = function( data, blocks, callback ) {
+	/**
+	 * Defines a node-element as a cursorial post and adds content to it.
+	 * @function
+	 * @name cursorialPost
+	 * @memberOf $.fn
+	 * @param {object|string} options Obtions can be an object or a string-specified action:
+	 * options = {
+	 *	data: { an object with data to render },
+	 *	connectToBlocks: 'jQuery-selector to blocks',
+	 *	create: callbackWhenPostIsCreated(),
+	 *	applyBlockSettings: { an object with settings }
+	 * }
+	 * options = 'data', 'connectToBlocks', 'create', 'applyBlockSettings'
+	 * @param {object|string} [args] Arguments used when options is a string.
+	 */
+	$.fn.cursorialPost = function( options, args ) {
+		// Redefine options to a object if it's a string
+		if ( typeof( options ) == 'string' ) {
+			options = ( {} )[ options ] = args;
+		}
+
 		/**
 		 * Adds content to node element. If a child has a defined class with pattern "template-data-DATA_NAME",
 		 * child element's text will be filled with matched data property.
+		 * @function
+		 * @name render
+		 * @param {object} data Data to render
 		 * @return void
 		 */
-		function render() {
+		function render( data ) {
+			$( this ).data( 'cursorial-post-data', data );
 			$( this ).attr( 'id', 'cursorial-post-' + data.ID );
 			$( this ).addClass( 'cursorial-post cursorial-post-' + data.ID );
 
@@ -28,9 +56,13 @@
 
 		/**
 		 * Makes post draggable
+		 * @function
+		 * @name draggable
+		 * @param {string} blocks jQuery selector for blocks to connect to
 		 * @return void
 		 */
-		function draggable() {
+		function draggable( blocks ) {
+			$( this ).data( 'cursorial-post-blocks', blocks );
 			$( this ).draggable( {
 				connectToSortable: blocks,
 				revert: 'invalid',
@@ -43,8 +75,10 @@
 
 		/**
 		 * Called when dragging is going on
-		 * @param object event The event
-		 * @param object ui Some ui data from jquery-ui
+		 * @function
+		 * @name whileDragging
+		 * @param {object} event The event
+		 * @param {object} ui Some ui data from jquery-ui
 		 * @return void
 		 */
 		function whileDragging( event, ui ) {
@@ -57,8 +91,10 @@
 
 		/**
 		 * Called when dragging stopped
-		 * @param object event The event
-		 * @param object ui Some ui data from jquery-ui
+		 * @function
+		 * @name stopDragging
+		 * @param {object} event The event
+		 * @param {object} ui Some ui data from jquery-ui
 		 * @return void
 		 */
 		function stopDragging( event, ui ) {
@@ -66,15 +102,30 @@
 
 			// This timeout is not necessary, it just makes it a bit nicer
 			setTimeout( function() {
-				// Fade out the original, delete it and replace with the one left
-				// over.
+				// Fade out the original, delete it and replace with the one left over.
 				$( orig ).fadeOut( 'fast', function() {
+					var data = $( this ).data( 'cursorial-post-data' );
+					var blocks = $( this ).data( 'cursorial-post-blocks' );
 					$( this ).remove();
 					$( '.cursorial-post-' + data.ID ).fadeTo( 'fast', 1, function() {
-						$( this ).cursorialPost( data, blocks );
+						$( this ).cursorialPost( {
+							data: data,
+							connectToBlocks: blocks
+						} );
 					} );
 				} );
 			}, 500 );
+		}
+
+		/**
+		 * Apply swetttings
+		 * @function
+		 * @name applyBlockSettings
+		 * @param {object} settings
+		 * @return void
+		 */
+		function applyBlockSettings( settings ) {
+			//
 		}
 
 		/**
@@ -82,17 +133,40 @@
 		 */
 		return this.each( function() {
 			// If this post doesn't already exists
-			if (
-				$( '#cursorial-post-' + data.ID ).length == 0
-				|| $( '#cursorial-post-' + data.ID ).get( 0 ) === $( this ).get( 0 )
-			) {
-				render.apply( this );
-				draggable.apply( this );
-				if ( callback ) {
-					callback.apply( this );
+			// Remove it otherwise.
+			if ( typeof( options[ 'data' ] ) != 'undefined' ) {
+				if (
+					$( '#cursorial-post-' + options.data.ID ).length > 0
+					&& $( '#cursorial-post-' + options.data.ID ).get( 0 ) !== $( this ).get( 0 )
+				) {
+					return $( this ).remove();
 				}
-			} else {
-				$( this ).remove();
+			}
+
+			// These function needs to be run first
+			for( var i in options ) {
+				switch( i ) {
+					case 'data' :
+						render.apply( this, [ options[ i ] ] );
+						break;
+				}
+			}
+
+			// Then these functions
+			for( var i in options ) {
+				switch( i ) {
+					case 'connectToBlocks' :
+						draggable.apply( this, [ options[ i ] ] );
+						break;
+					case 'applyBlockSettings' :
+						applyBlockSettings.apply( this, [ options[ i ] ] );
+						break;
+				}
+			}
+
+			// And then call the create callback
+			if ( typeof( options[ 'data' ] ) != 'undefined' && typeof( options[ 'create' ] ) == 'function' ) {
+				options.create.apply( this );
 			}
 		} );
 	};
@@ -156,9 +230,14 @@
 			$( this ).find( '.cursorial-post' ).remove();
 
 			for ( var i in posts ) {
-				template.first().clone().cursorialPost( posts[ i ], options.blocks, function() {
-					$( block ).find( options.target ).append( $( this ) );
-					receivePost.apply( block, [ this ] );
+				template.first().clone().cursorialPost( {
+					data: posts[ i ],
+					connectToBlocks: options.blocks,
+					applyBlockSettings: getBlockSettings.apply( this, [ 'fields' ] ),
+					create: function() {
+						$( block ).find( options.target ).append( $( this ) );
+						receivePost.apply( block, [ this ] );
+					}
 				}	);
 			}
 		}
@@ -253,7 +332,7 @@
 		}
 
 		function receivePost( post ) {
-			//
+			$( post ).cursorialPost( 'applyBlockSettings', getBlockSettings.apply( this, [ 'fields' ] ) );
 		}
 
 		/**
@@ -359,9 +438,13 @@
 				target.find( '.cursorial-post' ).remove();
 
 				for ( var i in data.results ) {
-					template.first().clone().cursorialPost( data.results[ i ], options.blocks, function() {
-						target.append( $( this ) );
-						$( this ).show();
+					template.first().clone().cursorialPost( {
+						data: data.results[ i ],
+						connectToBlocks: options.blocks,
+						create: function() {
+							target.append( $( this ) );
+							$( this ).show();
+						}
 					}	);
 				}
 			}

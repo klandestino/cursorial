@@ -129,14 +129,15 @@ class Cursorial {
 	 *	'related' => array( // Related content, child-post support
 	 *		'post_types' => array( 'post' ), // Version 2
 	 *		'max' => 2,
-	 *		'show' => array( // What to show
-	 *			'title' => array( // Post field
+	 *		'fields' => array( // Fields added here is shown in admin and can set to be overridable
+	 *											 // and/or optional/required to be added into the block
+	 *			'post_title' => array( // Post field
 	 *				'optional' => false, // If field is optional or required
 	 *				'overridable' => true // If field can be overrided with custom content
 	 *			)
 	 *		)
 	 *	),
-	 *	'show' => array(
+	 *	'fields' => array(
 	 *		'title' => array(
 	 *			'optional' => false,
 	 *			'overridable' => true
@@ -149,7 +150,7 @@ class Cursorial {
 	 * ),
 	 * 'second-feed' => array(
 	 *	'max' => 4,
-	 *	'show' => array(
+	 *	'fields' => array(
 	 *		'title' => array(
 	 *			'optional' => false,
 	 *			'overridable' => true
@@ -172,12 +173,12 @@ class Cursorial {
 	 *	)
 	 * ),
 	 * __( 'Sub page feeds' ) => array(
-	 *	'_dummy' => array( // Dummy to occupy space
+	 *	'_dummy' => array( // Dummy used to show other non-cursorial content
 	 *		'x' => 0,
 	 *		'y' => 0,
 	 *		'width' => 2,
 	 *		'height' => 7,
-	 *		'dummy-block' => true, // Determines dummy status
+	 *		'dummy-title' => __( 'Banner list' ),
 	 *		'dummy-description' => __( 'Some banners' )
 	 * 	),
 	 *	'second-feed' => array(
@@ -272,7 +273,7 @@ class Cursorial {
 	/**
 	 * Content filter
 	 * Replaces the date the original date unless there's an override
-	 * @see add_filter
+	 *cursorial @see add_filter
 	 * @param string $date Post date
 	 * @return string
 	 */
