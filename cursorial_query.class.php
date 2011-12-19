@@ -37,6 +37,13 @@ class Cursorial_Query {
 			$post->post_author = get_the_author();
 			$post->post_date = apply_filters( 'the_date', $post->post_date );
 			$post->post_excerpt = apply_filters( 'the_excerpt', $post->post_excerpt );
+			$post->post_content = apply_filters( 'the_content', $post->post_content );
+
+			// Create a default excerpt fallback
+			if ( empty( $post->post_excerpt ) ) {
+				$post->post_excerpt = apply_filters( 'the_content', $post->post_content );
+			}
+
 
 			$this->results[ $post->ID ] = $post;
 		}

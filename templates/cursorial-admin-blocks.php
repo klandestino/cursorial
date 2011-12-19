@@ -5,6 +5,9 @@
 		$( 'input#cursorial-search-field' ).cursorialSearch( {
 			templates: {
 				post: '#cursorial-search-result .template' // Where to find a template to use when render posts
+																									 // To render post-fields you'll also have to define
+																									 // elements inside this element with two classes:
+																									 // template-data and template-data-{field-name}
 			},
 			timeout: 1000, // For how long wait until search-query is posted to server
 			target: '#cursorial-search-result', // Where to place rendered posts
@@ -114,11 +117,12 @@
 								</div>
 							</div>
 							<div class="widget-inside">
+								<p class="post-image template-data template-data-image"></p>
 								<p class="post-meta">
-									<?php _e( 'Author:', 'cursorial' ); ?> <span class="template-data-post_author"></span><br/>
-									<?php _e( 'Date:', 'cursorial' ); ?> <span class="template-data-post_date"></span>
+									<span class="template-data"><?php _e( 'Author:', 'cursorial' ); ?> <span class="template-data-post_author"></span></span><br/>
+									<span class="template-data"><?php _e( 'Date:', 'cursorial' ); ?> <span class="template-data-post_date"></span></span>
 								</p>
-								<p class="post-excerpt template-data-post_excerpt"></p>
+								<div class="post-excerpt template-data template-data-post_excerpt"></div>
 							</div>
 						</div>
 					</div>

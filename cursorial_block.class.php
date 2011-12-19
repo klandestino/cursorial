@@ -107,7 +107,7 @@ class Cursorial_Block {
 				$new_id = wp_insert_post( array(
 					'post_type' => Cursorial::POST_TYPE,
 					'post_title' => '-',
-					'post_content' => '-',
+					'post_content' => '',
 					'post_author' => $user_ID,
 					'post_status' => 'publish',
 					'post_date' => date( 'Y-m-d H:i:s', $time ),

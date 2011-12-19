@@ -49,7 +49,7 @@
 			for ( var i in data ) {
 				var element = $( this ).find( '.template-data-' + i );
 				if ( element.length > 0 ) {
-					element.text( data[ i ] );
+					element.html( data[ i ] );
 				}
 			}
 		}
@@ -125,7 +125,16 @@
 		 * @return void
 		 */
 		function applyBlockSettings( settings ) {
-			//
+			$( this ).data( 'cursorial-post-settings', settings );
+			var fields = [];
+
+			for( var i in settings ) {
+				fields.push( '.template-data-' + i );
+			}
+
+			$( this ).find( '.template-data' ).not( fields.join( ', ' ) ).fadeTo( 'fast', 0, function() {
+				$( this ).hide();
+			} );
 		}
 
 		/**
