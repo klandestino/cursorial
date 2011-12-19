@@ -21,6 +21,7 @@
 	 * options = {
 	 *	data: { an object with data to render },
 	 *	connectToBlocks: 'jQuery-selector to blocks',
+	 *	buttons: { post_edit, post_save, post_remove },
 	 *	create: callbackWhenPostIsCreated(),
 	 *	applyBlockSettings: { an object with settings }
 	 * }
@@ -28,9 +29,15 @@
 	 * @param {object|string} [args] Arguments used when options is a string.
 	 */
 	$.fn.cursorialPost = function( options, args ) {
+		if ( typeof( args ) == 'undefined' ) {
+			args = '';
+		}
+
 		// Redefine options to a object if it's a string
-		if ( typeof( options ) == 'string' ) {
-			options = ( {} )[ options ] = args;
+		if ( typeof( options ) != 'object' ) {
+			var no = {};
+			no[ options ] = args;
+			options = no;
 		}
 
 		/**
@@ -57,11 +64,11 @@
 		/**
 		 * Makes post draggable
 		 * @function
-		 * @name draggable
+		 * @name setDraggable
 		 * @param {string} blocks jQuery selector for blocks to connect to
 		 * @return void
 		 */
-		function draggable( blocks ) {
+		function setDraggable( blocks ) {
 			$( this ).data( 'cursorial-post-blocks', blocks );
 			$( this ).draggable( {
 				connectToSortable: blocks,
@@ -106,15 +113,42 @@
 				$( orig ).fadeOut( 'fast', function() {
 					var data = $( this ).data( 'cursorial-post-data' );
 					var blocks = $( this ).data( 'cursorial-post-blocks' );
+					var buttons = $( this ).data( 'cursorial-post-buttons' );
 					$( this ).remove();
 					$( '.cursorial-post-' + data.ID ).fadeTo( 'fast', 1, function() {
 						$( this ).cursorialPost( {
 							data: data,
+							buttons: buttons,
 							connectToBlocks: blocks
 						} );
 					} );
 				} );
 			}, 500 );
+		}
+
+		/**
+		 * Find buttons and apply functionality to them
+		 * @function
+		 * @name setButtons
+		 * @param {object} buttons The buttons selectors
+		 * @return void
+		 */
+		function setButtons( buttons ) {
+			$( this ).data( 'cursorial-post-buttons', buttons );
+
+			for( var i in buttons ) {
+				switch( i ) {
+					case 'post_edit' :
+						$( this ).find( buttons[ i ] ).click( $.proxy( edit, this ) );
+						break;
+					case 'post_save' :
+						$( this ).find( buttons[ i ] ).click( $.proxy( save, this ) ).hide();
+						break;
+					case 'post_remove' :
+						$( this ).find( buttons[ i ] ).click( $.proxy( remove, this ) );
+						break;
+				}
+			}
 		}
 
 		/**
@@ -129,11 +163,109 @@
 			var fields = [];
 
 			for( var i in settings ) {
-				fields.push( '.template-data-' + i );
+				fields.push( '.template-data-' + i + ', .template-data:has(.template-data-' + i + ')' );
 			}
 
-			$( this ).find( '.template-data' ).not( fields.join( ', ' ) ).fadeTo( 'fast', 0, function() {
+			$( this ).find( '.template-data:not(' + fields.join( ', ' ) + ')' ).fadeTo( 'fast', 0, function() {
 				$( this ).hide();
+			}	);
+			$( this ).find( fields.join( ', ' ) ).fadeTo( 'fast', 1 );
+		}
+
+		/**
+		 * Switch to edit-mode
+		 * @function
+		 * @name edit
+		 * @return void
+		 */
+		function edit() {
+			if ( ! $( this ).hasClass( 'cursorial-post-edit' ) ) {
+				$( this ).addClass( 'cursorial-post-edit' );
+
+				var buttons = $( this ).data( 'cursorial-post-buttons' );
+
+				if ( typeof( buttons[ 'post_edit' ] ) != 'undefined' ) {
+					$( this ).find( buttons.post_edit ).hide();
+				}
+
+				if ( typeof( buttons[ 'post_save' ] ) != 'undefined' ) {
+					$( this ).find( buttons.post_save ).show();
+				}
+
+				var settings = $( this ).data( 'cursorial-post-settings' );
+
+				for( var i in settings ) {
+					if ( typeof( settings[ i ][ 'overridable' ] ) != 'undefined' ) {
+						if ( settings[ i ].overridable && $( this ).find( '.template-data-' + i ).length > 0 ) {
+							var element = $( this ).find( '.template-data-' + i );
+							var field = null;
+
+							switch( i ) {
+								case 'post_excerpt' :
+								case 'post_content' :
+									field = $( '<textarea class="cursorial-field cursorial-field-' + i + ' widefat"></textarea>' );
+									break;
+								case 'image' :
+									field = $( '<input class="cursorial-field cursorial-field-' + i + '" type="hidden"/>' );
+									break;
+								default :
+									field = $( '<input class="cursorial-field cursorial-field-' + i + ' widefat" type="text"/>' );
+							}
+
+							field.val( element.html() );
+							element.after( field ).hide();
+						}
+					}
+				}
+
+				$( this ).draggable( { disabled: true } );
+			}
+		}
+
+		/**
+		 * Switch back view-mode and store data
+		 * @function
+		 * @name save
+		 * @return void
+		 */
+		function save() {
+			$( this ).removeClass( 'cursorial-post-edit' );
+
+			var buttons = $( this ).data( 'cursorial-post-buttons' );
+
+			if ( typeof( buttons[ 'post_edit' ] ) != 'undefined' ) {
+				$( this ).find( buttons.post_edit ).show();
+			}
+
+			if ( typeof( buttons[ 'post_save' ] ) != 'undefined' ) {
+				$( this ).find( buttons.post_save ).hide();
+			}
+
+			var settings = $( this ).data( 'cursorial-post-settings' );
+			var data = $( this ).data( 'cursorial-post-data' );
+
+			for( var i in settings ) {
+				var field = $( this ).find( '.cursorial-field-' + i );
+				if ( field.length > 0 ) {
+					data[ i ] = field.val();
+					var element = $( this ).find( '.template-data-' + i );
+					element.html( field.val() ).show();
+					field.remove();
+				}
+			}
+
+			$( this ).draggable( { disabled: false } );
+		}
+
+		/**
+		 * Simply removes element from dom
+		 * @function
+		 * @name remove
+		 * @return void
+		 */
+		function remove() {
+			$( this ).fadeTo( 'fast', 0, function() {
+				$( this ).remove();
 			} );
 		}
 
@@ -164,11 +296,17 @@
 			// Then these functions
 			for( var i in options ) {
 				switch( i ) {
+					case 'buttons' :
+						setButtons.apply( this, [ options[ i ] ] );
+						break;
 					case 'connectToBlocks' :
-						draggable.apply( this, [ options[ i ] ] );
+						setDraggable.apply( this, [ options[ i ] ] );
 						break;
 					case 'applyBlockSettings' :
 						applyBlockSettings.apply( this, [ options[ i ] ] );
+						break;
+					case 'save' :
+						save.apply( this );
 						break;
 				}
 			}
@@ -192,7 +330,10 @@
 				post: ''
 			},
 			buttons: {
-				save: ''
+				save: '',
+				post_edit: '',
+				post_save: '',
+				post_remove: ''
 			},
 			show: {}
 		}, options );
@@ -241,6 +382,7 @@
 			for ( var i in posts ) {
 				template.first().clone().cursorialPost( {
 					data: posts[ i ],
+					buttons: options.buttons,
 					connectToBlocks: options.blocks,
 					applyBlockSettings: getBlockSettings.apply( this, [ 'fields' ] ),
 					create: function() {
@@ -259,18 +401,29 @@
 		function saveBlock() {
 			var data = {
 				action: 'save-block',
-				posts: [],
+				posts: {},
 				block: $( this ).data( 'cursorial-name' )
 			};
 
 			// Extract post ids
 			var posts = $( this ).find( '.cursorial-post' );
+			posts.cursorialPost( 'save' );
 			for ( var i = 0; i < posts.length; i++ ) {
 				// data-property does not follow draggable items,
 				// therefore we've stored the post id in a class name :(
 				var id = $( posts[ i ] ).attr( 'id' ).match( /cursorial-post-([0-9]+)/ );
 				if ( id ) {
-					data.posts.push( id[ 1 ] );
+					data.posts[ id[ 1 ] ] = {
+						id: id[ 1 ]
+					};
+
+					var fields = $( posts[ i ] ).data( 'cursorial-post-data' );
+					var settings = getBlockSettings.apply( this, [ 'fields' ] );
+					for( var ii in settings ) {
+						if ( typeof( fields[ ii ] ) != 'undefined' && settings[ ii ].overridable ) {
+							data.posts[ id[ 1 ] ][ ii ] = fields[ ii ];
+						}
+					}
 				}
 			}
 
@@ -341,7 +494,11 @@
 		}
 
 		function receivePost( post ) {
-			$( post ).cursorialPost( 'applyBlockSettings', getBlockSettings.apply( this, [ 'fields' ] ) );
+			// Don't trust the post
+			$( this ).find( '.cursorial-post' ).cursorialPost( {
+				applyBlockSettings: getBlockSettings.apply( this, [ 'fields' ] ),
+				buttons: options.buttons
+			} );
 		}
 
 		/**
@@ -449,6 +606,7 @@
 				for ( var i in data.results ) {
 					template.first().clone().cursorialPost( {
 						data: data.results[ i ],
+						buttons: options.buttons,
 						connectToBlocks: options.blocks,
 						create: function() {
 							target.append( $( this ) );

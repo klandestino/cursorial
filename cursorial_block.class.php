@@ -100,19 +100,32 @@ class Cursorial_Block {
 		$count = 0;
 		$keep = array();
 
-		foreach( $posts as $ref_id ) {
-			$post = get_post( $ref_id );
+		foreach( $posts as $ref_id => $post ) {
+			$ref = get_post( $ref_id );
 
-			if ( ! empty( $post ) ) {
-				$new_id = wp_insert_post( array(
-					'post_type' => Cursorial::POST_TYPE,
+			if ( ! empty( $ref ) ) {
+				$fields = array(
 					'post_title' => '-',
-					'post_content' => '',
+					'post_content' => ''
+				);
+
+				foreach( $post as $field_name => $field ) {
+					if ( $field_name != 'id' && property_exists( $ref, $field_name ) ) {
+						if ( $ref->$field_name != $fields[ $field_name ] ) {
+							$fields[ $field_name ] = $field;
+						}
+					}
+				}
+
+				$fields = array_merge( $fields, array(
+					'post_type' => Cursorial::POST_TYPE,
 					'post_author' => $user_ID,
 					'post_status' => 'publish',
 					'post_date' => date( 'Y-m-d H:i:s', $time ),
 					'menu_order' => $count
 				) );
+
+				$new_id = wp_insert_post( $fields );
 
 				add_post_meta( $new_id, 'cursorial-post-id', $ref_id, true );
 				wp_set_post_terms( $new_id, $this->name, Cursorial::TAXONOMY, false );

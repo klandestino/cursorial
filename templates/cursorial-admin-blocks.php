@@ -20,7 +20,10 @@
 				post: '#cursorial-search-result .template' // Where to find a template to use when render posts
 			},
 			buttons: {
-				save: 'input.cursorial-block-save' // The save button
+				save: 'input.cursorial-block-save', // The save button
+				post_edit: 'input.cursorial-post-edit', // Post edit buttons
+				post_save: 'input.cursorial-post-save', // Post save buttons
+				post_remove: 'a.cursorial-post-remove' // Post remove buttons
 			},
 			target: '.cursorial-posts', // Where to place posts
 			blocks: '.cursorial-block .cursorial-posts' // Where to find other blocks to connect posts to
@@ -123,6 +126,16 @@
 									<span class="template-data"><?php _e( 'Date:', 'cursorial' ); ?> <span class="template-data-post_date"></span></span>
 								</p>
 								<div class="post-excerpt template-data template-data-post_excerpt"></div>
+								<div class="widget-control-actions">
+									<div class="alignleft">
+										<a class="widget-control-remove cursorial-post-remove" href="#remove"><span><?php _e( 'Remove', 'cursorial' ); ?></span></a>
+									</div>
+									<div class="alignright">
+										<input class="button-primary widget-control-save cursorial-post-edit" type="submit" value="<?php _e( 'Edit', 'cursorial' ); ?>" name="edit"/>
+										<input class="button-primary widget-control-save cursorial-post-save" type="submit" value="<?php _e( 'Save', 'cursorial' ); ?>" name="edit"/>
+									</div>
+									<div class="clear"></div>
+								</div>
 							</div>
 						</div>
 					</div>

@@ -39,3 +39,16 @@
 	position: absolute;
 	background: url('../../../../wp-includes/js/thickbox/loadingAnimation.gif') white center center no-repeat;
 }
+
+.cursorial-post .widget-top,
+.cursorial-post .widget-title h4 {
+	height: auto;
+	overflow: visible;
+	white-space: normal;
+	line-height: normal;
+}
+
+input.cursorial-field-post_title {
+	display: block;
+	font-weight: bold;
+}
