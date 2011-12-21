@@ -56,7 +56,13 @@
 			for ( var i in data ) {
 				var element = $( this ).find( '.template-data-' + i );
 				if ( element.length > 0 ) {
-					element.html( data[ i ] );
+					if ( i == 'image' && typeof( data[ 'cursorial_image' ] ) != 'undefined' ) {
+						if ( typeof( data.cursorial_image[ 0 ] ) != 'undefined' ) {
+							element.html( '<img src="' + data.cursorial_image[ 0 ] + '" class="cursorial-thumbnail"/>' );
+						}
+					} else if ( typeof( data[ i ] ) == 'string' ) {
+						element.html( data[ i ] );
+					}
 				}
 			}
 		}
@@ -206,7 +212,11 @@
 									field = $( '<textarea class="cursorial-field cursorial-field-' + i + ' widefat"></textarea>' );
 									break;
 								case 'image' :
-									field = $( '<input class="cursorial-field cursorial-field-' + i + '" type="hidden"/>' );
+									var postId = $( this ).data( 'cursorial-post-data' ).cursorial_ID;
+									field = $(
+										'<input class="cursorial-field cursorial-field-' + i + '" type="hidden"/>' +
+										'<a class="cursorial-field thickbox" href="media-upload.php?post_id=' + postId + '&amp;type=image&amp;TB_iframe=1" title="' + cursorial_i18n( 'Set featured image' ) + '">' + cursorial_i18n( 'Set featured image' ) + '</a>'
+									);
 									break;
 								default :
 									field = $( '<input class="cursorial-field cursorial-field-' + i + ' widefat" type="text"/>' );
@@ -233,12 +243,14 @@
 
 			var buttons = $( this ).data( 'cursorial-post-buttons' );
 
-			if ( typeof( buttons[ 'post_edit' ] ) != 'undefined' ) {
-				$( this ).find( buttons.post_edit ).show();
-			}
+			if ( buttons ) {
+				if ( typeof( buttons[ 'post_edit' ] ) != 'undefined' ) {
+					$( this ).find( buttons.post_edit ).show();
+				}
 
-			if ( typeof( buttons[ 'post_save' ] ) != 'undefined' ) {
-				$( this ).find( buttons.post_save ).hide();
+				if ( typeof( buttons[ 'post_save' ] ) != 'undefined' ) {
+					$( this ).find( buttons.post_save ).hide();
+				}
 			}
 
 			var settings = $( this ).data( 'cursorial-post-settings' );
@@ -249,10 +261,15 @@
 				if ( field.length > 0 ) {
 					data[ i ] = field.val();
 					var element = $( this ).find( '.template-data-' + i );
-					element.html( field.val() ).show();
+					if ( i != 'image' ) {
+						element.html( field.val() );
+					}
+					element.show();
 					field.remove();
 				}
 			}
+
+			$( this ).find( '.cursorial-field' ).remove();
 
 			$( this ).draggable( { disabled: false } );
 		}
@@ -672,3 +689,25 @@
 		} );
 	};
 } )( jQuery );
+
+/**
+ * These lines of code creates a callback from the "Set featured image"-functionality that is
+ * built into Wordpress. The callback is only created if it's not found so if won't brake some
+ * other wordpress-functions.
+ */
+
+if ( typeof( WPSetThumbnailID ) == 'undefined' ) {
+	WPSetThumbnailID = function( c, b ) {
+		jQuery( '.cursorial-post-edit .cursorial-field-image' ).val( c );
+	}
+}
+
+if ( typeof( WPSetThumbnailHTML ) == 'undefined' ) {
+	WPSetThumbnailHTML = function( e ) {
+		var image = jQuery( e ).find( 'img' );
+		if ( image.length > 0 ) {
+			jQuery( '.cursorial-post-edit .cursorial-thumbnail' ).attr( 'src', image.attr( 'src' ) );
+			jQuery( '.cursorial-post-edit' ).cursorialPost( 'save' );
+		}
+	}
+}

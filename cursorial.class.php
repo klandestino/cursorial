@@ -68,7 +68,8 @@ class Cursorial {
 				'jquery',
 				'jquery-ui-sortable',
 				'jquery-ui-draggable',
-				'jquery-ui-droppable'
+				'jquery-ui-droppable',
+				'thickbox'
 			)
 		);
 
@@ -76,7 +77,8 @@ class Cursorial {
 			'cursorial-admin',
 			CURSORIAL_PLUGIN_URL . 'css/admin.css',
 			array(
-				'widgets'
+				'widgets',
+				'thickbox'
 			)
 		);
 	}
@@ -116,6 +118,19 @@ class Cursorial {
 		?><script language="javascript" type="text/javascript">
 			//<![CDATA[
 			var CURSORIAL_PLUGIN_URL = '<?php echo CURSORIAL_PLUGIN_URL; ?>';
+			var cursorial_i18n = function( str ) {
+				var i18n = {};
+				<?php foreach( array(
+					'Set featured image'
+				) as $str ) : ?>
+					i18n[ '<?php echo $str; ?>' ] = "<?php echo esc_attr( __( $str, 'cursorial' ) ); ?>";
+				<?php endforeach; ?>
+				if ( typeof( i18n[ str ] ) != 'undefined' ) {
+					return i18n[ str ];
+				} else {
+					return str;
+				}
+			};
 			//]]>
 		</script><?php
 	}
@@ -253,7 +268,8 @@ class Cursorial {
 			'the_date',
 			'the_author',
 			'the_excerpt',
-			'the_content'
+			'the_content',
+			'cursorial_image_id'
 		) as $filter ) {
 			add_filter( $filter, array( $this, $filter ) );
 		}
@@ -278,7 +294,7 @@ class Cursorial {
 	 * @return string
 	 */
 	public function the_date( $date ) {
-		return $this->replace_content( $date, 'post_date' );
+		return $this->replace_content( $date, 'post_date', true );
 	}
 
 	/**
@@ -294,13 +310,14 @@ class Cursorial {
 
 	/**
 	 * Content filter
-	 * Replaces the excerpt the original excerpt unless there's an override
+	 * Replaces the excerpt the original excerpt unless there's an override.
+	 * This filter will also strip images.
 	 * @see add_filter
 	 * @param string $excerpt Post excerpt
 	 * @return string
 	 */
 	public function the_excerpt( $excerpt ) {
-		return $this->replace_content( $excerpt, 'post_excerpt' );
+		return preg_replace( '/<img [^>]+>/gi', '', $this->replace_content( $excerpt, 'post_excerpt' ) );
 	}
 
 	/**
@@ -314,33 +331,61 @@ class Cursorial {
 		return $this->replace_content( $content, 'post_content' );
 	}
 
+	/**
+	 * Content filter
+	 * Retrieves fetaured image or a image from content
+	 * @see add_filter
+	 * @param int $image_id The image id
+	 * @return string
+	 */
+	public function cursorial_image_id( $image_id ) {
+		global $id;
+
+		if ( empty( $image_id ) ) {
+			$original = $this->get_original( $id );
+
+			if ( $original ) {
+				$image_id = get_post_thumbnail_id( $original->ID );
+
+				if ( empty( $image_id ) ) {
+					$html = new SimpleXMLElement( apply_filters( 'the_content', $original->post_content ) );
+					$images = $html->xpath( '//img[contains(@class,"wp-image-")]' );
+
+					if ( count( $images ) ) {
+						if ( preg_match( '/(?:^| )wp-image-([0-9]+)/', ( string )$images[ 0 ][ 'class' ], $match_id ) ) {
+							$image_id = $match_id[ 1 ];
+						}
+					}
+				}
+
+				if ( empty( $image_id ) ) {
+					//
+				}
+			}
+		}
+
+		return $image_id;
+	}
+
 	// PRIVATE METHODS
 
 	/**
-	 * Content filter
-	 * A general content filter. Takes content and replaces
-	 * @param string $content The post content
-	 * @param string $property The property in the post object to handle
-	 * @return string
+	 * Gets the original/reference post
+	 * @param int $post_id Cursorial post id
+	 * @return object
 	 */
-	private function replace_content( $content, $property ) {
-		global $id;
+	private function get_original( $post_id ) {
+		$post = get_post( $post_id );
 
-		$post = get_post( $id );
+		$original = null;
 
 		if ( is_object( $post ) ) {
-			if (
-				( empty( $content ) || $content === '-' )
-				&& $post->post_type == self::POST_TYPE
-				&& property_exists( $post, $property )
-			) {
+			if ( $post->post_type == self::POST_TYPE ) {
 				if ( property_exists( $post, 'cursorial_ID' ) ) {
 					$original_id = $post->ID;
 				} else {
 					$original_id = get_post_meta( $post->ID, 'cursorial-post-id', true );
 				}
-
-				$original = null;
 
 				if ( is_object( $this->current_original ) ) {
 					if ( $this->current_original->ID == $original_id ) {
@@ -352,7 +397,27 @@ class Cursorial {
 					$original = get_post( $original_id );
 					$this->current_original = $original;
 				}
+			}
+		}
 
+		return $original;
+	}
+
+	/**
+	 * Content filter
+	 * A general content filter. Takes content and replaces
+	 * @param string $content The post content
+	 * @param string $property The property in the post object to handle
+	 * @param boolean $force If property should be replaced even if there's an override
+	 * @return string
+	 */
+	private function replace_content( $content, $property, $force = false ) {
+		global $id;
+
+		$original = $this->get_original( $id );
+
+		if ( $original ) {
+			if ( property_exists( $original, $property ) && ( $force || empty( $content ) || $content == '-' ) ) {
 				$content = $original->$property;
 			}
 		}

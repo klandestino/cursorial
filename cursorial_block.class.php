@@ -88,7 +88,7 @@ class Cursorial_Block {
 	 * @return void
 	 */
 	public function set_posts( $posts ) {
-		global $user_ID;
+		global $user_ID, $id;
 		get_currentuserinfo();
 
 		// Delete all current posts
@@ -144,6 +144,14 @@ class Cursorial_Block {
 
 				add_post_meta( $new_id, 'cursorial-post-id', $ref_id, true );
 				wp_set_post_terms( $new_id, $this->name, Cursorial::TAXONOMY, false );
+
+				if ( isset( $post[ 'image' ] ) ) {
+					$id = $new_id;
+					$image = apply_filters( 'cursorial_image_id', get_post_thumbnail_id( $ref_id ) );
+					if ( trim( $image ) != trim( $post[ 'image' ] ) ) {
+						set_post_thumbnail( $new_id, $post[ 'image' ] );
+					}
+				}
 
 				$time--;
 				$count++;

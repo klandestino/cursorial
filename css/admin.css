@@ -52,3 +52,14 @@ input.cursorial-field-post_title {
 	display: block;
 	font-weight: bold;
 }
+
+.cursorial-post .cursorial-thumbnail {
+	float: right;
+	width: 150px;
+	height: 150px;
+	margin: 0 0 8px 8px;
+}
+
+.cursorial-post .widget-control-actions {
+	clear: both;
+}
