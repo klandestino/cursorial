@@ -15,6 +15,24 @@ class Cursorial_Query {
 	public $search_keywords = array();
 
 	/**
+	 * Creates an argument array for wp_query.
+	 * @param string $block_name The name of the block
+	 * @return object
+	 */
+	public static function get_block_query_args( $block_name ) {
+		return array(
+			'post_type' => Cursorial::POST_TYPE,
+			'tax_query' => array(
+				array(
+					'taxonomy' => Cursorial::TAXONOMY,
+					'field' => 'slug',
+					'terms' => array( $block_name )
+				)
+			)
+		);
+	}
+
+	/**
 	 * Populates the result-array with given post.
 	 * It skips already populated posts
 	 *
@@ -23,16 +41,7 @@ class Cursorial_Query {
 	 */
 	private function populate_results( $post ) {
 		if ( ! array_key_exists( $post->ID, $this->results ) ) {
-			setup_postdata( $post );
-
-			// If this post has a cursorial-post-id stored as meta-data and is a cursorial post
-			// type, then replace post-id with the real post id.
-			$ref_id = get_post_meta( $post->ID, 'cursorial-post-id', true );
-			if ( $ref_id && $post->post_type == Cursorial::POST_TYPE ) {
-				$post->cursorial_ID = $post->ID;
-				$post->ID = $ref_id;
-			}
-
+			setup_postdata( &$post );
 			$post->post_title = apply_filters( 'the_title', $post->post_title );
 			$post->post_author = get_the_author();
 			$post->post_date = apply_filters( 'the_date', $post->post_date );
@@ -118,20 +127,11 @@ class Cursorial_Query {
 	/**
 	 * Makes a query for all posts in specified block and populates the results-array.
 	 *
-	 * @param string $block Block name
+	 * @param string $block_name Block name
 	 * @return void
 	 */
-	public function block( $name ) {
-		$query = new WP_Query( array(
-			'post_type' => Cursorial::POST_TYPE,
-			'tax_query' => array(
-				array(
-					'taxonomy' => Cursorial::TAXONOMY,
-					'field' => 'slug',
-					'terms' => array( $name )
-				)
-			)
-		) );
+	public function block( $block_name ) {
+		$query = new WP_Query( self::get_block_query_args( $block_name ) );
 
 		foreach ( $query->get_posts() as $post ) {
 			$this->populate_results( $post );

@@ -170,4 +170,14 @@ class Cursorial_Block {
 		}
 	}
 
+	/**
+	 * Creates a wp_query and does a loop with template named
+	 * cursorial.php or cursorial-{block-name}.php
+	 * @return void
+	 */
+	public function get_loop() {
+		query_posts( Cursorial_Query::get_block_query_args( $this->name ) );
+		$this->cursorial->get_template( 'cursorial', $this->name );
+	}
+
 }

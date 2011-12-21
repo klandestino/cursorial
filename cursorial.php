@@ -70,10 +70,57 @@ function register_cursorial( $block_args, $admin_args ) {
 	$cursorial->register( $block_args, $admin_args );
 }
 
+/**
+ * Runs query_posts with cursorial-block-arguments from Cursorial_Query::get_block_query_args
+ * @see Cursorial_Query::get_block_query_args
+ * @param string $block_name The name of the block
+ * @return object
+ */
+function query_cursorial_posts( $block_name ) {
+	query_posts( Cursorial_Query::get_block_query_args( $block_name ) );
+}
+
+/**
+ * Wrapper for Cursorial::get_image
+ * Image tag for cursorial images
+ * @param string $size The size of the image
+ * @param array $attr Image attributes
+ * @return string
+ */
+function get_the_cursorial_image( $size = 'medium', $attr = array() ) {
+	global $cursorial;
+	return $cursorial->get_image( $size, $attr );
+}
+
+/**
+ * Wrapper for Cursorial_Block::get_loop
+ * @param string $block_name The block to render
+ * @return void
+ */
+function get_cursorial_block( $block_name ) {
+	global $cursorial;
+	if ( isset( $cursorial->blocks[ $block_name ] ) ) {
+		$cursorial->blocks[ $block_name ]->get_loop();
+	}
+}
+
+/**
+ * Wrapper for get_the_cursorial_image
+ * This echoes the image-tag instead of returning it.
+ * @param string $size Size of the image
+ * @param array $attr Attributes for the image tag
+ * @return void
+ */
+function the_cursorial_image( $size = 'medium', $attr = array() ) {
+	echo get_the_cursorial_image( $size, $attr );
+}
+
 // Add the plugin initiator function to Wordpress
 add_action( 'init', array( $cursorial, 'init' ) );
 
 // Add the plugin action for wp_head
 add_action( 'wp_head', array( $cursorial, 'head' ) );
 
+// Add content filters
+add_action( 'the_post', array( $cursorial, 'the_post' ) );
 $cursorial->set_content_filters();

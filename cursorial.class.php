@@ -100,7 +100,7 @@ class Cursorial {
 		foreach ( $this->admin as $admin ) {
 			add_submenu_page(
 				'cursorial',
-				sprintf( __( 'Edit cursorial area %s', 'cursorial' ), $admin->label ),
+				sprintf( __( 'Edit cursorial block %s', 'cursorial' ), $admin->label ),
 				$admin->label,
 				'manage_options',
 				sanitize_title( $admin->label ),
@@ -259,6 +259,59 @@ class Cursorial {
 	}
 
 	/**
+	 * Image tag for cursorial images
+	 * @param string $size The size of the image
+	 * @param array $attr Image attributes
+	 * @return string
+	 */
+	public function get_image( $size = 'medium', $attr = array() ) {
+		global $post;
+
+		if ( is_object( $post ) ) {
+			$image_id = apply_filters( 'cursorial_image_id', get_post_thumbnail_id( property_exists( $post, 'cursorial_ID' ) ? $post->cursorial_ID : $post->ID ) );
+
+			if ( ! empty( $image_id ) ) {
+				$image_src = wp_get_attachment_image_src( $image_id, $size );
+
+				if ( ! empty( $image_src ) ) {
+					$attr_str = '';
+					$classes = '';
+
+					foreach( $attr as $attr_name => $attr_val ) {
+						if ( $attr_name == 'class' ) {
+							$classes .= ' ' . $attr_val;
+						} elseif ( $attr_name != 'src' && $attr_name != 'width' && $attr_name != 'height' ) {
+							$attr_str .= ' ' . $attr_name . '="' . esc_attr( $attr_val ) . '"';
+						}
+					}
+
+					return sprintf(
+						'<img src="%s" width="%s" height="%s" class="wp-post-image attachment-%s%s"%s/>',
+						$image_src[ 0 ], $image_src[ 1 ], $image[ 2 ], $size, $classes, $attr_str
+					);
+				}
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Action hook that adds data to the $post-object if it's a cursorial-post
+	 * @param object $post The post reference
+	 * @return void
+	 */
+	public function the_post( $post ) {
+		// If this post has a cursorial-post-id stored as meta-data and is a cursorial post
+		// type, then replace post-id with the real post id.
+		$ref_id = get_post_meta( $post->ID, 'cursorial-post-id', true );
+		if ( $ref_id && $post->post_type == Cursorial::POST_TYPE ) {
+			$post->cursorial_ID = $post->ID;
+			$post->ID = $ref_id;
+		}
+	}
+
+	/**
 	 * Add content filters
 	 * @return void
 	 */
@@ -317,7 +370,13 @@ class Cursorial {
 	 * @return string
 	 */
 	public function the_excerpt( $excerpt ) {
-		return preg_replace( '/<img [^>]+>/gi', '', $this->replace_content( $excerpt, 'post_excerpt' ) );
+		$excerpt = $this->replace_content( $excerpt, 'post_excerpt' );
+		// Strip images
+		$excerpt = preg_replace( '/<img [^>]+>/i', '', $excerpt );
+		// Images can be wrapped in links, strip empty links
+		$excerpt = preg_replace( '/<a [^>]+><\/a>/i', '', $excerpt );
+		// Okidok
+		return $excerpt;
 	}
 
 	/**
