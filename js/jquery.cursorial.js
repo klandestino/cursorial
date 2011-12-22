@@ -218,8 +218,9 @@
 									break;
 								case 'image' :
 									var postId = $( this ).data( 'cursorial-post-data' ).cursorial_ID;
+									var imageId = $( this ).data( 'cursorial-post-data' ).image;
 									field = $(
-										'<input class="cursorial-field cursorial-field-' + i + '" type="hidden"/>' +
+										'<input class="cursorial-field cursorial-field-' + i + '" type="hidden" value="' + imageId + '"/>' +
 										'<a class="cursorial-field thickbox" href="media-upload.php?post_id=' + postId + '&amp;type=image&amp;TB_iframe=1" title="' + cursorial_i18n( 'Set featured image' ) + '">' + cursorial_i18n( 'Set featured image' ) + '</a>'
 									);
 									break;
@@ -227,7 +228,10 @@
 									field = $( '<input class="cursorial-field cursorial-field-' + i + ' widefat" type="text"/>' );
 							}
 
-							field.val( element.html() );
+							if ( i != 'image' ) {
+								field.val( element.html() );
+							}
+
 							element.after( field ).hide();
 						}
 					}
