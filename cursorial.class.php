@@ -322,9 +322,10 @@ class Cursorial {
 			'the_author',
 			'the_excerpt',
 			'the_content',
+			'the_permalink',
 			'cursorial_image_id'
 		) as $filter ) {
-			add_filter( $filter, array( $this, $filter ) );
+			add_filter( $filter, array( $this, $filter . '_filter' ) );
 		}
 	}
 
@@ -335,7 +336,7 @@ class Cursorial {
 	 * @param string $title Post title
 	 * @return string
 	 */
-	public function the_title( $title ) {
+	public function the_title_filter( $title ) {
 		return $this->replace_content( $title, 'post_title' );
 	}
 
@@ -346,7 +347,7 @@ class Cursorial {
 	 * @param string $date Post date
 	 * @return string
 	 */
-	public function the_date( $date ) {
+	public function the_date_filter( $date ) {
 		return $this->replace_content( $date, 'post_date', true );
 	}
 
@@ -357,7 +358,7 @@ class Cursorial {
 	 * @param string $author Post author
 	 * @return string
 	 */
-	public function the_author( $author ) {
+	public function the_author_filter( $author ) {
 		return $this->replace_content( $author, 'post_author' );
 	}
 
@@ -369,7 +370,7 @@ class Cursorial {
 	 * @param string $excerpt Post excerpt
 	 * @return string
 	 */
-	public function the_excerpt( $excerpt ) {
+	public function the_excerpt_filter( $excerpt ) {
 		$excerpt = $this->replace_content( $excerpt, 'post_excerpt' );
 		// Strip images
 		$excerpt = preg_replace( '/<img [^>]+>/i', '', $excerpt );
@@ -386,8 +387,25 @@ class Cursorial {
 	 * @param string $content Post content
 	 * @return string
 	 */
-	public function the_content( $content ) {
+	public function the_content_filter( $content ) {
 		return $this->replace_content( $content, 'post_content' );
+	}
+
+	/**
+	 * Content filter
+	 * Replaces the cursorial post permalink with the original
+	 * @param string $permalink The permalink
+	 * @return string
+	 */
+	public function the_permalink_filter( $permalink ) {
+		global $id;
+		$original = $this->get_original( $id );
+
+		if ( $original ) {
+			return get_permalink( $original->ID );
+		}
+
+		return $permalink;
 	}
 
 	/**
@@ -397,7 +415,7 @@ class Cursorial {
 	 * @param int $image_id The image id
 	 * @return string
 	 */
-	public function cursorial_image_id( $image_id ) {
+	public function cursorial_image_id_filter( $image_id ) {
 		global $id;
 
 		if ( empty( $image_id ) ) {
