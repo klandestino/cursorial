@@ -68,3 +68,7 @@
 #cursorial-admin .cursorial-post .widget-control-actions {
 	clear: both;
 }
+
+#cursorial-search-result .widget-control-actions {
+	display: none;
+}
