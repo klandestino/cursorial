@@ -24,6 +24,11 @@
 	background: url('../../../../wp-admin/images/loading-publish.gif') right center no-repeat;
 }
 
+#cursorial-admin .cursorial-block {
+	min-width: 250px;
+	margin: 0 10px 10px 0;
+}
+
 #cursorial-admin .cursorial-posts {
 	width: 100%;
 	min-height: 100px;
@@ -35,31 +40,31 @@
 	padding: 8px 10px;
 }
 
-.cursorial-block-loader {
+#cursorial-admin .cursorial-block-loader {
 	position: absolute;
 	background: url('../../../../wp-includes/js/thickbox/loadingAnimation.gif') white center center no-repeat;
 }
 
-.cursorial-post .widget-top,
-.cursorial-post .widget-title h4 {
+#cursorial-admin .cursorial-post .widget-top,
+#cursorial-admin .cursorial-post .widget-title h4 {
 	height: auto;
 	overflow: visible;
 	white-space: normal;
 	line-height: normal;
 }
 
-input.cursorial-field-post_title {
+#cursorial-admin input.cursorial-field-post_title {
 	display: block;
 	font-weight: bold;
 }
 
-.cursorial-post .cursorial-thumbnail {
+#cursorial-admin .cursorial-post .cursorial-thumbnail {
 	float: right;
 	width: 150px;
 	height: 150px;
 	margin: 0 0 8px 8px;
 }
 
-.cursorial-post .widget-control-actions {
+#cursorial-admin .cursorial-post .widget-control-actions {
 	clear: both;
 }
