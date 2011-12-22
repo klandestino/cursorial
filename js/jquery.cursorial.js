@@ -66,7 +66,7 @@
 							element.html( '<img src="' + data.cursorial_image[ 0 ] + '" class="cursorial-thumbnail"/>' );
 						}
 					} else if ( typeof( data[ i ] ) == 'string' ) {
-						element.html( data[ i ] );
+						element.html( data[ i ] ).cursorialHideLongContent();
 					}
 				}
 			}
@@ -232,7 +232,7 @@
 								field.val( element.html() );
 							}
 
-							element.after( field ).hide();
+							element.cursorialHideLongContent( 'show', false ).after( field ).hide();
 						}
 					}
 				}
@@ -275,6 +275,7 @@
 					}
 					element.show();
 					field.remove();
+					element.cursorialHideLongContent();
 				}
 			}
 
@@ -697,6 +698,98 @@
 			}
 		} );
 	};
+
+	/**
+	 * If content is too long, this plugin will wrap content in a element with overflow hidden
+	 * and then create a show-link.
+	 * @param {string} action Can be 'show' or the default 'hide'
+	 * @param {boolean} showLink If you want to show the show-/hide-link
+	 */
+	$.fn.cursorialHideLongContent = function( action, showLink ) {
+		var options = {
+			height: 100,
+			width: 200
+		};
+
+		/**
+		 * Gets the height of the element. If height is 0, it will create a clone, append it to body
+		 * and then do another try of getting the height out of it.
+		 * @return {int}
+		 */
+		function height() {
+			var height = $( this ).height();
+
+			if ( height <= 0 ) {
+				var clone = $( this ).clone().css( {
+					position: 'absolute',
+					left: -1000,
+					top: -1000,
+					width: options.width
+				} );
+				clone.appendTo( 'body' );
+				height = clone.height();
+				clone.remove();
+			}
+
+			return height;
+		}
+
+		/**
+		 * Shows the content by removing the wrapper
+		 */
+		function show() {
+			var link = $( this ).data( 'cursorial-hide-long-content-link' );
+			if ( link ) {
+				link.remove();
+			}
+
+			if ( $( this ).parent( '.cursorial-hide-long-content-wrapper' ).length > 0 ) {
+				var content = $( this );
+				$( this ).parent().replaceWith( $( this ) );
+
+				if ( showLink !== false && height.apply( this ) > options.height ) {
+					link = $( '<a href="#hide" class="cursorial-hide-long-content-link">' + cursorial_i18n( 'Hide content' ) + '</a>' );
+					$( this ).after( link );
+					link.click( $.proxy( hide, this ) );
+					$( this ).data( 'cursorial-hide-long-content-link', link );
+				}
+			}
+		}
+
+		/**
+		 * Hides the content if it's too high with a wrapper with overflow hidden
+		 */
+		function hide() {
+			var link = $( this ).data( 'cursorial-hide-long-content-link' );
+			if ( link ) {
+				link.remove();
+			}
+
+			if ( $( this ).parent( '.cursorial-hide-long-content-wrapper' ).length == 0 && height.apply( this ) > options.height ) {
+				if ( showLink !== false ) {
+					link = $( '<a href="#show" class="cursorial-hide-long-content-link">' + cursorial_i18n( 'Show content' ) + '</a>' );
+					$( this ).after( link );
+					link.click( $.proxy( show, this ) );
+					$( this ).data( 'cursorial-hide-long-content-link', link );
+				}
+
+				var wrapper = $( '<div class="cursorial-hide-long-content-wrapper"></div>' );
+				wrapper.css( {
+					height: options.height,
+					overflow: 'hidden'
+				} );
+				$( this ).wrap( wrapper );
+			}
+		}
+
+		return this.each( function() {
+			if ( action == 'show' ) {
+				show.apply( this );
+			} else {
+				hide.apply( this );
+			}
+		} );
+	}
 } )( jQuery );
 
 /**
