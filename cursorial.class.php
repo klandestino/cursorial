@@ -403,22 +403,32 @@ class Cursorial {
 		if ( empty( $image_id ) ) {
 			$original = $this->get_original( $id );
 
+			if ( ! $original ) {
+				$original = get_post( $id );
+			}
+
 			if ( $original ) {
+				// Featured images are prioritized
 				$image_id = get_post_thumbnail_id( $original->ID );
 
+				// If there was no featured image, try to find an attachment in the post_content
 				if ( empty( $image_id ) ) {
-					$html = new SimpleXMLElement( apply_filters( 'the_content', $original->post_content ) );
-					$images = $html->xpath( '//img[contains(@class,"wp-image-")]' );
-
-					if ( count( $images ) ) {
-						if ( preg_match( '/(?:^| )wp-image-([0-9]+)/', ( string )$images[ 0 ][ 'class' ], $match_id ) ) {
-							$image_id = $match_id[ 1 ];
-						}
+					// This expression seems to work quite well. But it will just get images with a wordpress
+					// image attachment id defined.
+					// I was using SimpleXMLElement before, but it doesn't handle broken html that well and
+					// it was a but slower.
+					if ( preg_match(
+						'/<img [^>]*?class="[^"]*?wp-image-([0-9]+)[^"]*?"[^>]*?>/i',
+						apply_filters( 'the_content', $original->post_content ),
+						$image_match
+					) ) {
+						$image_id = $image_match[ 1 ];
 					}
 				}
 
 				if ( empty( $image_id ) ) {
-					//
+					// I was thinking of implementing images with just an url, instead of a wordpress attachment id.
+					// But I'll leave it for a while.
 				}
 			}
 		}

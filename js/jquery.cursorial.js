@@ -56,6 +56,11 @@
 			for ( var i in data ) {
 				var element = $( this ).find( '.template-data-' + i );
 				if ( element.length > 0 ) {
+					// Images comes with an id in data[ 'image' ] and an url in data[ 'cursorial_image' ]
+					// data[ 'cursorial_image' ] == wp_get_attachment_image_src
+					// data[ 'cursorial_image' ][ 0 ] == url
+					// data[ 'cursorial_image' ][ 1 ] == width
+					// data[ 'cursorial_image' ][ 2 ] == height
 					if ( i == 'image' && typeof( data[ 'cursorial_image' ] ) != 'undefined' ) {
 						if ( typeof( data.cursorial_image[ 0 ] ) != 'undefined' ) {
 							element.html( '<img src="' + data.cursorial_image[ 0 ] + '" class="cursorial-thumbnail"/>' );
