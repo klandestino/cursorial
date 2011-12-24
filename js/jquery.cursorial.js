@@ -173,13 +173,22 @@
 			$( this ).data( 'cursorial-post-settings', settings );
 			var fields = [];
 
-			for( var i in settings ) {
+			for( var i in settings.fields ) {
 				fields.push( '.template-data-' + i + ', .template-data:has(.template-data-' + i + ')' );
 			}
 
 			$( this ).find( '.template-data:not(' + fields.join( ', ' ) + ')' ).fadeTo( 'fast', 0, function() {
 				$( this ).hide();
 			}	);
+
+			/*
+			var related = $( this ).data( 'cursorial-post-blocks' ).replace( '.cursorial-post-accept-related', '' );
+			$( this ).find( related ).removeClass( 'cursorial-post-accept-related' );
+			if ( typeof( settings[ 'related' ] ) != 'undefined' ) {
+				$( this ).find( related ).addClass( 'cursorial-post-accept-related' );
+			}
+			*/
+
 			$( this ).find( fields.join( ', ' ) ).fadeTo( 'fast', 1 );
 		}
 
@@ -205,9 +214,9 @@
 
 				var settings = $( this ).data( 'cursorial-post-settings' );
 
-				for( var i in settings ) {
-					if ( typeof( settings[ i ][ 'overridable' ] ) != 'undefined' ) {
-						if ( settings[ i ].overridable && $( this ).find( '.template-data-' + i ).length > 0 ) {
+				for( var i in settings.fields ) {
+					if ( typeof( settings.fields[ i ][ 'overridable' ] ) != 'undefined' ) {
+						if ( settings.fields[ i ].overridable && $( this ).find( '.template-data-' + i ).length > 0 ) {
 							var element = $( this ).find( '.template-data-' + i );
 							var field = null;
 
@@ -265,7 +274,7 @@
 			var settings = $( this ).data( 'cursorial-post-settings' );
 			var data = $( this ).data( 'cursorial-post-data' );
 
-			for( var i in settings ) {
+			for( var i in settings.fields ) {
 				var field = $( this ).find( '.cursorial-field-' + i );
 				if ( field.length > 0 ) {
 					data[ i ] = field.val();
@@ -362,7 +371,9 @@
 				post_save: '',
 				post_remove: ''
 			},
-			show: {}
+			show: {},
+			blocks: '',
+			related: ''
 		}, options );
 
 		/**
@@ -406,12 +417,17 @@
 			var template = $( options.templates.post );
 			$( this ).find( '.cursorial-post' ).remove();
 
+			var related = '';
+			if ( options.related.length > 0 ) {
+				related = ', ' + options.related + '.cursorial-post-accept-related';
+			}
+
 			for ( var i in posts ) {
 				template.first().clone().cursorialPost( {
 					data: posts[ i ],
 					buttons: options.buttons,
-					connectToBlocks: options.blocks,
-					applyBlockSettings: getBlockSettings.apply( this, [ 'fields' ] ),
+					connectToBlocks: options.blocks + related,
+					applyBlockSettings: getBlockSettings.apply( this ),
 					create: function() {
 						$( block ).find( options.target ).append( $( this ) );
 						receivePost.apply( block, [ this ] );
@@ -497,7 +513,9 @@
 		function getBlockSettings( setting ) {
 			var settings = $( this ).data( 'cursorial-settings' );
 			if ( settings ) {
-				if ( settings[ setting ] ) {
+				if ( setting == null ) {
+					return settings;
+				} else if ( settings[ setting ] ) {
 					return settings[ setting ];
 				}
 				return null;
@@ -523,7 +541,7 @@
 		function receivePost( post ) {
 			// Don't trust the post
 			$( this ).find( '.cursorial-post' ).cursorialPost( {
-				applyBlockSettings: getBlockSettings.apply( this, [ 'fields' ] ),
+				applyBlockSettings: getBlockSettings.apply( this ),
 				buttons: options.buttons
 			} );
 		}
@@ -582,7 +600,8 @@
 				post: ''
 			},
 			target: '',
-			block: ''
+			blocks: '',
+			related: ''
 		}, options );
 
 		/**
@@ -630,11 +649,16 @@
 				var template = $( options.templates.post );
 				target.find( '.cursorial-post' ).remove();
 
+				var related = '';
+				if ( options.related.length > 0 ) {
+					related = ', ' + options.related + '.cursorial-post-accept-related';
+				}
+
 				for ( var i in data.results ) {
 					template.first().clone().cursorialPost( {
 						data: data.results[ i ],
 						buttons: options.buttons,
-						connectToBlocks: options.blocks,
+						connectToBlocks: options.blocks + related,
 						create: function() {
 							target.append( $( this ) );
 							$( this ).show();
@@ -702,6 +726,8 @@
 	/**
 	 * If content is too long, this plugin will wrap content in a element with overflow hidden
 	 * and then create a show-link.
+	 * @function
+	 * @name cursorialHideLongContent
 	 * @param {string} action Can be 'show' or the default 'hide'
 	 * @param {boolean} showLink If you want to show the show-/hide-link
 	 */
@@ -714,6 +740,8 @@
 		/**
 		 * Gets the height of the element. If height is 0, it will create a clone, append it to body
 		 * and then do another try of getting the height out of it.
+		 * @function
+		 * @name height
 		 * @return {int}
 		 */
 		function height() {
@@ -735,24 +763,36 @@
 		}
 
 		/**
+		 * Creates a show/hide link
+		 */
+		function link( sib, text, callback ) {
+			var link = $( '<a href="#hide" class="cursorial-hide-long-content-link">' + cursorial_i18n( text ) + '</a>' );
+			sib.after( link );
+			link.click( $.proxy( callback, this ) );
+			$( this ).data( 'cursorial-hide-long-content-link', link );
+		}
+
+		/**
 		 * Shows the content by removing the wrapper
+		 * @function
+		 * @name show
 		 */
 		function show() {
-			var link = $( this ).data( 'cursorial-hide-long-content-link' );
-			if ( link ) {
-				link.remove();
+			var currentLink = $( this ).data( 'cursorial-hide-long-content-link' );
+			if ( currentLink ) {
+				currentLink.remove();
 			}
 
 			if ( $( this ).parent( '.cursorial-hide-long-content-wrapper' ).length > 0 ) {
 				var content = $( this );
-				$( this ).parent().replaceWith( $( this ) );
-
-				if ( showLink !== false && height.apply( this ) > options.height ) {
-					link = $( '<a href="#hide" class="cursorial-hide-long-content-link">' + cursorial_i18n( 'Hide content' ) + '</a>' );
-					$( this ).after( link );
-					link.click( $.proxy( hide, this ) );
-					$( this ).data( 'cursorial-hide-long-content-link', link );
-				}
+				content.parent().animate( {
+					height: content.height()
+				}, 'fast', function() {
+					$( this ).replaceWith( content );
+					if ( showLink !== false && height.apply( content ) > options.height ) {
+						link.apply( content, [ content, 'Hide content', hide ] );
+					}
+				} );
 			}
 		}
 
@@ -760,25 +800,41 @@
 		 * Hides the content if it's too high with a wrapper with overflow hidden
 		 */
 		function hide() {
-			var link = $( this ).data( 'cursorial-hide-long-content-link' );
-			if ( link ) {
-				link.remove();
+			var currentLink = $( this ).data( 'cursorial-hide-long-content-link' );
+			if ( currentLink ) {
+				currentLink.remove();
 			}
 
 			if ( $( this ).parent( '.cursorial-hide-long-content-wrapper' ).length == 0 && height.apply( this ) > options.height ) {
-				if ( showLink !== false ) {
-					link = $( '<a href="#show" class="cursorial-hide-long-content-link">' + cursorial_i18n( 'Show content' ) + '</a>' );
-					$( this ).after( link );
-					link.click( $.proxy( show, this ) );
-					$( this ).data( 'cursorial-hide-long-content-link', link );
-				}
-
+				var content = $( this );
 				var wrapper = $( '<div class="cursorial-hide-long-content-wrapper"></div>' );
-				wrapper.css( {
-					height: options.height,
-					overflow: 'hidden'
-				} );
-				$( this ).wrap( wrapper );
+
+				// I suppose there's a height if content-element is nested inside an element appended to
+				// the body. Otherwise there's no need for an animation.
+				if ( content.height() > 0 ) {
+					wrapper.css( {
+						overflow: 'hidden',
+						height: content.height()
+					} );
+					content.wrap( wrapper );
+					wrapper = content.parent();
+					wrapper.animate( {
+						height: options.height
+					}, 'fast', function() {
+						if ( showLink !== false ) {
+							link.apply( content, [ wrapper, 'Show content', show ] );
+						}
+					} );
+				} else {
+					if ( showLink !== false ) {
+						link.apply( content, [ content, 'Show content', show ] );
+					}
+					wrapper.css( {
+						overflow: 'hidden',
+						height: options.height
+					} );
+					content.wrap( wrapper );
+				}
 			}
 		}
 
