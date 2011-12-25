@@ -11,7 +11,8 @@
 			},
 			timeout: 1000, // For how long wait until search-query is posted to server
 			target: '#cursorial-search-result', // Where to place rendered posts
-			blocks: '.cursorial-block .cursorial-posts' // Where to find blocks to connect posts to
+			blocks: '.cursorial-block .cursorial-posts', // Where to find blocks to connect posts to
+			related: '.cursorial-post-related' // Child posts, works as a block inside a post
 		} );
 
 		// Setup cursorial blocks
@@ -26,7 +27,8 @@
 				post_remove: 'a.cursorial-post-remove' // Post remove buttons
 			},
 			target: '.cursorial-posts', // Where to place posts
-			blocks: '.cursorial-block .cursorial-posts' // Where to find other blocks to connect posts to
+			blocks: '.cursorial-block .cursorial-posts', // Where to find other blocks to connect posts to
+			related: '.cursorial-post-related' // Child posts, works as a block inside a post
 		} );
 	} );
 </script>
@@ -51,7 +53,7 @@
 										&& $block !== $cursorial_admin->get_grid( $r, $c - 1 )
 										&& $block !== $cursorial_admin->get_grid( $r - 1, $c )
 									) : ?>
-										<td colspan="<?php echo $block->settings[ 'width' ]; ?>" rowspan="<?php echo $block->settings[ 'height' ]; ?>">
+										<td width="<?php echo ( 100 / $cursorial_admin->get_cols() ) * $block->settings[ 'width' ]; ?>%" colspan="<?php echo $block->settings[ 'width' ]; ?>" rowspan="<?php echo $block->settings[ 'height' ]; ?>">
 
 											<?php if ( $block->block ) : ?>
 												<div id="cursorial-block-<?php echo $block->block->name; ?>" class="cursorial-block cursorial-block-<?php echo $block->block->name; ?>">
@@ -136,6 +138,7 @@
 									</div>
 									<div class="clear"></div>
 								</div>
+								<div class="cursorial-post-related"></div>
 							</div>
 						</div>
 					</div>
