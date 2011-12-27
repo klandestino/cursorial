@@ -188,7 +188,7 @@
 		 * Switch to edit-mode
 		 * @function
 		 * @name edit
-		 * @return void
+		 * @returns {void}
 		 */
 		function edit() {
 			if ( ! $( this ).hasClass( 'cursorial-post-edit' ) ) {
@@ -216,6 +216,7 @@
 								case 'post_excerpt' :
 								case 'post_content' :
 									field = $( '<textarea class="cursorial-field cursorial-field-' + i + ' widefat"></textarea>' );
+									field.height( element.height() > 100 ? element.height() : 100 );
 									break;
 								case 'image' :
 									var postId = $( this ).data( 'cursorial-post-data' ).cursorial_ID;
@@ -233,7 +234,12 @@
 								field.val( element.html() );
 							}
 
-							element.cursorialHideLongContent( 'show', false ).after( field ).hide();
+							element.cursorialHideLongContent( 'show', {
+								delay: 0,
+								link: false
+							}, function() {
+									element.after( field ).hide();
+							} );
 						}
 					}
 				}
@@ -276,7 +282,7 @@
 					}
 					element.show();
 					field.remove();
-					element.cursorialHideLongContent();
+					element.cursorialHideLongContent( 'hide', 0 );
 				}
 			}
 
@@ -709,20 +715,30 @@
 	 * @function
 	 * @name cursorialHideLongContent
 	 * @param {string} action Can be 'show' or the default 'hide'
-	 * @param {boolean} showLink If you want to show the show-/hide-link
+	 * @param {object|string|number} options Can be all arguments as an object or the delay argument
+	 * @param {function} callback Called then show/hide been done
+	 * @returns {object} Affected jQuery-elements
 	 */
-	$.fn.cursorialHideLongContent = function( action, showLink ) {
-		var options = {
-			height: 100,
-			width: 200
-		};
+	$.fn.cursorialHideLongContent = function( action, options, callback ) {
+			if ( typeof( options ) != 'object' ) {
+				options = {
+					delay: options
+				};
+			}
+
+			options = $.extend( {
+				delay: 'fast',
+				link: true,
+				height: 150,
+				width: 200
+			}, options );
 
 		/**
 		 * Gets the height of the element. If height is 0, it will create a clone, append it to body
 		 * and then do another try of getting the height out of it.
 		 * @function
 		 * @name height
-		 * @return {int}
+		 * @returns {int} The height of the element
 		 */
 		function height() {
 			var height = $( this ).height();
@@ -744,11 +760,17 @@
 
 		/**
 		 * Creates a show/hide link
+		 * @function
+		 * @name link
+		 * @param {object} sib The sibling to append the link after
+		 * @param {string} text The text to use in the link
+		 * @param {function} click The click-callback
+		 * @returns {void}
 		 */
-		function link( sib, text, callback ) {
+		function link( sib, text, click ) {
 			var link = $( '<a href="#hide" class="cursorial-hide-long-content-link">' + cursorial_i18n( text ) + '</a>' );
 			sib.after( link );
-			link.click( $.proxy( callback, this ) );
+			link.click( $.proxy( click, this ) );
 			$( this ).data( 'cursorial-hide-long-content-link', link );
 		}
 
@@ -756,33 +778,56 @@
 		 * Shows the content by removing the wrapper
 		 * @function
 		 * @name show
+		 * @param {int|string} delay For how long the show will occur
+		 * @param {function} callback Called when the content has been shown
+		 * @param {boolean} showLink If the hide link will be shown
+		 * @returns {void}
 		 */
-		function show() {
+		function show( delay, callback, showLink ) {
 			var currentLink = $( this ).data( 'cursorial-hide-long-content-link' );
 			if ( currentLink ) {
 				currentLink.remove();
+			}
+
+			if ( typeof( delay ) != 'string' && typeof( delay ) != 'number' ) {
+				delay = 'fast';
 			}
 
 			if ( $( this ).parent( '.cursorial-hide-long-content-wrapper' ).length > 0 ) {
 				var content = $( this );
 				content.parent().animate( {
 					height: content.height()
-				}, 'fast', function() {
+				}, delay, function() {
 					$( this ).replaceWith( content );
 					if ( showLink !== false && height.apply( content ) > options.height ) {
 						link.apply( content, [ content, 'Hide content', hide ] );
 					}
+					if ( typeof( callback ) == 'function' ) {
+						callback.apply( content );
+					}
 				} );
+			} else if ( typeof( callback ) == 'function' ) {
+				callback.apply( content );
 			}
 		}
 
 		/**
 		 * Hides the content if it's too high with a wrapper with overflow hidden
+		 * @function
+		 * @name hide
+		 * @param {int|string} delay For how long the hide will occur
+		 * @param {function} callback Called when content is hidden
+		 * @param {boolean} showLink If the show link will be shown
+		 * @returns {void}
 		 */
-		function hide() {
+		function hide( delay, callback, showLink ) {
 			var currentLink = $( this ).data( 'cursorial-hide-long-content-link' );
 			if ( currentLink ) {
 				currentLink.remove();
+			}
+
+			if ( typeof( delay ) != 'string' && typeof( delay ) != 'number' ) {
+				delay = 'fast';
 			}
 
 			if ( $( this ).parent( '.cursorial-hide-long-content-wrapper' ).length == 0 && height.apply( this ) > options.height ) {
@@ -800,29 +845,37 @@
 					wrapper = content.parent();
 					wrapper.animate( {
 						height: options.height
-					}, 'fast', function() {
+					}, delay, function() {
 						if ( showLink !== false ) {
 							link.apply( content, [ wrapper, 'Show content', show ] );
 						}
+						if ( typeof( callback ) == 'function' ) {
+							callback.apply( content );
+						}
 					} );
 				} else {
-					if ( showLink !== false ) {
-						link.apply( content, [ content, 'Show content', show ] );
-					}
 					wrapper.css( {
 						overflow: 'hidden',
 						height: options.height
 					} );
 					content.wrap( wrapper );
+					if ( showLink !== false ) {
+						link.apply( content, [ content.parent(), 'Show content', show ] );
+					}
+					if ( typeof( callback ) == 'function' ) {
+						callback.apply( content );
+					}
 				}
+			} else if ( typeof( callback ) == 'function' ) {
+				callback.apply( content );
 			}
 		}
 
 		return this.each( function() {
 			if ( action == 'show' ) {
-				show.apply( this );
+				show.apply( this, [ options.delay, callback, options.link ] );
 			} else {
-				hide.apply( this );
+				hide.apply( this, [ options.delay, callback, options.link ] );
 			}
 		} );
 	}
@@ -835,12 +888,29 @@
  */
 
 if ( typeof( WPSetThumbnailID ) == 'undefined' ) {
+	/**
+	 * Image-picker-popup calls this function when an image is chosen.
+	 * This callback sets the post image field value to the chosen id.
+	 * @function
+	 * @name WPSetThumbnailID
+	 * @param {int|string} c The attachment id
+	 * @param {?} b I don't know
+	 * @return {void}
+	 */
 	WPSetThumbnailID = function( c, b ) {
 		jQuery( '.cursorial-post-edit .cursorial-field-image' ).val( c );
 	}
 }
 
 if ( typeof( WPSetThumbnailHTML ) == 'undefined' ) {
+	/**
+	 * Image-picker-popup calls this function when an image is chosen.
+	 * This function sets the image HTML with the chosen image.
+	 * @function
+	 * @name
+	 * @param {object} e The DOM-element where the image is places
+	 * @return {void}
+	 */
 	WPSetThumbnailHTML = function( e ) {
 		var image = jQuery( e ).find( 'img' );
 		if ( image.length > 0 ) {
