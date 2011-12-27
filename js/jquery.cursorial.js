@@ -181,14 +181,6 @@
 				$( this ).hide();
 			}	);
 
-			/*
-			var related = $( this ).data( 'cursorial-post-blocks' ).replace( '.cursorial-post-accept-related', '' );
-			$( this ).find( related ).removeClass( 'cursorial-post-accept-related' );
-			if ( typeof( settings[ 'related' ] ) != 'undefined' ) {
-				$( this ).find( related ).addClass( 'cursorial-post-accept-related' );
-			}
-			*/
-
 			$( this ).find( fields.join( ', ' ) ).fadeTo( 'fast', 1 );
 		}
 
@@ -372,8 +364,7 @@
 				post_remove: ''
 			},
 			show: {},
-			blocks: '',
-			related: ''
+			blocks: ''
 		}, options );
 
 		/**
@@ -417,16 +408,11 @@
 			var template = $( options.templates.post );
 			$( this ).find( '.cursorial-post' ).remove();
 
-			var related = '';
-			if ( options.related.length > 0 ) {
-				related = ', ' + options.related + '.cursorial-post-accept-related';
-			}
-
 			for ( var i in posts ) {
 				template.first().clone().cursorialPost( {
 					data: posts[ i ],
 					buttons: options.buttons,
-					connectToBlocks: options.blocks + related,
+					connectToBlocks: options.blocks,
 					applyBlockSettings: getBlockSettings.apply( this ),
 					create: function() {
 						$( block ).find( options.target ).append( $( this ) );
@@ -600,8 +586,7 @@
 				post: ''
 			},
 			target: '',
-			blocks: '',
-			related: ''
+			blocks: ''
 		}, options );
 
 		/**
@@ -649,16 +634,11 @@
 				var template = $( options.templates.post );
 				target.find( '.cursorial-post' ).remove();
 
-				var related = '';
-				if ( options.related.length > 0 ) {
-					related = ', ' + options.related + '.cursorial-post-accept-related';
-				}
-
 				for ( var i in data.results ) {
 					template.first().clone().cursorialPost( {
 						data: data.results[ i ],
 						buttons: options.buttons,
-						connectToBlocks: options.blocks + related,
+						connectToBlocks: options.blocks,
 						create: function() {
 							target.append( $( this ) );
 							$( this ).show();
