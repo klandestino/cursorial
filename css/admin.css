@@ -72,3 +72,8 @@
 #cursorial-search-result .widget-control-actions {
 	display: none;
 }
+
+#cursorial-admin .cursorial-post.ui-sortable-placeholder {
+	border: 2px dashed gray;
+	border-radius: 3px;
+}

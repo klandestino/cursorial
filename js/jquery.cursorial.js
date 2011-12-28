@@ -86,9 +86,26 @@
 				revert: 'invalid',
 				helper: 'clone',
 				opacity: 0.75,
+				distance: 30,
+				delay: 200,
+				start: $.proxy( startDragging, this ),
 				drag: $.proxy( whileDragging, this ),
 				stop: $.proxy( stopDragging, this )
 			} );
+		}
+
+		/**
+		 * Called when dragging started
+		 * @function
+		 * @name startDragging
+		 * @param {object} event The event
+		 * @param {object} ui Some ui data from jquery-ui
+		 * @returns {void}
+		 */
+		function startDragging( event, ui ) {
+			$( ui.helper ).addClass( 'cursorial-post-dragging-helper' );
+			$( ui.helper ).width( $( this ).width() );
+			$( this ).fadeTo( 'fast', 0.5 );
 		}
 
 		/**
@@ -100,10 +117,15 @@
 		 * @return void
 		 */
 		function whileDragging( event, ui ) {
-			if ( $( this ).parents( '.cursorial-block-active' ).length > 0 ) {
-				$( this ).hide();
+			/*if ( $( this ).parents( '.cursorial-block-active' ).length > 0 ) {
 			} else {
-				$( this ).fadeTo( 0, 0.5 );
+			}*/
+
+			if ( $( '.cursorial-post.ui-sortable-placeholder' ).length > 0 ) {
+				$( '.cursorial-post.ui-sortable-placeholder' ).css( { visibility: 'visible' } );
+				//$( ui.helper ).width( $( '.cursorial-post.ui-sortable-placeholder' ).width() );
+			} else {
+				//$( ui.helper ).width( $( this ).width );
 			}
 		}
 
@@ -118,22 +140,30 @@
 		function stopDragging( event, ui ) {
 			var orig = this;
 
+			$( ui.helper ).removeClass( 'cursorial-post-dragging-helper' );
+
 			// This timeout is not necessary, it just makes it a bit nicer
 			setTimeout( function() {
-				// Fade out the original, delete it and replace with the one left over.
-				$( orig ).fadeOut( 'fast', function() {
-					var data = $( this ).data( 'cursorial-post-data' );
-					var blocks = $( this ).data( 'cursorial-post-blocks' );
-					var buttons = $( this ).data( 'cursorial-post-buttons' );
-					$( this ).remove();
-					$( '.cursorial-post-' + data.ID ).fadeTo( 'fast', 1, function() {
-						$( this ).cursorialPost( {
-							data: data,
-							buttons: buttons,
-							connectToBlocks: blocks
+				var data = $( orig ).data( 'cursorial-post-data' );
+				// If there's two posts with the same id, then one is a helper, and the
+				// other one the original. Remove original and make the helper to a post.
+				if ( $( '.cursorial-post-' + data.ID ).length > 1 ) {
+					// Fade out the original, delete it and replace with the one left over.
+					$( orig ).fadeOut( 'fast', function() {
+						var blocks = $( this ).data( 'cursorial-post-blocks' );
+						var buttons = $( this ).data( 'cursorial-post-buttons' );
+						$( this ).remove();
+						$( '.cursorial-post-' + data.ID ).fadeTo( 'fast', 1, function() {
+							$( this ).cursorialPost( {
+								data: data,
+								buttons: buttons,
+								connectToBlocks: blocks
+							} );
 						} );
 					} );
-				} );
+				} else {
+					$( orig ).fadeTo( 'fast', 1 );
+				}
 			}, 500 );
 		}
 
