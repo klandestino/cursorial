@@ -88,8 +88,8 @@ function query_cursorial_posts( $block_name ) {
  * @return string
  */
 function get_the_cursorial_image( $size = 'medium', $attr = array() ) {
-	global $cursorial;
-	return $cursorial->get_image( $size, $attr );
+	global $post, $cursorial;
+	return $cursorial->get_image( $post, $size, $attr );
 }
 
 /**
@@ -113,6 +113,23 @@ function get_cursorial_block( $block_name ) {
  */
 function the_cursorial_image( $size = 'medium', $attr = array() ) {
 	echo get_the_cursorial_image( $size, $attr );
+}
+
+/**
+ * Wrapper for Cursorial::get_depth
+ * @return int
+ */
+function get_the_cursorial_depth() {
+	global $post, $cursorial;
+	return $cursorial->get_depth( $post );
+}
+
+/**
+ * An echo-wrapper for get_the_cursorial_depth
+ * @return void
+ */
+function the_cursorial_depth() {
+	echo get_the_cursorial_depth();
 }
 
 // Add the plugin initiator function to Wordpress

@@ -260,13 +260,12 @@ class Cursorial {
 
 	/**
 	 * Image tag for cursorial images
+	 * @param object $post The post to get image from
 	 * @param string $size The size of the image
 	 * @param array $attr Image attributes
 	 * @return string
 	 */
-	public function get_image( $size = 'medium', $attr = array() ) {
-		global $post;
-
+	public function get_image( $post, $size = 'medium', $attr = array() ) {
 		if ( is_object( $post ) ) {
 			$image_id = apply_filters( 'cursorial_image_id', get_post_thumbnail_id( property_exists( $post, 'cursorial_ID' ) ? $post->cursorial_ID : $post->ID ) );
 
@@ -294,6 +293,19 @@ class Cursorial {
 		}
 
 		return '';
+	}
+
+	/**
+	 * Get the depth of a cursorial post and applies the cursorial_depth-filter
+	 * @param object $post The post to get depth from
+	 * @return int
+	 */
+	public function get_depth( $post ) {
+		if ( is_object( $post ) ) {
+			return apply_filters( 'cursorial_depth', ( int ) get_post_meta( property_exists( $post, 'cursorial_ID' ) ? $post->cursorial_ID : $post->ID, 'cursorial-post-depth', true ) );
+		}
+
+		return 0;
 	}
 
 	/**

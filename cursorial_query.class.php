@@ -47,8 +47,9 @@ class Cursorial_Query {
 			$post->post_date = apply_filters( 'the_date', $post->post_date );
 			$post->post_excerpt = apply_filters( 'the_excerpt', $post->post_excerpt );
 			$post->post_content = apply_filters( 'the_content', $post->post_content );
-			$post->image = apply_filters( 'cursorial_image_id', get_post_thumbnail_id( $post->cursorial_ID ) );
+			$post->image = apply_filters( 'cursorial_image_id', get_post_thumbnail_id( property_exists( $post, 'cursorial_ID' ) ? $post->cursorial_ID : $post->ID ) );
 			$post->cursorial_image = wp_get_attachment_image_src( $post->image );
+			$post->cursorial_depth = apply_filters( 'cursorial_depth', ( int ) get_post_meta( property_exists( $post, 'cursorial_ID' ) ? $post->cursorial_ID : $post->ID, 'cursorial-post-depth', true ) );
 
 			// Create a default excerpt fallback
 			if ( empty( $post->post_excerpt ) ) {

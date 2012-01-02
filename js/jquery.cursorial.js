@@ -70,6 +70,12 @@
 					}
 				}
 			}
+
+			if ( typeof( data[ 'cursorial_depth' ] ) != 'undefined' ) {
+				if ( data.cursorial_depth > 0 ) {
+					setChildStatus.apply( this, [ true ] );
+				}
+			}
 		}
 
 		/**
@@ -418,6 +424,11 @@
 		 */
 		function setChildStatus( status ) {
 			$( this ).data( 'cursorial-child-status', status );
+			var data = $( this ).data( 'cursorial-post-data' );
+
+			if ( typeof( data[ 'cursorial_depth' ] ) != 'undefined' ) {
+				data.cursorial_depth = status === true ? 1 : 0;
+			}
 
 			if ( status ) {
 				if ( ! $( this ).hasClass( 'cursorial-child-depth-1' ) ) {
@@ -591,13 +602,15 @@
 			// Extract post ids
 			var posts = $( this ).find( '.cursorial-post' );
 			posts.cursorialPost( 'save' );
+
 			for ( var i = 0; i < posts.length; i++ ) {
 				// data-property does not follow draggable items,
 				// therefore we've stored the post id in a class name :(
 				var id = $( posts[ i ] ).attr( 'id' ).match( /cursorial-post-([0-9]+)/ );
 				if ( id ) {
 					data.posts[ id[ 1 ] ] = {
-						id: id[ 1 ]
+						id: id[ 1 ],
+						depth: $( posts[ i ] ).data( 'cursorial-child-status' ) === true ? 1 : 0
 					};
 
 					var fields = $( posts[ i ] ).data( 'cursorial-post-data' );

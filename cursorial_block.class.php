@@ -143,6 +143,7 @@ class Cursorial_Block {
 				$new_id = wp_insert_post( $fields );
 
 				add_post_meta( $new_id, 'cursorial-post-id', $ref_id, true );
+				add_post_meta( $new_id, 'cursorial-post-depth', isset( $post[ 'depth' ] ) ? $post[ 'depth' ] : 0, true );
 				wp_set_post_terms( $new_id, $this->name, Cursorial::TAXONOMY, false );
 
 				if ( isset( $post[ 'image' ] ) ) {
