@@ -106,10 +106,19 @@
 			$( ui.helper ).addClass( 'cursorial-post-dragging-helper' );
 			$( ui.helper ).width( $( this ).width() );
 			$( this ).fadeTo( 'fast', 0.5 );
+
+			if ( getChildStatus.apply( this ) ) {
+				// This is how we know that it is a child been dragged.
+				// When dragging stops, we'll not move any child siblings.
+				$( this ).data( 'cursorial-post-dragging-child', true );
+			} else {
+				getChilds.apply( this ).hide( 'fast' );
+			}
 		}
 
 		/**
 		 * Called when dragging is going on
+		 * It sets the placeholder visible and tells if this post will be a child or not
 		 * @function
 		 * @name whileDragging
 		 * @param {object} event The event
@@ -117,15 +126,20 @@
 		 * @return void
 		 */
 		function whileDragging( event, ui ) {
-			/*if ( $( this ).parents( '.cursorial-block-active' ).length > 0 ) {
-			} else {
-			}*/
+			var placeholder = $( '.cursorial-post.ui-sortable-placeholder' );
+			if ( placeholder.length > 0 ) {
+				placeholder.css( { visibility: 'visible' } );
 
-			if ( $( '.cursorial-post.ui-sortable-placeholder' ).length > 0 ) {
-				$( '.cursorial-post.ui-sortable-placeholder' ).css( { visibility: 'visible' } );
-				//$( ui.helper ).width( $( '.cursorial-post.ui-sortable-placeholder' ).width() );
-			} else {
-				//$( ui.helper ).width( $( this ).width );
+				placeholder.removeClass( 'cursorial-child-depth-1' );
+				setChildStatus.apply( this, [ false ] );
+
+				var prev = getParent.apply( placeholder );
+				if ( prev.length > 0 && childsAllowed.apply( prev ) ) {
+					if ( $( ui.helper ).offset().left - prev.offset().left > prev.width() / 3 ) {
+						placeholder.addClass( 'cursorial-child-depth-1' );
+						setChildStatus.apply( this, [ true ] );
+					}
+				}
 			}
 		}
 
@@ -139,7 +153,8 @@
 		 */
 		function stopDragging( event, ui ) {
 			var orig = this;
-
+			var childs = $( this ).data( 'cursorial-post-dragging-child' ) ? [] : getChilds.apply( this );
+			$( this ).data( 'cursorial-post-dragging-child', false );
 			$( ui.helper ).removeClass( 'cursorial-post-dragging-helper' );
 
 			// This timeout is not necessary, it just makes it a bit nicer
@@ -152,13 +167,23 @@
 					$( orig ).fadeOut( 'fast', function() {
 						var blocks = $( this ).data( 'cursorial-post-blocks' );
 						var buttons = $( this ).data( 'cursorial-post-buttons' );
+						var childStatus = getChildStatus.apply( this );
 						$( this ).remove();
 						$( '.cursorial-post-' + data.ID ).fadeTo( 'fast', 1, function() {
+							var settings = $( this ).data( 'cursorial-post-settings' );
 							$( this ).cursorialPost( {
 								data: data,
 								buttons: buttons,
-								connectToBlocks: blocks
+								connectToBlocks: blocks,
+								childStatus: childStatus,
+								applyBlockSettings: settings
 							} );
+
+							if ( childs.length > 0 && ! getChildStatus.apply( this ) && childsAllowed.apply( this ) ) {
+								childs.insertAfter( $( this ) ).show( 'fast' );
+							} else if ( childs.length > 0 ) {
+								childs.remove();
+							}
 						} );
 					} );
 				} else {
@@ -202,14 +227,16 @@
 		function applyBlockSettings( settings ) {
 			$( this ).data( 'cursorial-post-settings', settings );
 			var fields = [];
+			var fieldSettings = getFieldSettings.apply( this );
 
-			for( var i in settings.fields ) {
+			for( var i in fieldSettings ) {
 				fields.push( '.template-data-' + i + ', .template-data:has(.template-data-' + i + ')' );
 			}
 
 			$( this ).find( '.template-data:not(' + fields.join( ', ' ) + ')' ).fadeTo( 'fast', 0, function() {
 				$( this ).hide();
-			}	);
+				$( this ).cursorialHideLongContent( 'show', { link: false } );
+			} );
 
 			$( this ).find( fields.join( ', ' ) ).fadeTo( 'fast', 1 );
 		}
@@ -235,10 +262,11 @@
 				}
 
 				var settings = $( this ).data( 'cursorial-post-settings' );
+				var fieldSettings = getFieldSettings.apply( this );	
 
-				for( var i in settings.fields ) {
-					if ( typeof( settings.fields[ i ][ 'overridable' ] ) != 'undefined' ) {
-						if ( settings.fields[ i ].overridable && $( this ).find( '.template-data-' + i ).length > 0 ) {
+				for( var i in fieldSettings ) {
+					if ( typeof( fieldSettings[ i ][ 'overridable' ] ) != 'undefined' ) {
+						if ( fieldSettings[ i ].overridable && $( this ).find( '.template-data-' + i ).length > 0 ) {
 							var element = $( this ).find( '.template-data-' + i );
 							var field = null;
 
@@ -302,22 +330,19 @@
 			var settings = $( this ).data( 'cursorial-post-settings' );
 			var data = $( this ).data( 'cursorial-post-data' );
 
-			for( var i in settings.fields ) {
+			var fieldSettings = getFieldSettings.apply( this );
+
+			for( var i in fieldSettings ) {
 				var field = $( this ).find( '.cursorial-field-' + i );
 				if ( field.length > 0 ) {
 					data[ i ] = field.val();
-					var element = $( this ).find( '.template-data-' + i );
-					if ( i != 'image' ) {
-						element.html( field.val() );
-					}
-					element.show();
+					$( this ).find( '.template-data-' + i ).show();
 					field.remove();
-					element.cursorialHideLongContent( 'hide', 0 );
 				}
 			}
 
 			$( this ).find( '.cursorial-field' ).remove();
-
+			render.apply( this, [ data ] );
 			$( this ).draggable( { disabled: false } );
 		}
 
@@ -331,6 +356,96 @@
 			$( this ).fadeTo( 'fast', 0, function() {
 				$( this ).remove();
 			} );
+		}
+
+		/**
+		 * Returns the current fields settings based childs status
+		 * @function
+		 * @name getFieldSettings
+		 * @returns {array}
+		 */
+		function getFieldSettings() {
+			var settings = $( this ).data( 'cursorial-post-settings' );
+			var fieldSettings = [];
+
+			if ( typeof( settings ) != 'undefined' ) {
+				fieldSettings = settings.fields;
+			}
+
+			if ( getChildStatus.apply( this ) && typeof( settings[ 'childs' ] ) != 'undefined' ) {
+				if ( typeof( settings.childs[ 'fields' ] != 'undefined' ) ) {
+					fieldSettings = settings.childs.fields;
+				}
+			}
+
+			return fieldSettings;
+		}
+
+		/**
+		 * Tells if cursorial posts can have childs
+		 * @function
+		 * @name childsAllowed
+		 * @returns {boolean}
+		 */
+		function childsAllowed() {
+			var settings = $( this ).data( 'cursorial-post-settings' );
+
+			if ( settings ) {
+				if ( typeof( settings[ 'childs' ] ) != 'undefined' ) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/**
+		 * Gets the child status of the cursorial post
+		 * @function
+		 * @name getChildStatus
+		 * @returns {boolean}
+		 */
+		function getChildStatus() {
+			return ( $( this ).data( 'cursorial-child-status' ) === true );
+		}
+
+		/**
+		 * Sets the child status of the cursorial post
+		 * @function
+		 * @name setChildStatus
+		 * @param {boolean} status
+		 * @returns {void}
+		 */
+		function setChildStatus( status ) {
+			$( this ).data( 'cursorial-child-status', status );
+
+			if ( status ) {
+				if ( ! $( this ).hasClass( 'cursorial-child-depth-1' ) ) {
+					$( this ).addClass( 'cursorial-child-depth-1' );
+				}
+			} else {
+				$( this ).removeClass( 'cursorial-child-depth-1' );
+			}
+		}
+
+		/**
+		 * Returns a cursorial post parent if there is one
+		 * @function
+		 * @name getParent
+		 * @returns {object}
+		 */
+		function getParent() {
+			return $( this ).prevAll( '.cursorial-post:not(.cursorial-child-depth-1):first' );
+		}
+
+		/**
+		 * Returns cursorial post childs if there are any
+		 * @function
+		 * @name getChilds
+		 * @returns {object}
+		 */
+		function getChilds() {
+			return $( this ).nextUntil( '.cursorial-post:not(.cursorial-child-depth-1)', '.cursorial-post.cursorial-child-depth-1' );
 		}
 
 		/**
@@ -353,6 +468,9 @@
 				switch( i ) {
 					case 'data' :
 						render.apply( this, [ options[ i ] ] );
+						break;
+					case 'childStatus' :
+						setChildStatus.apply( this, [ options[ i ] ] );
 						break;
 				}
 			}
@@ -798,10 +916,20 @@
 		 * @returns {void}
 		 */
 		function link( sib, text, click ) {
-			var link = $( '<a href="#hide" class="cursorial-hide-long-content-link">' + cursorial_i18n( text ) + '</a>' );
+			var link = $( '<a href="javascript://" class="cursorial-hide-long-content-link">' + cursorial_i18n( text ) + '</a>' );
 			sib.after( link );
 			link.click( $.proxy( click, this ) );
 			$( this ).data( 'cursorial-hide-long-content-link', link );
+		}
+
+		function removeLink() {
+			var currentLink = $( this ).data( 'cursorial-hide-long-content-link' );
+			if ( currentLink ) {
+				currentLink.remove();
+			} else {
+				$( this ).next( 'a.cursorial-hide-long-content-link' ).remove();
+				$( this ).parent( '.cursorial-hide-long-content-wrapper' ).next( 'a.cursorial-hide-long-content-link' ).remove();
+			}
 		}
 
 		/**
@@ -814,10 +942,7 @@
 		 * @returns {void}
 		 */
 		function show( delay, callback, showLink ) {
-			var currentLink = $( this ).data( 'cursorial-hide-long-content-link' );
-			if ( currentLink ) {
-				currentLink.remove();
-			}
+			removeLink.apply( this );
 
 			if ( typeof( delay ) != 'string' && typeof( delay ) != 'number' ) {
 				delay = 'fast';
@@ -851,10 +976,7 @@
 		 * @returns {void}
 		 */
 		function hide( delay, callback, showLink ) {
-			var currentLink = $( this ).data( 'cursorial-hide-long-content-link' );
-			if ( currentLink ) {
-				currentLink.remove();
-			}
+			removeLink.apply( this );
 
 			if ( typeof( delay ) != 'string' && typeof( delay ) != 'number' ) {
 				delay = 'fast';
@@ -871,32 +993,42 @@
 						overflow: 'hidden',
 						height: content.height()
 					} );
+
 					content.wrap( wrapper );
 					wrapper = content.parent();
+
 					wrapper.animate( {
 						height: options.height
 					}, delay, function() {
 						if ( showLink !== false ) {
 							link.apply( content, [ wrapper, 'Show content', show ] );
 						}
+
 						if ( typeof( callback ) == 'function' ) {
 							callback.apply( content );
 						}
 					} );
+
+					return;
 				} else {
 					wrapper.css( {
 						overflow: 'hidden',
 						height: options.height
 					} );
+
 					content.wrap( wrapper );
+
 					if ( showLink !== false ) {
 						link.apply( content, [ content.parent(), 'Show content', show ] );
 					}
-					if ( typeof( callback ) == 'function' ) {
-						callback.apply( content );
-					}
 				}
-			} else if ( typeof( callback ) == 'function' ) {
+			} else if ( $( this ).parent( '.cursorial-hide-long-content-wrapper' ).length > 0 && ! $( this ).data( 'cursorial-hide-long-content-link' ) ) {
+				if ( showLink !== false ) {
+					link.apply( this, [ $( this ).parent(), 'Show content', show ] );
+				}
+			}
+
+			if ( typeof( callback ) == 'function' ) {
 				callback.apply( content );
 			}
 		}
@@ -944,8 +1076,15 @@ if ( typeof( WPSetThumbnailHTML ) == 'undefined' ) {
 	WPSetThumbnailHTML = function( e ) {
 		var image = jQuery( e ).find( 'img' );
 		if ( image.length > 0 ) {
-			jQuery( '.cursorial-post-edit .cursorial-thumbnail' ).attr( 'src', image.attr( 'src' ) );
-			jQuery( '.cursorial-post-edit' ).cursorialPost( 'save' );
+			var thumb = jQuery( '.cursorial-post-edit .cursorial-thumbnail' );
+
+			if ( thumb.length <= 0 ) {
+				thumb = jQuery( '<img class="cursorial-thumbnail"/>' );
+				thumb.appendTo( '.cursorial-post-edit .template-data-image' );
+			}
+
+			thumb.attr( 'src', image.attr( 'src' ) );
+			//jQuery( '.cursorial-post-edit' ).cursorialPost( 'save' );
 		}
 	}
 }
