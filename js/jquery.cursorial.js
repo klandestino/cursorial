@@ -398,6 +398,12 @@
 
 			if ( settings ) {
 				if ( typeof( settings[ 'childs' ] ) != 'undefined' ) {
+					if ( typeof( settings.childs[ 'max' ] ) != 'undefined' ) {
+						if ( settings.childs.max <= getChilds.apply( this ).length ) {
+							return false;
+						}
+					}
+
 					return true;
 				}
 			}
@@ -456,7 +462,7 @@
 		 * @returns {object}
 		 */
 		function getChilds() {
-			return $( this ).nextUntil( '.cursorial-post:not(.cursorial-child-depth-1)', '.cursorial-post.cursorial-child-depth-1' );
+			return $( this ).nextUntil( '.cursorial-post:not(.cursorial-child-depth-1, .ui-sortable-placeholder)', '.cursorial-post.cursorial-child-depth-1' );
 		}
 
 		/**
