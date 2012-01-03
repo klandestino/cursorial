@@ -1,4 +1,5 @@
 === Cursorial ===
+
 Contributors: spurge, redundans, alfred
 Tags: cursorial, admin, content, custom, news, loops
 Requires at least: 3.2.1
