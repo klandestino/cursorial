@@ -1,12 +1,12 @@
 Cursorial
 =========
 
-Contributors: spurge, redundans, alfred
-Tags: cursorial, admin, content, custom, news, loops
-Requires at least: 3.2.1
-Tested up to: 3.2.1
-Stable tag: 0.9
-License: GPLv2
+* Contributors: spurge, redundans, alfred
+* Tags: cursorial, admin, content, custom, news, loops
+* Requires at least: 3.2.1
+* Tested up to: 3.2.1
+* Stable tag: 0.9
+* License: GPLv2
 
 Create custom loops with an easy drag-and-drop interface.
 
