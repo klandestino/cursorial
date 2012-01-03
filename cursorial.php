@@ -3,8 +3,8 @@
 /*
 Plugin Name: Cursorial
 Plugin URI: https://github.com/klandestino/cursorial
-Description: Wordpress Plugin
-Version: 0.1
+Description: Create custom loops with an easy drag-and-drop interface.
+Version: 0.9
 Author: Klandestino
 Author URI: http://klandestino.se
 License: GPLv2
@@ -38,7 +38,7 @@ if ( ! function_exists( 'add_action' ) ) {
 /**
  * Define plugin constants
  */
-define( 'CURSORIAL_VERSION', '0.1' );
+define( 'CURSORIAL_VERSION', '0.9' );
 define( 'CURSORIAL_PLUGIN_URL', plugin_dir_url( plugin_basename( $plugin ) ) );
 define( 'CURSORIAL_TEMPLATE_DIR', dirname( __FILE__ ) . '/templates' );
 
