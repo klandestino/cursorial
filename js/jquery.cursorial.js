@@ -249,39 +249,56 @@
 				var fieldSettings = getFieldSettings.apply( this );	
 
 				for( var i in fieldSettings ) {
-					if ( typeof( fieldSettings[ i ][ 'overridable' ] ) != 'undefined' ) {
-						if ( fieldSettings[ i ].overridable && $( this ).find( '.template-data-' + i ).length > 0 ) {
-							var element = $( this ).find( '.template-data-' + i );
-							var field = null;
+					var element = $( this ).find( '.template-data-' + i );
 
-							switch( i ) {
-								case 'post_excerpt' :
-								case 'post_content' :
-									field = $( '<textarea class="cursorial-field cursorial-field-' + i + ' widefat"></textarea>' );
-									field.height( element.height() > 100 ? element.height() : 100 );
-									break;
-								case 'image' :
-									var postId = $( this ).data( 'cursorial-post-data' ).cursorial_ID;
-									var imageId = $( this ).data( 'cursorial-post-data' ).image;
-									field = $(
-										'<input class="cursorial-field cursorial-field-' + i + '" type="hidden" value="' + imageId + '"/>' +
-										'<a class="cursorial-field thickbox" href="media-upload.php?post_id=' + postId + '&amp;type=image&amp;TB_iframe=1" title="' + cursorial_i18n( 'Set featured image' ) + '">' + cursorial_i18n( 'Set featured image' ) + '</a>'
-									);
-									break;
-								default :
-									field = $( '<input class="cursorial-field cursorial-field-' + i + ' widefat" type="text"/>' );
+					if ( element.length > 0 ) {
+						var fieldset = $( '<fieldset class="cursorial-fieldset cursorial-fieldset-' + i + '"></fieldset>' );
+						fieldset.append( '<legend class="cursorial-field-title cursorial-field-title-' + i + '">' + cursorial_i18n( i.replace( '_', ' ' ) ) + '</legend>' );
+
+						if ( typeof( fieldSettings[ i ][ 'optional' ] ) != 'undefined' ) {
+							if ( fieldSettings[ i ].optional ) {
+								fieldset.append( '<div class="cursorial-option cursorial-option-' + i + '">' +
+									'<label for="' + $( this ).attr( 'id' ) + '-option-' + i + '">' + cursorial_i18n( 'Visible' ) + '</label>' +
+									'<input id="' + $( this ).attr( 'id' ) + '-option-' + i + '" type="checkbox" value="true"/>' +
+								'</div>' );
 							}
+						}
 
-							if ( i != 'image' ) {
-								field.val( element.html() );
+						if ( typeof( fieldSettings[ i ][ 'overridable' ] ) != 'undefined' ) {
+							if ( fieldSettings[ i ].overridable ) {
+								var field = null;
+
+								switch( i ) {
+									case 'post_excerpt' :
+									case 'post_content' :
+										field = $( '<textarea class="cursorial-field cursorial-field-' + i + ' widefat"></textarea>' );
+										field.height( element.height() > 100 ? element.height() : 100 );
+										break;
+									case 'image' :
+										var postId = $( this ).data( 'cursorial-post-data' ).cursorial_ID;
+										var imageId = $( this ).data( 'cursorial-post-data' ).image;
+										field = $(
+											'<input class="cursorial-field cursorial-field-' + i + '" type="hidden" value="' + imageId + '"/>' +
+											'<a class="cursorial-field thickbox" href="media-upload.php?post_id=' + postId + '&amp;type=image&amp;TB_iframe=1" title="' + cursorial_i18n( 'Set featured image' ) + '">' + cursorial_i18n( 'Set featured image' ) + '</a>'
+										);
+										break;
+									default :
+										field = $( '<input class="cursorial-field cursorial-field-' + i + ' widefat" type="text"/>' );
+								}
+
+								if ( i != 'image' ) {
+									field.val( element.html() );
+								}
+
+								fieldset.append( field );
+
+								element.cursorialHideLongContent( 'show', {
+									delay: 0,
+									link: false
+								}, function() {
+										element.after( fieldset ).hide();
+								} );
 							}
-
-							element.cursorialHideLongContent( 'show', {
-								delay: 0,
-								link: false
-							}, function() {
-									element.after( field ).hide();
-							} );
 						}
 					}
 				}
@@ -321,7 +338,7 @@
 				if ( field.length > 0 ) {
 					data[ i ] = field.val();
 					$( this ).find( '.template-data-' + i ).show();
-					field.remove();
+					$( this ).find( '.cursorial-fieldset-' + i ).remove();
 				}
 			}
 

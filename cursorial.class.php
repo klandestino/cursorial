@@ -120,11 +120,13 @@ class Cursorial {
 			var CURSORIAL_PLUGIN_URL = '<?php echo CURSORIAL_PLUGIN_URL; ?>';
 			var cursorial_i18n = function( str ) {
 				var i18n = {};
-				<?php foreach( array(
-					'Set featured image'
-				) as $str ) : ?>
-					i18n[ '<?php echo $str; ?>' ] = "<?php echo esc_attr( __( $str, 'cursorial' ) ); ?>";
-				<?php endforeach; ?>
+				i18n[ 'Set featured image' ] = "<?php echo esc_attr( __( 'Set featured image', 'cursorial' ) ); ?>";
+				i18n[ 'Show content' ] = "<?php echo esc_attr( __( 'Show content', 'cursorial' ) ); ?>";
+				i18n[ 'Hide content' ] = "<?php echo esc_attr( __( 'Hide content', 'cursorial' ) ); ?>";
+				i18n[ 'Visible' ] = "<?php echo esc_attr( __( 'Visible', 'cursorial' ) ); ?>";
+				i18n[ 'post title' ] = "<?php echo esc_attr( __( 'post title', 'cursorial' ) ); ?>";
+				i18n[ 'image' ] = "<?php echo esc_attr( __( 'image', 'cursorial' ) ); ?>";
+				i18n[ 'the excerpt' ] = "<?php echo esc_attr( __( 'the excerpt', 'cursorial' ) ); ?>";
 				if ( typeof( i18n[ str ] ) != 'undefined' ) {
 					return i18n[ str ];
 				} else {

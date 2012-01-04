@@ -85,3 +85,16 @@
 #cursorial-admin .cursorial-post.cursorial-post-rejected {
 	border-color: red;
 }
+
+#cursorial-admin .cursorial-fieldset {
+	padding: 4px;
+	border: 1px solid lightgray;
+	border-radius: 3px;
+}
+
+#cursorial-admin .cursorial-field-title {
+	padding: 0 4px;
+	color: gray;
+	font-weight: bold;
+	text-transform: capitalize;
+}
