@@ -876,6 +876,20 @@
 		return $( this ).each( function() {
 			// Set events
 			$( 'input#cursorial-search-field' ).keydown( searchByTimeout );
+
+			// Connect to blocks
+			$( options.target ).sortable( {
+				start: function( event, ui ) {
+					$( ui.item ).trigger( 'sortstart' );
+				},
+				stop: function( event, ui ) {
+					$( ui.item ).trigger( 'sortstop' );
+				},
+				revert: true,
+				connectWith: options.blocks,
+				delay: 200,
+				distance: 30
+			} );
 		} );
 	};
 
