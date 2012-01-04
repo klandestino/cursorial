@@ -133,6 +133,8 @@
 		 */
 		function whileDragging( event, ui ) {
 			var placeholder = $( '.cursorial-post.ui-sortable-placeholder' );
+			var settings = $( this ).data( 'cursorial-post-settings' );
+
 			if ( placeholder.length > 0 ) {
 				placeholder.css( { visibility: 'visible' } );
 
@@ -159,16 +161,15 @@
 		 */
 		function stopDragging( event, ui ) {
 			var orig = this;
+			var data = $( this ).data( 'cursorial-post-data' );
 			var childs = $( this ).data( 'cursorial-post-dragging-child' ) ? [] : getChilds.apply( this );
 			$( this ).data( 'cursorial-post-dragging-child', false );
 			$( ui.helper ).removeClass( 'cursorial-post-dragging-helper' );
 
-			// This timeout is not necessary, it just makes it a bit nicer
 			setTimeout( function() {
-				var data = $( orig ).data( 'cursorial-post-data' );
 				// If there's two posts with the same id, then one is a helper, and the
 				// other one the original. Remove original and make the helper to a post.
-				if ( $( '.cursorial-post-' + data.ID ).length > 1 ) {
+				if ( $( '.cursorial-post-' + data.ID + ':not(.cursorial-post-rejected)' ).length > 1 ) {
 					// Fade out the original, delete it and replace with the one left over.
 					$( orig ).fadeOut( 'fast', function() {
 						var blocks = $( this ).data( 'cursorial-post-blocks' );
@@ -194,8 +195,13 @@
 					} );
 				} else {
 					$( orig ).fadeTo( 'fast', 1 );
+					$( '.cursorial-post-' + data.ID ).each( function() {
+						if ( this !== orig ) {
+							$( this ).remove();
+						}
+					} );
 				}
-			}, 500 );
+			}, 600 );
 		}
 
 		/**
@@ -682,21 +688,47 @@
 		}
 
 		/**
-		 * Sets the block to active by giving it a css-class
-		 * @return void
+		 * Called when a post is being dragged over the block.
+		 * @function
+		 * @name postDragOver
+		 * @param {object} event The event being executed
+		 * @param {object} ui jQuery-ui-sortable ui-object
+		 * @returns {void}
 		 */
-		function setActive() {
+		function postDragOver( event, ui ) {	
 			$( this ).addClass( 'cursorial-block-active' );
+			$( ui.item ).removeClass( 'cursorial-post-rejected' );
+			var max = getBlockSettings.apply( this, [ 'max' ] );
+
+			if ( max ) {
+				if ( max <= $( this ).find( options.target ).children( '.cursorial-post:not(.cursorial-child-depth-1, .ui-sortable-placeholder):visible' ).length ) {
+					$( this ).find( '.cursorial-post.ui-sortable-placeholder' ).addClass( 'cursorial-post-rejected' ).hide();
+					$( ui.item ).addClass( 'cursorial-post-rejected' );
+				} else {
+					$( this ).find( '.cursorial-post.ui-sortable-placeholder' ).removeClass( 'cursorial-post-rejected' ).show();
+				}
+			}
 		}
 
 		/**
-		 * Sets the block to inactive by removing a css-class
-		 * @return void
+		 * Called when a post leaves the block.
+		 * @function
+		 * @name postDragOut
+		 * @param {object} event The event being executed
+		 * @param {object} ui jQuery-ui-sortable ui-object
+		 * @returns {void}
 		 */
-		function setInActive() {
+		function postDragOut( event, ui ) {
 			$( this ).removeClass( 'cursorial-block-active' );
 		}
 
+		/**
+		 * Called when a post has been dragged into the block.
+		 * @function
+		 * @name receivePost
+		 * @param {object} post The post being received
+		 * @returns {void}
+		 */
 		function receivePost( post ) {
 			// Don't trust the post
 			$( this ).find( '.cursorial-post' ).cursorialPost( {
@@ -730,8 +762,8 @@
 				// with jQuery-ui and sortable.
 				getBlockPosts.apply( $( this ), [ function() {
 					$( this ).find( options.target ).sortable( {
-						over: $.proxy( setActive, this ),
-						out: $.proxy( setInActive, this ),
+						over: $.proxy( postDragOver, this ),
+						out: $.proxy( postDragOut, this ),
 						receive: $.proxy( function( event, ui ) {
 							receivePost.apply( this, [ ui.item ] );
 						}, this ),
