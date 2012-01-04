@@ -81,3 +81,7 @@
 #cursorial-admin .cursorial-child-depth-1 {
 	margin-left: 50px;
 }
+
+#cursorial-admin .cursorial-post.cursorial-post-rejected {
+	border-color: red;
+}

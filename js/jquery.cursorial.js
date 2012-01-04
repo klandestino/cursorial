@@ -87,17 +87,10 @@
 		 */
 		function setDraggable( blocks ) {
 			$( this ).data( 'cursorial-post-blocks', blocks );
-			$( this ).draggable( {
-				connectToSortable: blocks,
-				revert: 'invalid',
-				helper: 'clone',
-				opacity: 0.75,
-				distance: 30,
-				delay: 200,
-				start: $.proxy( startDragging, this ),
-				drag: $.proxy( whileDragging, this ),
-				stop: $.proxy( stopDragging, this )
-			} );
+			$( this ).unbind( 'sortstart', $.proxy( startDragging, this ) );
+			$( this ).bind( 'sortstart', $.proxy( startDragging, this ) );
+			$( this ).unbind( 'sortstop', $.proxy( stopDragging, this ) );
+			$( this ).bind( 'sortstop', $.proxy( stopDragging, this ) );
 		}
 
 		/**
@@ -109,16 +102,15 @@
 		 * @returns {void}
 		 */
 		function startDragging( event, ui ) {
-			$( ui.helper ).addClass( 'cursorial-post-dragging-helper' );
-			$( ui.helper ).width( $( this ).width() );
 			$( this ).fadeTo( 'fast', 0.5 );
+			$( document ).mousemove( $.proxy( whileDragging, this ) );
 
 			if ( getChildStatus.apply( this ) ) {
 				// This is how we know that it is a child been dragged.
 				// When dragging stops, we'll not move any child siblings.
-				$( this ).data( 'cursorial-post-dragging-child', true );
+				$( this ).data( 'cursorial-post-dragging-child-status', true );
 			} else {
-				getChilds.apply( this ).hide( 'fast' );
+				$( this ).data( 'cursorial-post-dragging-childs', getChilds.apply( this ).hide( 'fast' ) );
 			}
 		}
 
@@ -127,11 +119,9 @@
 		 * It sets the placeholder visible and tells if this post will be a child or not
 		 * @function
 		 * @name whileDragging
-		 * @param {object} event The event
-		 * @param {object} ui Some ui data from jquery-ui
-		 * @return void
+		 * @returns {void}
 		 */
-		function whileDragging( event, ui ) {
+		function whileDragging() {
 			var placeholder = $( '.cursorial-post.ui-sortable-placeholder' );
 			var settings = $( this ).data( 'cursorial-post-settings' );
 
@@ -143,7 +133,7 @@
 
 				var prev = getParent.apply( placeholder );
 				if ( prev.length > 0 && childsAllowed.apply( prev ) ) {
-					if ( $( ui.helper ).offset().left - prev.offset().left > prev.width() / 3 ) {
+					if ( $( this ).offset().left - prev.offset().left > prev.width() / 3 ) {
 						placeholder.addClass( 'cursorial-child-depth-1' );
 						setChildStatus.apply( this, [ true ] );
 					}
@@ -160,48 +150,28 @@
 		 * @return void
 		 */
 		function stopDragging( event, ui ) {
+			$( document ).unbind( 'mousemove', $.proxy( whileDragging, this ) );
 			var orig = this;
 			var data = $( this ).data( 'cursorial-post-data' );
-			var childs = $( this ).data( 'cursorial-post-dragging-child' ) ? [] : getChilds.apply( this );
-			$( this ).data( 'cursorial-post-dragging-child', false );
-			$( ui.helper ).removeClass( 'cursorial-post-dragging-helper' );
+			var childs = $( this ).data( 'cursorial-post-dragging-childs' );
+
+			if ( $( this ).data( 'cursorial-post-dragging-child-status' ) && $( this ).hasClass( 'cursorial-post-rejected' ) ) {
+				setChildStatus.apply( this, [ true ] );
+			}
+
+			$( this ).data( 'cursorial-post-dragging-child-status', false );
 
 			setTimeout( function() {
-				// If there's two posts with the same id, then one is a helper, and the
-				// other one the original. Remove original and make the helper to a post.
-				if ( $( '.cursorial-post-' + data.ID + ':not(.cursorial-post-rejected)' ).length > 1 ) {
-					// Fade out the original, delete it and replace with the one left over.
-					$( orig ).fadeOut( 'fast', function() {
-						var blocks = $( this ).data( 'cursorial-post-blocks' );
-						var buttons = $( this ).data( 'cursorial-post-buttons' );
-						var childStatus = getChildStatus.apply( this );
-						$( this ).remove();
-						$( '.cursorial-post-' + data.ID ).fadeTo( 'fast', 1, function() {
-							var settings = $( this ).data( 'cursorial-post-settings' );
-							$( this ).cursorialPost( {
-								data: data,
-								buttons: buttons,
-								connectToBlocks: blocks,
-								childStatus: childStatus,
-								applyBlockSettings: settings
-							} );
-
-							if ( childs.length > 0 && ! getChildStatus.apply( this ) && childsAllowed.apply( this ) ) {
-								childs.insertAfter( $( this ) ).show( 'fast' );
-							} else if ( childs.length > 0 ) {
-								childs.remove();
-							}
-						} );
-					} );
-				} else {
-					$( orig ).fadeTo( 'fast', 1 );
-					$( '.cursorial-post-' + data.ID ).each( function() {
-						if ( this !== orig ) {
-							$( this ).remove();
-						}
-					} );
+				$( orig ).fadeTo( 'fast', 1 );
+				if ( childs ) {
+					if ( childsAllowed.apply( orig ) ) {
+						childs.insertAfter( orig ).show( 'fast' );
+					} else {
+						childs.remove();
+					}
 				}
-			}, 600 );
+				$( this ).data( 'cursorial-post-dragging-childs', null );
+			}, 500 );
 		}
 
 		/**
@@ -250,7 +220,9 @@
 				$( this ).cursorialHideLongContent( 'show', { link: false } );
 			} );
 
-			$( this ).find( fields.join( ', ' ) ).fadeTo( 'fast', 1 );
+			$( this ).find( fields.join( ', ' ) ).fadeTo( 'fast', 1, function() {
+				$( this ).cursorialHideLongContent();
+			} );
 		}
 
 		/**
@@ -314,7 +286,7 @@
 					}
 				}
 
-				$( this ).draggable( { disabled: true } );
+				$( this ).parent().sortable( 'disable' );
 			}
 		}
 
@@ -355,7 +327,7 @@
 
 			$( this ).find( '.cursorial-field' ).remove();
 			render.apply( this, [ data ] );
-			$( this ).draggable( { disabled: false } );
+			$( this ).parent().sortable( 'enable' );
 		}
 
 		/**
@@ -688,24 +660,36 @@
 		}
 
 		/**
-		 * Called when a post is being dragged over the block.
+		 * Called when block starts sorting
 		 * @function
-		 * @name postDragOver
+		 * @name startSorting
 		 * @param {object} event The event being executed
 		 * @param {object} ui jQuery-ui-sortable ui-object
 		 * @returns {void}
 		 */
-		function postDragOver( event, ui ) {	
+		function startSorting( event, ui ) {
+			outSorting.apply( this, [ event, ui ] );
 			$( this ).addClass( 'cursorial-block-active' );
-			$( ui.item ).removeClass( 'cursorial-post-rejected' );
-			var max = getBlockSettings.apply( this, [ 'max' ] );
+			$( document ).mousemove( $.proxy( whileSorting, this ) );
+		}
 
-			if ( max ) {
-				if ( max <= $( this ).find( options.target ).children( '.cursorial-post:not(.cursorial-child-depth-1, .ui-sortable-placeholder):visible' ).length ) {
-					$( this ).find( '.cursorial-post.ui-sortable-placeholder' ).addClass( 'cursorial-post-rejected' ).hide();
-					$( ui.item ).addClass( 'cursorial-post-rejected' );
-				} else {
-					$( this ).find( '.cursorial-post.ui-sortable-placeholder' ).removeClass( 'cursorial-post-rejected' ).show();
+		function whileSorting() {
+			var post = $( '.cursorial-post.ui-sortable-helper' );
+			var placeholder = $( this ).find( '.cursorial-post.ui-sortable-placeholder' );
+
+			if ( post.length > 0 && placeholder.length > 0 ) {
+				post.removeClass( 'cursorial-post-rejected' );
+				placeholder.removeClass( 'cursorial-post-rejected' );
+				var max = getBlockSettings.apply( this, [ 'max' ] );
+
+				if ( max ) {
+					if (
+						max < $( this ).find( options.target ).children( '.cursorial-post:not(.cursorial-child-depth-1, #' + post.attr( 'id' ) + '):visible' ).length
+						&& ! post.hasClass( 'cursorial-child-depth-1' )
+					) {
+						post.addClass( 'cursorial-post-rejected' );
+						placeholder.addClass( 'cursorial-post-rejected' );
+					}
 				}
 			}
 		}
@@ -713,13 +697,23 @@
 		/**
 		 * Called when a post leaves the block.
 		 * @function
-		 * @name postDragOut
+		 * @name outSorting
 		 * @param {object} event The event being executed
 		 * @param {object} ui jQuery-ui-sortable ui-object
 		 * @returns {void}
 		 */
-		function postDragOut( event, ui ) {
+		function outSorting( event, ui ) {
 			$( this ).removeClass( 'cursorial-block-active' );
+			$( document ).unbind( 'mousemove', $.proxy( whileSorting, this ) );
+		}
+
+		function stopSorting( event, ui ) {
+			outSorting.apply( this, [ event, ui ] );
+
+			if ( $( ui.item ).hasClass( 'cursorial-post-rejected' ) ) {
+				$( ui.item ).removeClass( 'cursorial-post-rejected' );
+				$( ui.item ).parent().sortable( 'cancel' );
+			}
 		}
 
 		/**
@@ -727,9 +721,16 @@
 		 * @function
 		 * @name receivePost
 		 * @param {object} post The post being received
+		 * @param {object} from From where the post comes from
 		 * @returns {void}
 		 */
-		function receivePost( post ) {
+		function receivePost( post, from ) {
+			if ( from && post.hasClass( 'cursorial-post-rejected' ) ) {
+				post.removeClass( 'cursorial-post-rejected' );
+				from.sortable( 'cancel' );
+				return;
+			}
+
 			// Don't trust the post
 			$( this ).find( '.cursorial-post' ).cursorialPost( {
 				applyBlockSettings: getBlockSettings.apply( this ),
@@ -752,6 +753,10 @@
 					extractedName = extractedName[ 1 ];
 				}
 
+				if ( ! $( this ).hasClass( 'cursorial-block' ) ) {
+					$( this ).addClass( 'cursorial-block' );
+				}
+
 				// Save block name
 				$( this ).data( 'cursorial-name', extractedName );
 
@@ -760,14 +765,26 @@
 
 				// Populate the block with posts from Wordpress and make it avaliable for new posts
 				// with jQuery-ui and sortable.
+				var block = this;
 				getBlockPosts.apply( $( this ), [ function() {
 					$( this ).find( options.target ).sortable( {
-						over: $.proxy( postDragOver, this ),
-						out: $.proxy( postDragOut, this ),
+						start: function( event, ui ) {
+							$( ui.item ).trigger( 'sortstart' );
+							startSorting.apply( block, [ event, ui ] );
+						},
+						stop: function( event, ui ) {
+							$( ui.item ).trigger( 'sortstop' );
+							stopSorting.apply( block, [ event, ui ] );
+						},
+						over: $.proxy( startSorting, this ),
+						out: $.proxy( outSorting, this ),
 						receive: $.proxy( function( event, ui ) {
-							receivePost.apply( this, [ ui.item ] );
+							receivePost.apply( this, [ ui.item, ui.sender ] );
 						}, this ),
-						revert: true
+						revert: true,
+						connectWith: '.cursorial-block ' + options.target,
+						delay: 200,
+						distance: 30
 					} );
 				}	] );
 
@@ -967,6 +984,7 @@
 		 * @returns {void}
 		 */
 		function link( sib, text, click ) {
+			removeLink.apply( this );
 			var link = $( '<a href="javascript://" class="cursorial-hide-long-content-link">' + cursorial_i18n( text ) + '</a>' );
 			sib.after( link );
 			link.click( $.proxy( click, this ) );
@@ -974,13 +992,9 @@
 		}
 
 		function removeLink() {
-			var currentLink = $( this ).data( 'cursorial-hide-long-content-link' );
-			if ( currentLink ) {
-				currentLink.remove();
-			} else {
-				$( this ).next( 'a.cursorial-hide-long-content-link' ).remove();
-				$( this ).parent( '.cursorial-hide-long-content-wrapper' ).next( 'a.cursorial-hide-long-content-link' ).remove();
-			}
+			$( this ).nextUntil( ':not(a.cursorial-hide-long-content-link)' ).remove();
+			$( this ).parent( '.cursorial-hide-long-content-wrapper' ).nextUntil( ':not(a.cursorial-hide-long-content-link)' ).remove();
+			$( this ).data( 'cursorial-hide-long-content-link', null );
 		}
 
 		/**
