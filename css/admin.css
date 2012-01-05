@@ -99,11 +99,9 @@
 	text-transform: capitalize;
 }
 
-#cursorial-admin .cursorial-hidden {
-	font-style: italic;
-	color: gray;
-}
-
-#cursorial-admin .cursorial-hidden img.cursorial-thumbnail {
+#cursorial-admin .cursorial-hidden * {
+	padding: 4px;
 	opacity: 0.25;
+	border: 1px dashed red;
+	border-radius: 3px;
 }
