@@ -5,7 +5,7 @@ Cursorial
 * Tags: cursorial, admin, content, custom, news, loops
 * Requires at least: 3.2.1
 * Tested up to: 3.2.1
-* Stable tag: 0.9
+* Stable tag: 0.9.1
 * License: GPLv2
 
 Create custom loops with an easy drag-and-drop interface.
@@ -31,12 +31,32 @@ Screenshot
 Changelog
 ---------
 
-Todo
-----
+### Version 0.9
+
+First stable beta release with some of the main features.
+
+* Register blocks with custom feeds and gather them in the administration.
+* Search posts in the administration and drag posts into cursorial
+	blocks.
+* Drag posts between blocks.
+* Override posts contents.
+* Images will be set by wordpress own image library.
+* Posts can be set to have childs.
+* Admin pages templates are overridable.
+* Loops for displaying block posts are available through both a query
+	method and a template fetcher.
+
+### Version 0.9.1
+
+Second stable beta release.
+
+* Maximum number of posts can be set for both blocks and post childs.
+
+Upcoming versions
+-----------------
 
 ### Version 1.0
 
-* Allow register_cursorial to set a maximum number of allowed posts in blocks and post childs.
 * Create a show/hide option on fields set to optional in register_cursorial.
 * Replace individual block save buttons with a general save button for all visible blocks.
 * Write a user manual in the plugin admin index.
@@ -44,4 +64,5 @@ Todo
 
 ### Version 1.1
 
-* Create a indicator for unsaved blocks.
+* Create an indicator for unsaved blocks.
+* Let the textareas use TinyMCE
