@@ -361,6 +361,8 @@
 				$( this ).find( '.cursorial-fieldset-' + i ).remove();
 			}
 
+			$( this ).parents( '.cursorial-block' ).cursorialBlock( 'savedStatus', false );
+
 			$( this ).find( '.cursorial-field' ).remove();
 			render.apply( this, [ data ] );
 			$( this ).parent().sortable( 'enable' );
@@ -535,22 +537,17 @@
 	 * JQuery-plugin that takes care of blocks
 	 * @param object options Plugin options
 	 */
-	$.fn.cursorialBlock = function( options ) {
-		// Set default properties in options object
-		options = $.extend( {
-			target: '',
-			templates: {
-				post: ''
-			},
-			buttons: {
-				save: '',
-				post_edit: '',
-				post_save: '',
-				post_remove: ''
-			},
-			show: {},
-			blocks: ''
-		}, options );
+	$.fn.cursorialBlock = function( options, args ) {
+		if ( typeof( args ) == 'undefined' ) {
+			args = '';
+		}
+
+		// Redefine options to a object if it's a string
+		if ( typeof( options ) != 'object' ) {
+			var no = {};
+			no[ options ] = args;
+			options = no;
+		}
 
 		/**
 		 * Fetches all posts connected to this block with a json-request
@@ -559,7 +556,7 @@
 		 * @param function callback Function that will be called when everything is done.
 		 * @return void
 		 */
-		function getBlockPosts( callback ) {
+		function load( callback ) {
 			var block = this;
 			$( this ).cursorialLoader( 'start' );
 			$.ajax( {
@@ -567,7 +564,7 @@
 				type: 'POST',
 				data: {
 					action: 'block',
-					block: $( this ).data( 'cursorial-name' )
+					block: $( this ).data( 'cursorial-block-name' )
 				},
 				dataType: 'json',
 				error: function( data ) {
@@ -576,8 +573,8 @@
 				},
 				success: function( data ) {
 					$( block ).cursorialLoader( 'stop' );
-					setBlockSettings.apply( block, [ data.blocks ] );
-					renderBlockPosts.apply( block, [ data.results ] );
+					setSettings.apply( block, [ data.blocks ] );
+					render.apply( block, [ data.results ] );
 					callback.apply( block );
 				}
 			} );
@@ -588,8 +585,9 @@
 		 * @param array posts The posts to render
 		 * @return void
 		 */
-		function renderBlockPosts( posts ) {
+		function render( posts ) {
 			var block = this;
+			var options = getOptions.apply( this );
 			var template = $( options.templates.post );
 			$( this ).find( '.cursorial-post' ).remove();
 
@@ -598,7 +596,7 @@
 					data: posts[ i ],
 					buttons: options.buttons,
 					connectToBlocks: options.blocks,
-					applyBlockSettings: getBlockSettings.apply( this ),
+					applyBlockSettings: getSettings.apply( this ),
 					create: function() {
 						$( block ).find( options.target ).append( $( this ) );
 						receivePost.apply( block, [ this ] );
@@ -612,11 +610,11 @@
 		 * and creates a ajax-post to save the data.
 		 * @return void
 		 */
-		function saveBlock() {
+		function save() {
 			var data = {
 				action: 'save-block',
 				posts: {},
-				block: $( this ).data( 'cursorial-name' )
+				block: $( this ).data( 'cursorial-block-name' )
 			};
 
 			// Extract post ids
@@ -634,7 +632,7 @@
 					};
 
 					var fields = $( posts[ i ] ).data( 'cursorial-post-data' );
-					var settings = getBlockSettings.apply( this, [ 'fields' ] );
+					var settings = getSettings.apply( this, [ 'fields' ] );
 					for( var ii in settings ) {
 						if ( typeof( fields[ ii ] ) != 'undefined' ) {
 							if ( settings[ ii ].overridable ) {
@@ -663,8 +661,9 @@
 				},
 				success: function( data ) {
 					$( block ).cursorialLoader( 'stop' );
-					setBlockSettings.apply( block, [ data.blocks ] );
-					renderBlockPosts.apply( block, [ data.results ] );
+					setSavedStatus.apply( block, [ true ] );
+					setSettings.apply( block, [ data.blocks ] );
+					render.apply( block, [ data.results ] );
 				}
 			} );
 		}
@@ -674,13 +673,13 @@
 		 * @param object settings Settings from server
 		 * @return void
 		 */
-		function setBlockSettings( settings ) {
-			if ( settings[ $( this ).data( 'cursorial-name' ) ] ) {
-				settings = settings[ $( this ).data( 'cursorial-name' ) ];
+		function setSettings( settings ) {
+			if ( settings[ $( this ).data( 'cursorial-block-name' ) ] ) {
+				settings = settings[ $( this ).data( 'cursorial-block-name' ) ];
 			}
 
 			if ( settings ) {
-				$( this ).data( 'cursorial-settings', settings );
+				$( this ).data( 'cursorial-block-settings', settings );
 			}
 		}
 
@@ -689,8 +688,8 @@
 		 * @param string setting The setting to get
 		 * @return mixed
 		 */
-		function getBlockSettings( setting ) {
-			var settings = $( this ).data( 'cursorial-settings' );
+		function getSettings( setting ) {
+			var settings = $( this ).data( 'cursorial-block-settings' );
 			if ( settings ) {
 				if ( setting == null ) {
 					return settings;
@@ -722,11 +721,11 @@
 			if ( post.length > 0 && placeholder.length > 0 ) {
 				post.removeClass( 'cursorial-post-rejected' );
 				placeholder.removeClass( 'cursorial-post-rejected' );
-				var max = getBlockSettings.apply( this, [ 'max' ] );
+				var max = getSettings.apply( this, [ 'max' ] );
 
 				if ( max ) {
 					if (
-						max < $( this ).find( options.target ).children( '.cursorial-post:not(.cursorial-child-depth-1, #' + post.attr( 'id' ) + '):visible' ).length
+						max < $( this ).find( getOptions.apply( this ).target ).children( '.cursorial-post:not(.cursorial-child-depth-1, #' + post.attr( 'id' ) + '):visible' ).length
 						&& ! post.hasClass( 'cursorial-child-depth-1' )
 					) {
 						post.addClass( 'cursorial-post-rejected' );
@@ -775,64 +774,121 @@
 
 			// Don't trust the post
 			$( this ).find( '.cursorial-post' ).cursorialPost( {
-				applyBlockSettings: getBlockSettings.apply( this ),
-				buttons: options.buttons
+				applyBlockSettings: getSettings.apply( this ),
+				buttons: getOptions.apply( this ).buttons
 			} );
+		}
+
+		function setSortable() {
+			var block = this;
+			var options = getOptions.apply( this );
+			$( this ).find( options.target ).sortable( {
+				start: function( event, ui ) {
+					$( ui.item ).trigger( 'sortstart' );
+					startSorting.apply( block, [ event, ui ] );
+				},
+				stop: function( event, ui ) {
+					$( ui.item ).trigger( 'sortstop' );
+					stopSorting.apply( block, [ event, ui ] );
+				},
+				over: $.proxy( startSorting, this ),
+				out: $.proxy( outSorting, this ),
+				change: $.proxy( function( event, ui ) {
+					setSavedStatus.apply( this, [ false ] );
+				}, this ),
+				receive: $.proxy( function( event, ui ) {
+					receivePost.apply( this, [ ui.item, ui.sender ] );
+				}, this ),
+				revert: true,
+				connectWith: '.cursorial-block ' + options.target,
+				delay: 200,
+				distance: 30
+			} );
+		}
+
+		function setSavedStatus( status ) {
+			if ( $( this ).data( 'cursorial-block-status' ) !== status ) {
+				$( this ).data( 'cursorial-block-status', status );
+
+				var indicator = getOptions.apply( this ).statusIndicator;
+				var name = $( this ).data( 'cursorial-block-name' );
+
+				if ( status ) {
+					$( this ).removeClass( 'cursorial-block-status-unsaved' );
+					$( indicator ).find( '.cursorial-block-status-' + name ).remove();
+				} else {
+					$( this ).addClass( 'cursorial-block-status-unsaved' );
+					var li = $( '<li class="cursorial-block-status cursorial-block-status-' + name + '">' + cursorial_i18n( '%s is unsaved' ).replace( '%s', name ) + '</li>' );
+					$( indicator ).append( li );
+				}
+			}
+		}
+
+		function setSavingButtons() {
+			$( this ).find( getOptions.apply( this ).buttons.save ).unbind( 'click', $.proxy( save, this ) );
+			$( this ).find( getOptions.apply( this ).buttons.save ).bind( 'click', $.proxy( save, this ) );
+		}
+
+		function getOptions() {
+			return $( this ).data( 'cursorial-block-options' );
 		}
 
 		/**
 		 * Loops through each matched element
 		 */
 		return this.each( function() {
-			// If cursorial block aldready been initiated.
-			// It can be repoulated with options
-			if ( $( this ).data( 'cursorial-name' ) && $( this ).data( 'cursorial-options' ) ) {
-				$( this ).data( 'cursorial-options', $.extend( $( this ).data( 'cursorial-options' ), options ) );
-			} else {
+			// Set default properties in options object
+			$( this ).data( 'cursorial-block-options', $.extend( {
+				target: '',
+				templates: {
+					post: ''
+				},
+				buttons: {
+					save: '',
+					post_edit: '',
+					post_save: '',
+					post_remove: ''
+				},
+				show: {},
+				blocks: '',
+				statusIndicator: ''
+			}, $( this ).data( 'cursorial-block-options' ), options ) );
+
+			if ( ! $( this ).data( 'cursorial-block-name' ) ) {
 				// Try to extract the block name from class attribute with pattern "cursorial-block-NAME"
 				var extractedName = $( this ).attr( 'id' ).match( /cursorial-block-([^$]+)/ );
 				if ( extractedName ) {
 					extractedName = extractedName[ 1 ];
 				}
+				$( this ).data( 'cursorial-block-name', extractedName );
 
-				if ( ! $( this ).hasClass( 'cursorial-block' ) ) {
-					$( this ).addClass( 'cursorial-block' );
+				if ( typeof( options[ 'load' ] ) == 'undefined' ) {
+					options.load = '';
 				}
 
-				// Save block name
-				$( this ).data( 'cursorial-name', extractedName );
+				// Set the savings buttons
+				setSavingButtons.apply( this );
+			}
 
-				// Save cursorial options
-				$( this ).data( 'cursorial-options', options );
+			if ( ! $( this ).hasClass( 'cursorial-block' ) ) {
+				$( this ).addClass( 'cursorial-block' );
+			}
 
-				// Populate the block with posts from Wordpress and make it avaliable for new posts
-				// with jQuery-ui and sortable.
-				var block = this;
-				getBlockPosts.apply( $( this ), [ function() {
-					$( this ).find( options.target ).sortable( {
-						start: function( event, ui ) {
-							$( ui.item ).trigger( 'sortstart' );
-							startSorting.apply( block, [ event, ui ] );
-						},
-						stop: function( event, ui ) {
-							$( ui.item ).trigger( 'sortstop' );
-							stopSorting.apply( block, [ event, ui ] );
-						},
-						over: $.proxy( startSorting, this ),
-						out: $.proxy( outSorting, this ),
-						receive: $.proxy( function( event, ui ) {
-							receivePost.apply( this, [ ui.item, ui.sender ] );
-						}, this ),
-						revert: true,
-						connectWith: '.cursorial-block ' + options.target,
-						delay: 200,
-						distance: 30
-					} );
-				}	] );
-
-				// Save block by click with the right scope
-				$( this ).find( options.buttons.save ).unbind( 'click', $.proxy( saveBlock, this ) );
-				$( this ).find( options.buttons.save ).bind( 'click', $.proxy( saveBlock, this ) );
+			// Do actions if there are any
+			for( var i in options ) {
+				switch( i ) {
+					case 'save' :
+						save.apply( this );
+						break;
+					case 'load' :
+						if ( typeof( options[ 'save' ] ) == 'undefined' ) {
+							load.apply( this, [ $.proxy( setSortable, this ) ] );
+						}
+						break;
+					case 'savedStatus' :
+						setSavedStatus.apply( this, [ args ] );
+						break;
+				}
 			}
 		} );
 	};

@@ -26,11 +26,16 @@
 				post_remove: 'a.cursorial-post-remove' // Post remove buttons
 			},
 			target: '.cursorial-posts', // Where to place posts
-			blocks: '.cursorial-block .cursorial-posts' // Where to find other blocks to connect posts to
+			blocks: '.cursorial-block .cursorial-posts', // Where to find other blocks to connect posts to
+			statusIndicator: '#cursorial-block-status-list' // Where to place statuses for blocks
+		} );
+
+		$( 'input.cursorial-block-saveall' ).click( function() {
+			$( '.cursorial-block' ).cursorialBlock( 'save' );
 		} );
 	} );
 </script>
-<div id="cursorial-admin" class="wrap">
+<div id="cursorial-admin" class="wrap">	
 	<div id="icon-themes" class="icon32"><br/></div>
 	<h2><?php printf( __( 'Cursorial » %s', 'cursorial' ), $cursorial_admin->label ); ?></h2>
 
@@ -98,6 +103,21 @@
 
 	<div class="widget-liquid-right">
 		<div id="widgets-right">
+			<div id="cursorial-block-actions" class="widgets-holder-wrap">
+				<div class="sidebar-name">
+					<h3>
+						<span><?php _e( 'Publish', 'cursorial' ); ?></span>
+					</h3>
+				</div><!-- .sidebar-name -->
+				<div class="widgets-sortables widget-holder">
+					<ul id="cursorial-block-status-list"></ul>
+					<div class="publishing-actions">
+						<input type="submit" value="<?php _e( 'Save all blocks', 'cursorial' ); ?>" class="button-primary cursorial-block-saveall" name="save_block" />
+					</div>
+					<div class="clear"></div>
+				</div><!-- .widgets-sortables -->
+			</div><!-- #cursorial-block-saving -->
+
 			<div id="cursorial-search" class="widgets-holder-wrap">
 				<div class="sidebar-name">
 					<h3>
