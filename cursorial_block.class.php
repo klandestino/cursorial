@@ -124,11 +124,18 @@ class Cursorial_Block {
 					$ref->post_excerpt = apply_filters( 'the_excerpt', $ref->post_content );
 				}
 
+				// Stores the visibility for fields
+				$hidden_fields = array();
+
 				foreach( $post as $field_name => $field ) {
 					if ( $field_name != 'id' && property_exists( $ref, $field_name ) ) {
 						if ( trim( $ref->$field_name ) != trim( $field ) ) {
 							$fields[ $field_name ] = trim( $field );
 						}
+					}
+
+					if ( isset( $post[ $field_name . '_hidden' ] ) ) {
+						$hidden_fields[] = $field_name;
 					}
 				}
 
@@ -144,6 +151,7 @@ class Cursorial_Block {
 
 				add_post_meta( $new_id, 'cursorial-post-id', $ref_id, true );
 				add_post_meta( $new_id, 'cursorial-post-depth', isset( $post[ 'depth' ] ) ? $post[ 'depth' ] : 0, true );
+				add_post_meta( $new_id, 'cursorial-post-hidden-fields', $hidden_fields, true );
 				wp_set_post_terms( $new_id, $this->name, Cursorial::TAXONOMY, false );
 
 				if ( isset( $post[ 'image' ] ) ) {

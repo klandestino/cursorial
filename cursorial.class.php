@@ -23,6 +23,12 @@ class Cursorial {
 	 */
 	public $admin;
 
+	/**
+	 * If set to true, all content will be displayd even if
+	 * it's set to be hidden.
+	 */
+	public $prevent_hidden = false;
+
 	// PRIVATE PROPERTIES
 
 	/**
@@ -123,7 +129,7 @@ class Cursorial {
 				i18n[ 'Set featured image' ] = "<?php echo esc_attr( __( 'Set featured image', 'cursorial' ) ); ?>";
 				i18n[ 'Show content' ] = "<?php echo esc_attr( __( 'Show content', 'cursorial' ) ); ?>";
 				i18n[ 'Hide content' ] = "<?php echo esc_attr( __( 'Hide content', 'cursorial' ) ); ?>";
-				i18n[ 'Visible' ] = "<?php echo esc_attr( __( 'Visible', 'cursorial' ) ); ?>";
+				i18n[ 'Visible:' ] = "<?php echo esc_attr( __( 'Visible:', 'cursorial' ) ); ?>";
 				i18n[ 'post title' ] = "<?php echo esc_attr( __( 'post title', 'cursorial' ) ); ?>";
 				i18n[ 'image' ] = "<?php echo esc_attr( __( 'image', 'cursorial' ) ); ?>";
 				i18n[ 'the excerpt' ] = "<?php echo esc_attr( __( 'the excerpt', 'cursorial' ) ); ?>";
@@ -269,7 +275,14 @@ class Cursorial {
 	 */
 	public function get_image( $post, $size = 'medium', $attr = array() ) {
 		if ( is_object( $post ) ) {
-			$image_id = apply_filters( 'cursorial_image_id', get_post_thumbnail_id( property_exists( $post, 'cursorial_ID' ) ? $post->cursorial_ID : $post->ID ) );
+			$post_id = property_exists( $post, 'cursorial_ID' ) ? $post->cursorial_ID : $post->ID;
+			$hiddens = get_post_meta( $post_id, 'cursorial-post-hidden-fields', true );
+
+			if ( in_array( 'image', $hiddens ) ) {
+				return '';
+			}
+
+			$image_id = apply_filters( 'cursorial_image_id', get_post_thumbnail_id( $post_id ) );
 
 			if ( ! empty( $image_id ) ) {
 				$image_src = wp_get_attachment_image_src( $image_id, $size );
@@ -514,6 +527,13 @@ class Cursorial {
 	 */
 	private function replace_content( $content, $property, $force = false ) {
 		global $id;
+
+		if ( ! $this->prevent_hidden ) {
+			$hiddens = get_post_meta( $id, 'cursorial-post-hidden-fields', true );
+			if ( in_array( $property, $hiddens ) ) {
+				return '';
+			}
+		}
 
 		$original = $this->get_original( $id );
 

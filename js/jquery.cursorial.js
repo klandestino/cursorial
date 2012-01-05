@@ -68,6 +68,14 @@
 					} else if ( typeof( data[ i ] ) == 'string' ) {
 						element.html( data[ i ] ).cursorialHideLongContent();
 					}
+
+					if ( typeof( data[ i + '_hidden' ] ) != 'undefined' ) {
+						if ( ! element.hasClass( 'cursorial-hidden' ) ) {
+							element.addClass( 'cursorial-hidden' );
+						}
+					} else {
+						element.removeClass( 'cursorial-hidden' );
+					}
 				}
 			}
 
@@ -245,6 +253,7 @@
 					$( this ).find( buttons.post_save ).show();
 				}
 
+				var data = $( this ).data( 'cursorial-post-data' );
 				var settings = $( this ).data( 'cursorial-post-settings' );
 				var fieldSettings = getFieldSettings.apply( this );	
 
@@ -253,13 +262,13 @@
 
 					if ( element.length > 0 ) {
 						var fieldset = $( '<fieldset class="cursorial-fieldset cursorial-fieldset-' + i + '"></fieldset>' );
-						fieldset.append( '<legend class="cursorial-field-title cursorial-field-title-' + i + '">' + cursorial_i18n( i.replace( '_', ' ' ) ) + '</legend>' );
+						fieldset.append( '<legend class="cursorial-fieldtitle cursorial-fieldtitle-' + i + '">' + cursorial_i18n( i.replace( '_', ' ' ) ) + '</legend>' );
 
 						if ( typeof( fieldSettings[ i ][ 'optional' ] ) != 'undefined' ) {
 							if ( fieldSettings[ i ].optional ) {
-								fieldset.append( '<div class="cursorial-option cursorial-option-' + i + '">' +
-									'<label for="' + $( this ).attr( 'id' ) + '-option-' + i + '">' + cursorial_i18n( 'Visible' ) + '</label>' +
-									'<input id="' + $( this ).attr( 'id' ) + '-option-' + i + '" type="checkbox" value="true"/>' +
+								fieldset.append( '<div class="cursorial-hiddenoption cursorial-hiddenoption-' + i + '">' +
+									'<label for="' + $( this ).attr( 'id' ) + '-hiddenoption-' + i + '">' + cursorial_i18n( 'Visible:' ) + '</label>' +
+									'<input id="' + $( this ).attr( 'id' ) + '-hiddenoption-' + i + '" type="checkbox" value="true"' + ( typeof( data[ i + '_hidden' ] ) != 'undefined' ? '' : ' checked="checked"' ) + '/>' +
 								'</div>' );
 							}
 						}
@@ -334,12 +343,22 @@
 			var fieldSettings = getFieldSettings.apply( this );
 
 			for( var i in fieldSettings ) {
+				var hidden = $( this ).find( '.cursorial-hiddenoption-' + i );
+				if ( hidden.length > 0 ) {
+					if ( hidden.find( 'input:not(:checked)' ).length > 0 ) {
+						data[ i + '_hidden' ] = true;
+					} else if ( typeof( data[ i + '_hidden' ] ) != 'undefined' ) {
+						delete data[ i + '_hidden' ];
+					}
+				}
+
 				var field = $( this ).find( '.cursorial-field-' + i );
 				if ( field.length > 0 ) {
 					data[ i ] = field.val();
-					$( this ).find( '.template-data-' + i ).show();
-					$( this ).find( '.cursorial-fieldset-' + i ).remove();
 				}
+
+				$( this ).find( '.template-data-' + i ).show();
+				$( this ).find( '.cursorial-fieldset-' + i ).remove();
 			}
 
 			$( this ).find( '.cursorial-field' ).remove();
@@ -617,8 +636,14 @@
 					var fields = $( posts[ i ] ).data( 'cursorial-post-data' );
 					var settings = getBlockSettings.apply( this, [ 'fields' ] );
 					for( var ii in settings ) {
-						if ( typeof( fields[ ii ] ) != 'undefined' && settings[ ii ].overridable ) {
-							data.posts[ id[ 1 ] ][ ii ] = fields[ ii ];
+						if ( typeof( fields[ ii ] ) != 'undefined' ) {
+							if ( settings[ ii ].overridable ) {
+								data.posts[ id[ 1 ] ][ ii ] = fields[ ii ];
+							}
+
+							if ( settings[ ii ].optional && typeof( fields[ ii + '_hidden' ] ) != 'undefined' ) {
+								data.posts[ id[ 1 ] ][ ii + '_hidden' ] = true;
+							}
 						}
 					}
 				}

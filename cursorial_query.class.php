@@ -42,14 +42,24 @@ class Cursorial_Query {
 	private function populate_results( $post ) {
 		if ( ! array_key_exists( $post->ID, $this->results ) ) {
 			setup_postdata( &$post );
+			$post_id = property_exists( $post, 'cursorial_ID' ) ? $post->cursorial_ID : $post->ID;
 			$post->post_title = apply_filters( 'the_title', $post->post_title );
 			$post->post_author = get_the_author();
 			$post->post_date = apply_filters( 'the_date', $post->post_date );
 			$post->post_excerpt = apply_filters( 'the_excerpt', $post->post_excerpt );
 			$post->post_content = apply_filters( 'the_content', $post->post_content );
-			$post->image = apply_filters( 'cursorial_image_id', get_post_thumbnail_id( property_exists( $post, 'cursorial_ID' ) ? $post->cursorial_ID : $post->ID ) );
+			$post->image = apply_filters( 'cursorial_image_id', get_post_thumbnail_id( $post_id ) );
 			$post->cursorial_image = wp_get_attachment_image_src( $post->image );
-			$post->cursorial_depth = apply_filters( 'cursorial_depth', ( int ) get_post_meta( property_exists( $post, 'cursorial_ID' ) ? $post->cursorial_ID : $post->ID, 'cursorial-post-depth', true ) );
+			$post->cursorial_depth = apply_filters( 'cursorial_depth', ( int ) get_post_meta( $post_id, 'cursorial-post-depth', true ) );
+
+			$hidden_fields = get_post_meta( $post_id, 'cursorial-post-hidden-fields', true );
+
+			if ( is_array( $hidden_fields ) ) {
+				foreach( $hidden_fields as $field_name ) {
+					$hidden_field_name = $field_name . '_hidden';
+					$post->$hidden_field_name = true;
+				}
+			}
 
 			// Create a default excerpt fallback
 			if ( empty( $post->post_excerpt ) ) {

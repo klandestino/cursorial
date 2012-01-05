@@ -22,6 +22,7 @@ switch ( strtolower( $_POST[ 'action' ] ) ) {
 		$query->search( $_POST[ 'query' ] );
 		break;
 	case 'block':
+		$cursorial->prevent_hidden = true;
 		if ( array_key_exists( $_POST[ 'block' ], $cursorial->blocks ) ) {
 			$query->block( $_POST[ 'block' ] );
 			$blocks[ $_POST[ 'block' ] ] = $cursorial->blocks[ $_POST[ 'block' ] ]->get_settings();
