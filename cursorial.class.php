@@ -267,6 +267,23 @@ class Cursorial {
 	}
 
 	/**
+	 * If specified field is set to be hidden or not.
+	 * @param int $post_id Cursorial posts ID
+	 * @param string $field_name Field name
+	 * @return boolean
+	 */
+	public function is_hidden( $post_id, $field_name ) {
+		if ( ! $this->prevent_hidden ) {
+			$hiddens = get_post_meta( $post_id, 'cursorial-post-hidden-fields', true );
+			if ( in_array( $field_name, $hiddens ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Image tag for cursorial images
 	 * @param object $post The post to get image from
 	 * @param string $size The size of the image
@@ -528,11 +545,8 @@ class Cursorial {
 	private function replace_content( $content, $property, $force = false ) {
 		global $id;
 
-		if ( ! $this->prevent_hidden ) {
-			$hiddens = get_post_meta( $id, 'cursorial-post-hidden-fields', true );
-			if ( in_array( $property, $hiddens ) ) {
-				return '';
-			}
+		if ( $this->is_hidden( $id, $property ) ) {
+			return '';
 		}
 
 		$original = $this->get_original( $id );

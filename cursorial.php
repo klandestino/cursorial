@@ -116,6 +116,16 @@ function the_cursorial_image( $size = 'medium', $attr = array() ) {
 }
 
 /**
+ * Wrapper for Cursorial::is_hidden
+ * @param string $field_name Field name
+ * @return boolean
+ */
+function is_cursorial_field_hidden( $field_name ) {
+	global $post, $cursorial;
+	return $cursorial->is_hidden( property_exists( $post, 'cursorial_ID' ) ? $post->cursorial_ID : $post->ID, $field_name );
+}
+
+/**
  * Wrapper for Cursorial::get_depth
  * @return int
  */
