@@ -278,6 +278,28 @@ class Cursorial {
 			if ( in_array( $field_name, $hiddens ) ) {
 				return true;
 			}
+
+			$depth = ( int ) get_post_meta( $post_id, 'cursorial-post-depth', true );
+			$block = strip_tags( get_the_term_list( $post_id, self::TAXONOMY, '', '', '' ) );
+			$fields = array();
+
+			if ( isset( $this->blocks[ $block ] ) ) {
+				if ( is_array( $this->blocks[ $block ]->fields ) ) {
+					$fields = $this->blocks[ $block ]->fields;
+				}
+
+				if ( $depth ) {
+					if ( is_array( $this->blocks[ $block ]->childs ) ) {
+						if ( is_array( $this->blocks[ $block ]->childs[ 'fields' ] ) ) {
+							$fields = $this->blocks[ $block ]->childs[ 'fields' ];
+						}
+					}
+				}
+			}
+
+			if ( count( $fields ) && ! isset( $fields[ $field_name ] ) ) {
+				return true;
+			}
 		}
 
 		return false;
@@ -415,7 +437,16 @@ class Cursorial {
 	 * @return string
 	 */
 	public function the_excerpt_filter( $excerpt ) {
+		global $id;
 		$excerpt = $this->replace_content( $excerpt, 'post_excerpt' );
+
+		if ( empty( $excerpt ) && ! $this->is_hidden( $id, 'post_excerpt' ) ) {
+			$hidden = $this->prevent_hidden;
+			$this->prevent_hidden = true;
+			$excerpt = get_the_excerpt();
+			$this->prevent_hidden = $hidden;
+		}
+
 		// Strip images
 		$excerpt = preg_replace( '/<img [^>]+>/i', '', $excerpt );
 		// Images can be wrapped in links, strip empty links
