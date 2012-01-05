@@ -25,7 +25,7 @@ Register custom loops in your theme and administrate them in the admin with an e
 
 == Changelog ==
 
-= Version 0.9 =
+= v0.9 =
 
 First stable beta release with some of the main features.
 
@@ -40,22 +40,27 @@ First stable beta release with some of the main features.
 * Loops for displaying block posts are available through both a query
 	method and a template fetcher.
 
-= Version 0.9.1 =
+= v0.9.1 =
 
 Second stable beta release.
 
 * Maximum number of posts can be set for both blocks and post childs.
 
-== Upcoming versions ==
+= v0.9.2 =
 
-= Version 1.0 =
+Third stable beta release.
 
-* Create a show/hide option on fields set to optional in register_cursorial.
+* An optional show/hide option on fields.
+
+== Upcoming ==
+
+= v1.0 =
+
 * Replace individual block save buttons with a general save button for all visible blocks.
 * Write a user manual in the plugin admin index.
 * Update readme.txt
 
-= Version 1.1 =
+= v1.1 =
 
 * Create an indicator for unsaved blocks.
 * Let the textareas use TinyMCE
