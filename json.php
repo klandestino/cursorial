@@ -29,6 +29,7 @@ switch ( strtolower( $_POST[ 'action' ] ) ) {
 		}
 		break;
 	case 'save-block':
+		$cursorial->prevent_hidden = true;
 		if ( array_key_exists( $_POST[ 'block' ], $cursorial->blocks ) ) {
 			$block = $cursorial->blocks[ $_POST[ 'block' ] ];
 			$block->set_posts( $_POST[ 'posts' ] );
