@@ -58,7 +58,7 @@ class Cursorial {
 	 */
 	public function init() {
 		$this->register_post_type();
-		load_theme_textdomain( 'cursorial', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+		load_plugin_textdomain( 'cursorial', false, CURSORIAL_PLUGIN_DIR_NAME . '/languages' );
 	}
 
 	/**
@@ -132,7 +132,10 @@ class Cursorial {
 				i18n[ 'Visible:' ] = "<?php echo esc_attr( __( 'Visible:', 'cursorial' ) ); ?>";
 				i18n[ 'post title' ] = "<?php echo esc_attr( __( 'post title', 'cursorial' ) ); ?>";
 				i18n[ 'image' ] = "<?php echo esc_attr( __( 'image', 'cursorial' ) ); ?>";
-				i18n[ 'the excerpt' ] = "<?php echo esc_attr( __( 'the excerpt', 'cursorial' ) ); ?>";
+				i18n[ 'post excerpt' ] = "<?php echo esc_attr( __( 'post excerpt', 'cursorial' ) ); ?>";
+				i18n[ 'post content' ] = "<?php echo esc_attr( __( 'post content', 'cursorial' ) ); ?>";
+				i18n[ 'post date' ] = "<?php echo esc_attr( __( 'post date', 'cursorial' ) ); ?>";
+				i18n[ '%s is unsaved' ] = "<?php echo esc_attr( __( '%s is unsaved', 'cursorial' ) ); ?>";
 				if ( typeof( i18n[ str ] ) != 'undefined' ) {
 					return i18n[ str ];
 				} else {
@@ -617,7 +620,7 @@ class Cursorial {
 			self::POST_TYPE,
 			array(
 				'labels' => array(
-					'name' => __( 'Area', 'cursorial' )
+					'name' => __( 'Block', 'cursorial' )
 				),
 				'public' => false
 			)

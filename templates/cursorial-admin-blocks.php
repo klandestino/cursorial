@@ -68,7 +68,7 @@
 														<div class="clear"></div>
 													</div><!-- .cursorial-block-name -->
 													<div class="widget-holder cursorial-block-content">
-														<p class="description"><?php _e( "Here's a list of content. To add content into this list, search content in the box to the right.", 'cursorial' ); ?></p>
+														<p class="description"><?php _e( "Here's a list of posts. To add posts to this list, search for content in the box to the right and drag them into this space. You can also drag posts between blocks.", 'cursorial' ); ?></p>
 														<div class="cursorial-posts"></div>
 														<div class="clear"></div>
 														<div class="publishing-actions">
@@ -79,10 +79,10 @@
 												</div><!-- .cursorial-block -->
 											<?php else : ?>
 												<div class="sidebar-name">
-													<h3><?php echo isset( $block->settings[ 'dummy-title' ] ) ? $block->settings[ 'dummy-title' ] : __( 'Dummy', 'cursorial' ); ?></h3>
+													<h3><?php echo isset( $block->settings[ 'dummy-title' ] ) ? $block->settings[ 'dummy-title' ] : __( 'Dummy block', 'cursorial' ); ?></h3>
 												</div>
 												<div class="widget-holder">
-													<p class="description"><?php echo isset( $block->settings[ 'dummy-description' ] ) ? $block->settings[ 'dummy-description' ] : __( 'dummy', 'cursorial' ); ?></p>
+													<p class="description"><?php echo isset( $block->settings[ 'dummy-description' ] ) ? $block->settings[ 'dummy-description' ] : __( 'This is a dummy block occupying space.', 'cursorial' ); ?></p>
 												</div>
 											<?php endif; ?>
 
@@ -127,7 +127,7 @@
 				<div class="widgets-sortables">
 					<div id="cursorial-search-form" class="widget">
 						<div class="widget-inside">
-							<p class="description"><?php _e( 'Enter keywords below to find content to add into a cursorial block.', 'cursorial' ); ?></p>
+							<p class="description"><?php _e( 'Enter keywords below to find content. Then drag the posts to a block and drop them there.', 'cursorial' ); ?></p>
 							<label for="cursorial-search-field"><?php _e( 'Search keywords:', 'cursorial' ); ?></label>
 							<input id="cursorial-search-field" class="widefat" type="text" value="" name="query" />
 						</div><!-- .widget-inside -->
