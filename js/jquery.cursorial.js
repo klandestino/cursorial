@@ -819,7 +819,7 @@
 					$( window ).unbind( 'beforeunload.' + $( this ).data( 'cursorial-block-name' ) );
 				} else {
 					$( this ).addClass( 'cursorial-block-status-unsaved' );
-					var li = $( '<li class="cursorial-block-status cursorial-block-status-' + name + '">' + cursorial_i18n( '%s is unsaved' ).replace( '%s', name ) + '</li>' );
+					var li = $( '<li class="cursorial-block-status cursorial-block-status-' + name + '">' + cursorial_i18n( '%s is unsaved' ).replace( '%s', getSettings.apply( this, [ 'label' ] ) ) + '</li>' );
 					$( indicator ).append( li );
 					$( window ).bind( 'beforeunload.' + $( this ).data( 'cursorial-block-name' ), $.proxy( getSavedStatus, this ) );
 				}
