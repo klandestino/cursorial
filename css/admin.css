@@ -73,6 +73,8 @@
 	overflow: visible;
 	white-space: normal;
 	line-height: normal;
+	-moz-user-select: text;
+	-webkit-user-select: text;
 }
 
 #cursorial-admin input.cursorial-field-post_title {
