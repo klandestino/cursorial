@@ -285,11 +285,15 @@
 										break;
 									case 'image' :
 										var postId = $( this ).data( 'cursorial-post-data' ).cursorial_ID;
-										var imageId = $( this ).data( 'cursorial-post-data' ).image;
-										field = $(
-											'<input class="cursorial-field cursorial-field-' + i + '" type="hidden" value="' + imageId + '"/>' +
-											'<a class="cursorial-field cursorial-image-link thickbox" href="media-upload.php?post_id=' + postId + '&amp;type=image&amp;TB_iframe=1" title="' + cursorial_i18n( 'Set featured image' ) + '">' + cursorial_i18n( 'Set featured image' ) + '</a>'
-										);
+										if ( postId ) {
+											var imageId = $( this ).data( 'cursorial-post-data' ).image;
+											field = $(
+												'<input class="cursorial-field cursorial-field-' + i + '" type="hidden" value="' + imageId + '"/>' +
+												'<a class="cursorial-field cursorial-image-link thickbox" href="media-upload.php?post_id=' + postId + '&amp;type=image&amp;TB_iframe=1" title="' + cursorial_i18n( 'Set featured image' ) + '">' + cursorial_i18n( 'Set featured image' ) + '</a>'
+											);
+										} else {
+											field = $( '<p class="cursorial-field description">' + cursorial_i18n( 'You need to save this block before you can change image.' ) + '</p>' );
+										}
 										break;
 									default :
 										field = $( '<input class="cursorial-field cursorial-field-' + i + ' widefat" type="text"/>' );
