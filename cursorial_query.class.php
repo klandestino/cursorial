@@ -15,6 +15,11 @@ class Cursorial_Query {
 	public $search_keywords = array();
 
 	/**
+	 * Maximum number of posts search result
+	 */
+	public $search_numberposts = 10;
+
+	/**
 	 * Creates an argument array for wp_query.
 	 * @param string $block_name The name of the block
 	 * @return object
@@ -95,7 +100,12 @@ class Cursorial_Query {
 	 * @return void
 	 */
 	public function search( $terms ) {
+		if ( count( $this->results ) >= $this->search_numberposts ) {
+			return;
+		}
+
 		$this->search_keywords = explode( ' ', trim( $terms ) );
+		$date = strtotime( $terms );
 
 		foreach ( array(
 			'title' => 'post_title_filter',
@@ -119,7 +129,32 @@ class Cursorial_Query {
 			),
 			'author' => array(
 				'author_name' => implode( ',', $this->search_keywords )
-			)
+			),
+			array(
+				'year' => date( 'Y', $date ),
+				'monthnum' => date( 'n', $date ),
+				'day' => date( 'j', $date ),
+				'hour' => date( 'H', $date ),
+				'minute' => date( 'i', $date )
+			),
+			array(
+				'year' => date( 'Y', $date ),
+				'monthnum' => date( 'n', $date ),
+				'day' => date( 'j', $date ),
+				'hour' => date( 'H', $date )
+			),
+			array(
+				'year' => date( 'Y', $date ),
+				'monthnum' => date( 'n', $date ),
+				'day' => date( 'j', $date )
+			),
+			array(
+				'year' => date( 'Y', $date ),
+				'monthnum' => date( 'n', $date )
+			),
+			array(
+				'year' => date( 'Y', $date )
+			),
 		) as $field => $args ) {
 			if ( is_string( $args ) ) {
 				add_filter( 'posts_where', array( &$this, $args ) );
@@ -132,6 +167,9 @@ class Cursorial_Query {
 			}
 
 			foreach ( $posts as $post ) {
+				if ( count( $this->results ) >= $this->search_numberposts ) {
+					break;
+				}
 				$this->populate_results( $post );
 			}
 		}
