@@ -48,17 +48,13 @@ First stable beta release with some of the main features.
 
 ### v0.9.1
 
-Second stable beta release.
-
 * Maximum number of posts can be set for both blocks and post childs.
 
 ### v0.9.2
 
-Third stable beta release.
-
 * An optional show/hide option on fields.
 
-### v1.0
+### v0.9.3
 
 * Administration interface have a saved/unsaved status indicator.
 * There's a save all blocks button.
