@@ -288,7 +288,7 @@
 										var imageId = $( this ).data( 'cursorial-post-data' ).image;
 										field = $(
 											'<input class="cursorial-field cursorial-field-' + i + '" type="hidden" value="' + imageId + '"/>' +
-											'<a class="cursorial-field thickbox" href="media-upload.php?post_id=' + postId + '&amp;type=image&amp;TB_iframe=1" title="' + cursorial_i18n( 'Set featured image' ) + '">' + cursorial_i18n( 'Set featured image' ) + '</a>'
+											'<a class="cursorial-field cursorial-image-link thickbox" href="media-upload.php?post_id=' + postId + '&amp;type=image&amp;TB_iframe=1" title="' + cursorial_i18n( 'Set featured image' ) + '">' + cursorial_i18n( 'Set featured image' ) + '</a>'
 										);
 										break;
 									default :
@@ -306,6 +306,11 @@
 									link: false
 								}, function() {
 										element.after( fieldset ).hide();
+										// This determines what image field is about to change.
+										// The class is removed by WPSetThumbnailHTML() witch is a Wordpress callback called when a image selection has been done.
+										element.parent().find( 'a.cursorial-image-link' ).click( function() {
+											$( this ).addClass( 'cursorial-image-link-current' );
+										} );
 								} );
 							}
 						}
@@ -1267,15 +1272,14 @@ if ( typeof( WPSetThumbnailHTML ) == 'undefined' ) {
 	WPSetThumbnailHTML = function( e ) {
 		var image = jQuery( e ).find( 'img' );
 		if ( image.length > 0 ) {
-			var thumb = jQuery( '.cursorial-post-edit .cursorial-thumbnail' );
-
-			if ( thumb.length <= 0 ) {
-				thumb = jQuery( '<img class="cursorial-thumbnail"/>' );
-				thumb.appendTo( '.cursorial-post-edit .template-data-image' );
-			}
-
-			thumb.attr( 'src', image.attr( 'src' ) );
-			//jQuery( '.cursorial-post-edit' ).cursorialPost( 'save' );
+			jQuery( 'a.cursorial-image-link-current' ).parents( '.cursorial-post-edit' ).each( function() {;
+				var data = jQuery( this ).data( 'cursorial-post-data' );
+				if ( typeof( data ) == 'object' ) {
+					data.cursorial_image = [ image.attr( 'src' ), parseInt( image.attr( 'width' ) ), parseInt( image.attr( 'height' ) ), true ];
+					jQuery( this ).data( 'cursorial-post-data', data );
+				}
+				jQuery( this ).find( 'a.cursorial-image-link-current' ).removeClass( 'cursorial-image-link-current' );
+			} );
 		}
 	}
 }
