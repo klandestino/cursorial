@@ -74,11 +74,16 @@ function register_cursorial( $block_args, $admin_args ) {
 /**
  * Runs query_posts with cursorial-block-arguments from Cursorial_Query::get_block_query_args
  * @see Cursorial_Query::get_block_query_args
- * @param string $block_name The name of the block
+ * @param string $block_name The name of the block, default is the first found block.
  * @return object
  */
-function query_cursorial_posts( $block_name ) {
-	query_posts( Cursorial_Query::get_block_query_args( $block_name ) );
+function query_cursorial_posts( $block_name = '' ) {
+	global $cursorial;
+	if ( isset( $cursorial->blocks[ $block_name ] ) ) {
+		query_posts( Cursorial_Query::get_block_query_args( $block_name ) );
+	} elseif ( count( $cursorial->blocks ) ) {
+		query_posts( Cursorial_Query::get_block_query_args( key( $cursorial->blocks ) ) );
+	}
 }
 
 /**
@@ -95,13 +100,16 @@ function get_the_cursorial_image( $size = 'medium', $attr = array() ) {
 
 /**
  * Wrapper for Cursorial_Block::get_loop
- * @param string $block_name The block to render
+ * @param string $block_name The block to render, default is the first found block.
  * @return void
  */
-function get_cursorial_block( $block_name ) {
+function get_cursorial_block( $block_name = '' ) {
 	global $cursorial;
 	if ( isset( $cursorial->blocks[ $block_name ] ) ) {
 		$cursorial->blocks[ $block_name ]->get_loop();
+	} elseif ( count( $cursorial->blocks ) ) {
+		$block = current( $cursorial->blocks );
+		$block->get_loop();
 	}
 }
 

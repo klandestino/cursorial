@@ -267,6 +267,8 @@ class Cursorial {
 					return;
 				}
 			}
+		} else {
+			load_template( $located );
 		}
 	}
 
