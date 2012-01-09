@@ -42,25 +42,35 @@ First stable beta release with some of the main features.
 
 = v0.9.1 =
 
-Second stable beta release.
-
 * Maximum number of posts can be set for both blocks and post childs.
 
 = v0.9.2 =
 
-Third stable beta release.
-
 * An optional show/hide option on fields.
+
+= v0.9.3 =
+
+* Administration interface have a saved/unsaved status indicator.
+* There's a save all blocks button.
+* The jQuery block plugin have some of it's internal function available
+	from outside.
+* Swedish translation.
 
 == Upcoming ==
 
+= Bugfixes =
+
+* Image won't change until the block is saved.
+* You can't choosa a image override if there's no cursurial replicate.
+* Deleting posts with childs must also remove childs.
+* Search seems to get all posts even if they don't match.
+
 = v1.0 =
 
-* Replace individual block save buttons with a general save button for all visible blocks.
-* Write a user manual in the plugin admin index.
+* Write a user manual in the plugin admin index or remove it.
 * Update readme.txt
 
 = v1.1 =
 
-* Create an indicator for unsaved blocks.
 * Let the textareas use TinyMCE
+* More ... ?
