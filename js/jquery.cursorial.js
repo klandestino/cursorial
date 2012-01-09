@@ -378,6 +378,8 @@
 			$( this ).fadeTo( 'fast', 0, function() {
 				$( this ).remove();
 			} );
+
+			getChilds.apply( this ).cursorialPost( 'remove' );
 		}
 
 		/**
@@ -485,6 +487,12 @@
 		 * Loops through each matched elements
 		 */
 		return this.each( function() {
+			// If set to be removed, remove and then stop
+			if ( typeof( options[ 'remove' ] ) != 'undefined' ) {
+				remove.apply( this );
+				return;
+			}
+
 			// If this post doesn't already exists
 			// Remove it otherwise.
 			if ( typeof( options[ 'data' ] ) != 'undefined' ) {
