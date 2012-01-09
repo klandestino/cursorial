@@ -124,12 +124,14 @@ class Cursorial_Query {
 			if ( is_string( $args ) ) {
 				add_filter( 'posts_where', array( &$this, $args ) );
 				$query = new WP_Query();
+				$posts = $query->get_posts();
 				remove_filter( 'posts_where', array( &$this, $args ) );
 			} else {
 				$query = new WP_Query( $args );
+				$posts = $query->get_posts();
 			}
 
-			foreach ( $query->get_posts() as $post ) {
+			foreach ( $posts as $post ) {
 				$this->populate_results( $post );
 			}
 		}
