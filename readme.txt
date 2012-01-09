@@ -67,6 +67,7 @@ First stable beta release with some of the main features.
 
 = v1.0 =
 
+* Fix bugs.
 * Write a user manual in the plugin admin index or remove it.
 * Update readme.txt
 
