@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Cursorial\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-09 14:22+0100\n"
-"PO-Revision-Date: 2012-01-09 14:23+0100\n"
+"POT-Creation-Date: 2012-01-11 10:23+0100\n"
+"PO-Revision-Date: 2012-01-11 10:24+0100\n"
 "Last-Translator: spurge <olof@klandestino.se>\n"
 "Language-Team: Klandestino <olof@klandestino.se>\n"
 "MIME-Version: 1.0\n"
@@ -61,14 +61,14 @@ msgstr "datum"
 
 #: ../cursorial.class.php:138
 #, php-format
-msgid "%s is unsaved"
-msgstr "%s är osparad"
+msgid "%s has some unsaved changes."
+msgstr "%s har några osparade förändringar."
 
 #: ../cursorial.class.php:139
 msgid "You need to save this block before you can change image."
 msgstr "Du måste spara det här blocket innan du kan ändra bild."
 
-#: ../cursorial.class.php:624
+#: ../cursorial.class.php:634
 msgid "Block"
 msgstr "Block"
 
@@ -134,3 +134,5 @@ msgstr "Ändra"
 msgid "Save"
 msgstr "Spara"
 
+#~ msgid "%s is unsaved"
+#~ msgstr "%s är osparad"

@@ -36,7 +36,7 @@
 }
 
 #cursorial-admin .cursorial-block-status-unsaved .cursorial-block-name h3 {
-	font-weight: bold;
+	color: red;
 }
 
 #cursorial-admin #cursorial-block-status-list {
@@ -44,7 +44,7 @@
 	margin: 0 12px;
 	padding: 0 12px;
 	font-style: italic;
-	color: #666;
+	color: red;
 }
 
 #cursorial-admin .cursorial-posts {

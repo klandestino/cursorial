@@ -135,7 +135,7 @@ class Cursorial {
 				i18n[ 'post excerpt' ] = "<?php echo esc_attr( __( 'post excerpt', 'cursorial' ) ); ?>";
 				i18n[ 'post content' ] = "<?php echo esc_attr( __( 'post content', 'cursorial' ) ); ?>";
 				i18n[ 'post date' ] = "<?php echo esc_attr( __( 'post date', 'cursorial' ) ); ?>";
-				i18n[ '%s is unsaved' ] = "<?php echo esc_attr( __( '%s is unsaved', 'cursorial' ) ); ?>";
+				i18n[ '%s has some unsaved changes.' ] = "<?php echo esc_attr( __( '%s has some unsaved changes.', 'cursorial' ) ); ?>";
 				i18n[ 'You need to save this block before you can change image.' ] = "<?php echo esc_attr( __( 'You need to save this block before you can change image.', 'cursorial' ) ); ?>";
 				if ( typeof( i18n[ str ] ) != 'undefined' ) {
 					return i18n[ str ];
