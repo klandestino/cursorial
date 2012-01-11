@@ -19,22 +19,22 @@ Register one or more loops in your theme's `function.php` and then use
 them as any other loop in your theme with `have_posts()`, `the_post()`
 etc. Editors can then manage these loops in the administration by simply
 drag posts to these loops or between them and override the posts content
-if they like.
+if they like. They'll find posts in a search box just next to the loops.
 
 The loops can be configured to
 
 * allow just a limited number of posts,
-* to have posts with children (like nested loops),
-* make post content overridable and optional
+* to have posts with children (like nested loops, related content etc),
+* make posts' content overrideable and optional
 * and be set together in the administration.
 
-### No additional database tables or writeable directories are added
+= No additional database tables or writeable directories are added =
 
 This plugin will simply register a hidden [custom post
 type](http://codex.wordpress.org/Post_Types "Post Types « Wordpress
 Codex") and a [custom taxonomy](http://codex.wordpress.org/Taxonomies
 "Taxonomies « Wordpress Codex"). It's therefore installable/runnable on
-the most kinds of web hosts/environments.
+most kinds of web hosts/environments.
 
 == Installation ==
 
@@ -44,10 +44,10 @@ Place this plugin in your plugin directory and then activate it.
 
 = 2. Register your loops in the theme's function.php =
 
-Use `register_cursorial()` to register loops. This function takes to
-arguments. First an array with the loops you want, and then an another
+Use `register_cursorial()` to register loops. This function takes two
+arguments. First an array with the loops you want, and then another
 array with information about how your loops will be shown for the
-editors.
+editors in the administration.
 
 Here's some lines of code:
 
@@ -65,7 +65,7 @@ Here's some lines of code:
 							'fields' => array( // Set the displayable child post field
 								'post_title' => array( // The key is the name of the post field
 									'optional' => false, // If set to true, the field can be hidden by the editor in the admin
-									'overridable' => true // If set to true, the fields content can be overriden by the editor in the admin
+									'overridable' => true // If set to true, the field's content can be overridden by the editor in the admin
 								),
 								'post_date' => array(
 									'optional' => true,
@@ -82,7 +82,7 @@ Here's some lines of code:
 								'optional' => false,
 								'overridable' => true
 							),
-							'image' => array( // This field will fetch any image from the post
+							'image' => array( // This field will fetch the first occuring image from the post
 								'optional' => true,
 								'overridable' => true
 							)
@@ -162,7 +162,9 @@ This will work almost exactly as if you used `query_posts()` (see
 "Function Reference/query posts « Wordpress Codex")). The only
 difference is that you'll not be able to customize the loop with
 arguments. `query_cursorial_posts()` takes only one argument, and that's
-the name of the loop that you want to get posts from.
+the name of the loop that you want to get posts from. If you omit this
+argument, the function will query posts from the first occuring
+registered loop.
 
 Example:
 
@@ -182,9 +184,9 @@ Or why not use another template:
 		<?php get_template_part( 'content', get_post_type() ); ?>
 	<?php endwhile; ?>
 
-If you want to place all your custom loop code in some other templates
-you can use `get_cursorial_block()`. It will call templates called
-`cursorial.php` or `cursorial-LOOP-NAME.php`.
+If you want to place all your custom loop code in some other template
+files you can use `get_cursorial_block()`. It will call templates
+called `cursorial.php` or `cursorial-LOOP-NAME.php`.
 
 Example:
 
@@ -203,8 +205,8 @@ added by this plugin), an image is fetched either from a featured image
 or the first occuring image in the content. It can then be overrided by
 the editor if you set the field to be overrideable. In order to print
 this image you need to call `the_cursorial_image()` or
-`get_the_cursorial_image()` witch will return the image tag instead of
-print it.
+`get_the_cursorial_image()` (witch will return the image tag instead of
+printing it).
 
 If you've set a loop to support childs posts, then you'll need to know
 what posts are childs or not. With `the_cursorial_depth()` and
@@ -215,9 +217,9 @@ are no nested loops of any kind.
 
 If you've set a field to be `optional`, an editor may have hidden some
 posts' fields. You'll notice that the template tag for that field will
-not return anyting. But in some cases you may want to also hide some
+not return anything. But in some cases you may want to also hide some
 HTML that wraps the field. With `is_cursorial_field_hidden( 'field_name'
-)` you'll know.
+)` you'll know if the field set to be hidden.
 
 == Frequently Asked Questions ==
 
@@ -244,7 +246,7 @@ directory to see how the jQuery plugins are applied.
 
 First stable beta release with some of the main features.
 
-* Register blocks with custom feeds and gather them in the administration.
+* Register blocks with custom loops and gather them in the administration.
 * Search posts in the administration and drag posts into cursorial
 	blocks.
 * Drag posts between blocks.
@@ -267,7 +269,7 @@ First stable beta release with some of the main features.
 
 * Administration interface have a saved/unsaved status indicator.
 * There's a save all blocks button.
-* The jQuery block plugin have some of it's internal function available
+* The jQuery block plugin have some of it's internal functions available
 	from outside.
 * Swedish translation.
 
@@ -287,7 +289,7 @@ First stable beta release with some of the main features.
 **New features**
 
 * Search posts by date.
-* First occuring block is used be default is no block is specified in
+* First occuring block is used as default if no block is specified in
 	get_cursorial_block() and query_cursorial_posts().
 * Search result is limited.
 
