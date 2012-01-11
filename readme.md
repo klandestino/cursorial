@@ -199,8 +199,44 @@ Example:
 		<?php get_template_part( 'content', get_post_type() ); ?>
 	<?php endwhile; ?>
 
+### 4. Print images, get it's depth and check if a post field is hidden
+
+If you are using the field `image` (witch is a non wordpress field,
+added by this plugin), an image is fetched either from a featured image
+or the first occuring image in the content. It can then be overrided by
+the editor if you set the field to be overrideable. In order to print
+this image you need to call `the_cursorial_image()` or
+`get_the_cursorial_image()` witch will return the image tag instead of
+print it.
+
+If you've set a loop to support childs posts, then you'll need to know
+what posts are childs or not. With `the_cursorial_depth()` and
+`get_the_cursorial_depth()` you'll get an integer for what depth the
+current post has. 0 for parents and 1 for childs. An important thing to
+know is that both parents and childs are found in the same loop. There
+are no nested loops of any kind.
+
+If you've set a field to be `optional`, an editor may have hidden some
+posts' fields. You'll notice that the template tag for that field will
+not return anyting. But in some cases you may want to also hide some
+HTML that wraps the field. With `is_cursorial_field_hidden( 'field_name'
+)` you'll know.
+
 Frequently Asked Questions
 --------------------------
+
+### Can I override the administration templates?
+
+Yes you can.
+
+Create a template in you theme and call it `cursorial-admin-blocks.php`
+or `cursorial-admin-blocks-BLOCK-ADMIN-NAME.php`. The BLOCK-ADMIN-NAME
+should be replaced by the key for the specified group of blocks in the
+admin array in `register_cursorial()`.
+
+The administration functionality is mainly done with some
+jQuery-plugins. See ´templates/cursorial-admin-block.php´ in the plugin
+directory to see how the jQuery plugins are applied.
 
 Screenshot
 ----------
@@ -216,8 +252,8 @@ First stable beta release with some of the main features.
 * Search posts in the administration and drag posts into cursorial
 	blocks.
 * Drag posts between blocks.
-* Override posts contents.
-* Images will be set by wordpress own image library.
+* Override posts' contents.
+* Images will be set by wordpress' own image library.
 * Posts can be set to have childs.
 * Admin pages templates are overridable.
 * Loops for displaying block posts are available through both a query
@@ -252,7 +288,7 @@ First stable beta release with some of the main features.
 * Default generated excerpt was saved as overrides even if there was no
 	difference from the original.
 
-### New features
+#### New features
 
 * Search posts by date.
 * First occuring block is used be default is no block is specified in
@@ -265,11 +301,6 @@ Upcoming
 ### Bugfixes
 
 * Bugs?
-
-### Version 1.0
-
-* Write a user manual in the plugin admin index or remove it.
-* Update readme.txt
 
 ### v1.1
 
