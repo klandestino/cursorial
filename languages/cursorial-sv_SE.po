@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Cursorial\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-11 10:23+0100\n"
-"PO-Revision-Date: 2012-01-11 10:24+0100\n"
+"POT-Creation-Date: 2012-01-11 14:53+0100\n"
+"PO-Revision-Date: 2012-01-11 14:53+0100\n"
 "Last-Translator: spurge <olof@klandestino.se>\n"
 "Language-Team: Klandestino <olof@klandestino.se>\n"
 "MIME-Version: 1.0\n"
@@ -18,10 +18,10 @@ msgstr ""
 "X-Poedit-SearchPath-0: ..\n"
 "X-Poedit-SearchPath-1: ../templates\n"
 
-#: ../cursorial.class.php:109
+#: ../cursorial.class.php:107
 #, php-format
-msgid "Edit cursorial block %s"
-msgstr "Ändra cursorial-block %s"
+msgid "Edit cursorial blocks in %s"
+msgstr "Ändra cursorial-block i %s"
 
 #: ../cursorial.class.php:129
 msgid "Set featured image"
