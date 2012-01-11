@@ -98,12 +98,12 @@ class Cursorial_Block {
 		// new post below.
 		$time = current_time( 'timestamp' );
 		$count = 0;
-		$keep = array();
 
-		foreach( $posts as $ref_id => $post ) {
-			$ref = get_post( $ref_id );
+		foreach( $posts as $ref_id => $post_data ) {
+			$post = get_post( $ref_id );
+			setup_postdata( &$post );
 
-			if ( ! empty( $ref ) ) {
+			if ( ! empty( $post ) ) {
 				$fields = array(
 					'post_title' => '-',
 					'post_content' => ''
@@ -120,21 +120,21 @@ class Cursorial_Block {
 				 * this solution? I need to rewrite this later on... Now it has be get finished.
 				 */
 
-				if ( empty( $ref->post_excerpt ) ) {
-					$ref->post_excerpt = apply_filters( 'the_excerpt', $ref->post_content );
+				if ( empty( $post->post_excerpt ) ) {
+					$post->post_excerpt = apply_filters( 'the_excerpt', '' );
 				}
 
 				// Stores the visibility for fields
 				$hidden_fields = array();
 
-				foreach( $post as $field_name => $field ) {
-					if ( $field_name != 'id' && property_exists( $ref, $field_name ) ) {
-						if ( trim( $ref->$field_name ) != trim( $field ) ) {
+				foreach( $post_data as $field_name => $field ) {
+					if ( $field_name != 'id' && property_exists( $post, $field_name ) ) {
+						if ( trim( $post->$field_name ) != trim( stripslashes( $field ) ) ) {
 							$fields[ $field_name ] = trim( $field );
 						}
 					}
 
-					if ( isset( $post[ $field_name . '_hidden' ] ) ) {
+					if ( isset( $post_data[ $field_name . '_hidden' ] ) ) {
 						$hidden_fields[] = $field_name;
 					}
 				}
@@ -150,21 +150,20 @@ class Cursorial_Block {
 				$new_id = wp_insert_post( $fields );
 
 				add_post_meta( $new_id, 'cursorial-post-id', $ref_id, true );
-				add_post_meta( $new_id, 'cursorial-post-depth', isset( $post[ 'depth' ] ) ? $post[ 'depth' ] : 0, true );
+				add_post_meta( $new_id, 'cursorial-post-depth', isset( $post_data[ 'depth' ] ) ? $post_data[ 'depth' ] : 0, true );
 				add_post_meta( $new_id, 'cursorial-post-hidden-fields', $hidden_fields, true );
 				wp_set_post_terms( $new_id, $this->name, Cursorial::TAXONOMY, false );
 
-				if ( isset( $post[ 'image' ] ) ) {
+				if ( isset( $post_data[ 'image' ] ) ) {
 					$id = $new_id;
 					$image = apply_filters( 'cursorial_image_id', get_post_thumbnail_id( $ref_id ) );
-					if ( trim( $image ) != trim( $post[ 'image' ] ) ) {
-						set_post_thumbnail( $new_id, $post[ 'image' ] );
+					if ( trim( $image ) != trim( $post_data[ 'image' ] ) ) {
+						set_post_thumbnail( $new_id, $post_data[ 'image' ] );
 					}
 				}
 
 				$time--;
 				$count++;
-				$keep[] = $new_id;
 			}
 		}
 	}

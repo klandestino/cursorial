@@ -281,8 +281,10 @@ class Cursorial {
 	public function is_hidden( $post_id, $field_name ) {
 		if ( ! $this->prevent_hidden ) {
 			$hiddens = get_post_meta( $post_id, 'cursorial-post-hidden-fields', true );
-			if ( in_array( $field_name, $hiddens ) ) {
-				return true;
+			if ( is_array( $hiddens ) ) {
+				if ( in_array( $field_name, $hiddens ) ) {
+					return true;
+				}
 			}
 
 			$depth = ( int ) get_post_meta( $post_id, 'cursorial-post-depth', true );
@@ -321,9 +323,8 @@ class Cursorial {
 	public function get_image( $post, $size = 'medium', $attr = array() ) {
 		if ( is_object( $post ) ) {
 			$post_id = property_exists( $post, 'cursorial_ID' ) ? $post->cursorial_ID : $post->ID;
-			$hiddens = get_post_meta( $post_id, 'cursorial-post-hidden-fields', true );
 
-			if ( in_array( 'image', $hiddens ) ) {
+			if ( $this->is_hidden( $post_id, 'image' ) ) {
 				return '';
 			}
 
@@ -444,19 +445,23 @@ class Cursorial {
 	 */
 	public function the_excerpt_filter( $excerpt ) {
 		global $id;
+
 		$excerpt = $this->replace_content( $excerpt, 'post_excerpt' );
 
 		if ( empty( $excerpt ) && ! $this->is_hidden( $id, 'post_excerpt' ) ) {
 			$hidden = $this->prevent_hidden;
 			$this->prevent_hidden = true;
-			$excerpt = get_the_excerpt();
+			$excerpt = apply_filters( 'get_the_excerpt', '' );
 			$this->prevent_hidden = $hidden;
 		}
 
-		// Strip images
-		$excerpt = preg_replace( '/<img [^>]+>/i', '', $excerpt );
-		// Images can be wrapped in links, strip empty links
-		$excerpt = preg_replace( '/<a [^>]+><\/a>/i', '', $excerpt );
+		/*if ( $this->get_original( $id ) ) {
+			// Strip images
+			$excerpt = preg_replace( '/<img [^>]+>/i', '', $excerpt );
+			// Images can be wrapped in links, strip empty links
+			$excerpt = preg_replace( '/<a [^>]+><\/a>/i', '', $excerpt );
+		}*/
+
 		// Okidok
 		return $excerpt;
 	}
@@ -516,6 +521,8 @@ class Cursorial {
 					// image attachment id defined.
 					// I was using SimpleXMLElement before, but it doesn't handle broken html that well and
 					// it was a but slower.
+					$hidden = $this->prevent_hidden;
+					$this->prevent_hidden = true;
 					if ( preg_match(
 						'/<img [^>]*?class="[^"]*?wp-image-([0-9]+)[^"]*?"[^>]*?>/i',
 						apply_filters( 'the_content', $original->post_content ),
@@ -523,6 +530,7 @@ class Cursorial {
 					) ) {
 						$image_id = $image_match[ 1 ];
 					}
+					$this->prevent_hidden = $hidden;
 				}
 
 				if ( empty( $image_id ) ) {

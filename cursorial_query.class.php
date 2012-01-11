@@ -66,11 +66,6 @@ class Cursorial_Query {
 				}
 			}
 
-			// Create a default excerpt fallback
-			if ( empty( $post->post_excerpt ) ) {
-				$post->post_excerpt = apply_filters( 'the_excerpt', $post->post_content );
-			}
-
 			$this->results[ $post->ID ] = $post;
 		}
 	}
