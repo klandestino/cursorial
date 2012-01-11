@@ -1080,7 +1080,7 @@
 			options = $.extend( {
 				delay: 'fast',
 				link: true,
-				height: 150,
+				height: 200,
 				width: 200
 			}, options );
 

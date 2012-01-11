@@ -81,11 +81,7 @@ class Cursorial {
 
 		wp_enqueue_style(
 			'cursorial-admin',
-			CURSORIAL_PLUGIN_URL . 'css/admin.css',
-			array(
-				'widgets',
-				'thickbox'
-			)
+			CURSORIAL_PLUGIN_URL . 'css/admin.css'
 		);
 	}
 
