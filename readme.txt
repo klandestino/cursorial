@@ -234,7 +234,9 @@ The administration functionality is mainly done with some
 jQuery-plugins. See ´templates/cursorial-admin-block.php´ in the plugin
 directory to see how the jQuery plugins are applied.
 
-== Screenshot ==
+== Screenshots ==
+
+1. An overview of the administration.
 
 == Changelog ==
 
