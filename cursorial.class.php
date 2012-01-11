@@ -95,23 +95,27 @@ class Cursorial {
 	 * @return void
 	 */
 	public function admin_menu() {
-		add_menu_page(
-			'Cursorial',
-			'Cursorial',
-			'manage_options',
-			'cursorial',
-			array( $this, 'admin_page' )
-		);
-
-		foreach ( $this->admin as $admin ) {
-			add_submenu_page(
-				'cursorial',
-				sprintf( __( 'Edit cursorial block %s', 'cursorial' ), $admin->label ),
-				$admin->label,
+		if ( count( $this->admin ) ) {
+			add_menu_page(
+				'Cursorial',
+				'Cursorial',
 				'manage_options',
-				sanitize_title( $admin->label ),
-				array( $admin, 'admin_page' )
+				'cursorial',
+				array( $this, 'admin_page' )
 			);
+
+			$first = true;
+			foreach ( $this->admin as $admin ) {
+				add_submenu_page(
+					'cursorial',
+					sprintf( __( 'Edit cursorial blocks in %s', 'cursorial' ), $admin->label ),
+					$admin->label,
+					'manage_options',
+					$first ? 'cursorial' : sanitize_title( $admin->label ),
+					array( $admin, 'admin_page' )
+				);
+				$first = false;
+			}
 		}
 	}
 
