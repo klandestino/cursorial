@@ -4,7 +4,7 @@ Cursorial
 * Contributors: spurge, redundans, alfred
 * Tags: cursorial, content, post, custom, editing, loops
 * Requires at least: 3.2.1
-* Tested up to: 3.2.1
+* Tested up to: 3.3.1
 * Stable tag: 0.9.3
 * License: GPLv2
 
