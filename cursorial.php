@@ -4,7 +4,7 @@
 Plugin Name: Cursorial
 Plugin URI: https://github.com/klandestino/cursorial
 Description: Create custom loops with an easy drag-and-drop interface.
-Version: 0.9
+Version: 1.0
 Author: Klandestino
 Author URI: http://klandestino.se
 License: GPLv2
