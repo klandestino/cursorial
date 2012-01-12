@@ -23,10 +23,14 @@
 	 *	connectToBlocks: 'jQuery-selector to blocks',
 	 *	buttons: { post_edit, post_save, post_remove },
 	 *	create: callbackWhenPostIsCreated(),
-	 *	applyBlockSettings: { an object with settings }
+	 *	applyBlockSettings: { an object with settings },
+	 *	save: no arguments,
+	 *	childStatus: boolean,
+	 *	remove: no arguments
 	 * }
-	 * options = 'data', 'connectToBlocks', 'create', 'applyBlockSettings'
-	 * @param {object|string} [args] Arguments used when options is a string.
+	 * options = 'data', 'connectToBlocks', 'create', 'applyBlockSettings', 'save', 'childStatus', 'remove'
+	 * @param {object|string} [args] Args is used when options is a string.
+	 * @returns {object}
 	 */
 	$.fn.cursorialPost = function( options, args ) {
 		if ( typeof( args ) == 'undefined' ) {
@@ -42,11 +46,11 @@
 
 		/**
 		 * Adds content to node element. If a child has a defined class with pattern "template-data-DATA_NAME",
-		 * child element's text will be filled with matched data property.
+		 * child element's html text will be filled with matched data property.
 		 * @function
 		 * @name render
 		 * @param {object} data Data to render
-		 * @return void
+		 * @returns {void}
 		 */
 		function render( data ) {
 			$( this ).data( 'cursorial-post-data', data );
@@ -66,9 +70,12 @@
 							element.html( '<img src="' + data.cursorial_image[ 0 ] + '" class="cursorial-thumbnail"/>' );
 						}
 					} else if ( typeof( data[ i ] ) == 'string' ) {
+						// Add html-data and hide too long contents
 						element.html( data[ i ] ).cursorialHideLongContent();
 					}
 
+					// If this field is set to be hidden
+					// It's saved as post meta and then fetched as field-name_hidden
 					if ( typeof( data[ i + '_hidden' ] ) != 'undefined' ) {
 						if ( ! element.hasClass( 'cursorial-hidden' ) ) {
 							element.addClass( 'cursorial-hidden' );
@@ -79,6 +86,7 @@
 				}
 			}
 
+			// cursorial_depth tells us if it's a child or not
 			if ( typeof( data[ 'cursorial_depth' ] ) != 'undefined' ) {
 				if ( data.cursorial_depth > 0 ) {
 					setChildStatus.apply( this, [ true ] );
@@ -87,11 +95,12 @@
 		}
 
 		/**
-		 * Makes post draggable
+		 * Makes post draggable, almost. Blocks are make posts draggable through sorting.
+		 * This function adds a couple of listeners.
 		 * @function
 		 * @name setDraggable
 		 * @param {string} blocks jQuery selector for blocks to connect to
-		 * @return void
+		 * @returns {void}
 		 */
 		function setDraggable( blocks ) {
 			$( this ).data( 'cursorial-post-blocks', blocks );
@@ -102,7 +111,8 @@
 		}
 
 		/**
-		 * Called when dragging started
+		 * Used as a listener and called when dragging started
+		 * It also adds a mouse movement listener to track it's position
 		 * @function
 		 * @name startDragging
 		 * @param {object} event The event
@@ -114,16 +124,17 @@
 			$( document ).mousemove( $.proxy( whileDragging, this ) );
 
 			if ( getChildStatus.apply( this ) ) {
-				// This is how we know that it is a child been dragged.
+				// This is a child post. Save child status as it may change during dragging.
 				// When dragging stops, we'll not move any child siblings.
 				$( this ).data( 'cursorial-post-dragging-child-status', true );
 			} else {
+				// This is not a child. Try to hide all childs that belongs to this post.
 				$( this ).data( 'cursorial-post-dragging-childs', getChilds.apply( this ).hide( 'fast' ) );
 			}
 		}
 
 		/**
-		 * Called when dragging is going on
+		 * Used as a listener and called when dragging is going on.
 		 * It sets the placeholder visible and tells if this post will be a child or not
 		 * @function
 		 * @name whileDragging
@@ -150,12 +161,13 @@
 		}
 
 		/**
-		 * Called when dragging stopped
+		 * Used as a listener and called when dragging stops.
+		 * It removes the mouse move listener and places the post where it was dropped.
 		 * @function
 		 * @name stopDragging
 		 * @param {object} event The event
 		 * @param {object} ui Some ui data from jquery-ui
-		 * @return void
+		 * @returns {void}
 		 */
 		function stopDragging( event, ui ) {
 			$( document ).unbind( 'mousemove', $.proxy( whileDragging, this ) );
@@ -163,12 +175,17 @@
 			var data = $( this ).data( 'cursorial-post-data' );
 			var childs = $( this ).data( 'cursorial-post-dragging-childs' );
 
+			// If this post has been rejected and if was a child before dragging
+			// started, it'll go back as a child.
 			if ( $( this ).data( 'cursorial-post-dragging-child-status' ) && $( this ).hasClass( 'cursorial-post-rejected' ) ) {
 				setChildStatus.apply( this, [ true ] );
 			}
 
 			$( this ).data( 'cursorial-post-dragging-child-status', false );
 
+			// We'll use this timeout for two reasons: user experience gets a bit
+			// better and we'll have enough time to wait for all the jquery-ui-stuff
+			// to get done.
 			setTimeout( function() {
 				$( orig ).fadeTo( 'fast', 1 );
 				if ( childs ) {
@@ -187,7 +204,7 @@
 		 * @function
 		 * @name setButtons
 		 * @param {object} buttons The buttons selectors
-		 * @return void
+		 * @returns {void}
 		 */
 		function setButtons( buttons ) {
 			$( this ).data( 'cursorial-post-buttons', buttons );
@@ -208,11 +225,12 @@
 		}
 
 		/**
-		 * Apply swetttings
+		 * Applies the block settings. It shows fields that are set to be shown and hides
+		 * the rest.
 		 * @function
 		 * @name applyBlockSettings
 		 * @param {object} settings
-		 * @return void
+		 * @returns {void}
 		 */
 		function applyBlockSettings( settings ) {
 			$( this ).data( 'cursorial-post-settings', settings );
@@ -225,6 +243,7 @@
 
 			$( this ).find( '.template-data:not(' + fields.join( ', ' ) + ')' ).fadeTo( 'fast', 0, function() {
 				$( this ).hide();
+				// If set to hide, we need to remove all wrappers and stuff when they're not needed
 				$( this ).cursorialHideLongContent( 'show', { link: false } );
 			} );
 
@@ -234,7 +253,7 @@
 		}
 
 		/**
-		 * Switch to edit-mode
+		 * Switch to edit-mode by hiding content and insert some form fields
 		 * @function
 		 * @name edit
 		 * @returns {void}
@@ -264,6 +283,7 @@
 						var fieldset = $( '<fieldset class="cursorial-fieldset cursorial-fieldset-' + i + '"></fieldset>' );
 						fieldset.append( '<legend class="cursorial-fieldtitle cursorial-fieldtitle-' + i + '">' + cursorial_i18n( i.replace( '_', ' ' ) ) + '</legend>' );
 
+						// If the option "optional" is set, this field requires a show/hide option
 						if ( typeof( fieldSettings[ i ][ 'optional' ] ) != 'undefined' ) {
 							if ( fieldSettings[ i ].optional ) {
 								fieldset.append( '<div class="cursorial-hiddenoption cursorial-hiddenoption-' + i + '">' +
@@ -329,7 +349,7 @@
 		 * Switch back view-mode and store data
 		 * @function
 		 * @name save
-		 * @return void
+		 * @returns {void}
 		 */
 		function save() {
 			$( this ).removeClass( 'cursorial-post-edit' );
@@ -381,7 +401,7 @@
 		 * Simply removes element from dom
 		 * @function
 		 * @name remove
-		 * @return void
+		 * @returns {void}
 		 */
 		function remove() {
 			$( this ).fadeTo( 'fast', 0, function() {
@@ -392,7 +412,7 @@
 		}
 
 		/**
-		 * Returns the current fields settings based childs status
+		 * Returns the current fields settings based on childs status
 		 * @function
 		 * @name getFieldSettings
 		 * @returns {array}
@@ -552,7 +572,28 @@
 
 	/**
 	 * JQuery-plugin that takes care of blocks
-	 * @param object options Plugin options
+	 * @function
+	 * @name cursorialBlock
+	 * @memberof $.fn
+	 * @param {object|string} options Plugin options can be set as an object with several parameters or a string defining one:
+	 *	{
+	 *		target: 'jQuery selector where to put posts',
+	 *		templates: {
+	 *			post: 'jQuery selector for post templates'
+	 *		},
+	 *		buttons: {
+	 *			save: 'jQuery selector for save button',
+	 *			post_edit: 'jQuery selector for post edit button',
+	 *			post_save: 'jQuery selector for post save button',
+	 *			post_remove: 'jQuery selector for post remove button'
+	 *		},
+	 *		blocks: 'jQuery selector where to find all blocks',
+	 *		statusIndicator: 'jQuery selector where to find the status indicator',
+	 *		save: no arguments, // Saves the block
+	 *		load: no arguments, // Loads the block
+	 *		savedStatus: boolean // Sets the saved/not saved with changes status
+	 *	}
+	 * @returns {object}
 	 */
 	$.fn.cursorialBlock = function( options, args ) {
 		if ( typeof( args ) == 'undefined' ) {
@@ -568,10 +609,12 @@
 
 		/**
 		 * Fetches all posts connected to this block with a json-request
-		 * and then stores then in the data-property.
+		 * and then stores them in the data-property.
 		 * When post data is here, it will call the rendering-method.
+		 * @function
+		 * @name load
 		 * @param function callback Function that will be called when everything is done.
-		 * @return void
+		 * @returns {void}
 		 */
 		function load( callback ) {
 			var block = this;
@@ -599,8 +642,10 @@
 
 		/**
 		 * Renders post items from data-property with specified template in options
+		 * @function
+		 * @name render
 		 * @param array posts The posts to render
-		 * @return void
+		 * @returns void
 		 */
 		function render( posts ) {
 			var block = this;
@@ -618,7 +663,7 @@
 						$( block ).find( options.target ).append( $( this ) );
 						receivePost.apply( block, [ this ] );
 					}
-				}	);
+				} );
 			}
 		}
 
@@ -686,9 +731,11 @@
 		}
 
 		/**
-		 * Setting this blocks settings from a settings-array fetched from server
-		 * @param object settings Settings from server
-		 * @return void
+		 * Sets this blocks settings from a settings-array fetched from server
+		 * @function
+		 * @name setSettings
+		 * @param object settings Settings to set
+		 * @returns {void}
 		 */
 		function setSettings( settings ) {
 			if ( settings[ $( this ).data( 'cursorial-block-name' ) ] ) {
@@ -701,9 +748,11 @@
 		}
 
 		/**
-		 * Getting a setting
+		 * Returns all settings or a spcified one if it exists
+		 * @function
+		 * @name getSettings
 		 * @param string setting The setting to get
-		 * @return mixed
+		 * @returns {mixed}
 		 */
 		function getSettings( setting ) {
 			var settings = $( this ).data( 'cursorial-block-settings' );
@@ -718,7 +767,7 @@
 		}
 
 		/**
-		 * Called when block starts sorting
+		 * Used as a listener and called when block starts sorting
 		 * @function
 		 * @name startSorting
 		 * @param {object} event The event being executed
@@ -731,6 +780,13 @@
 			$( document ).mousemove( $.proxy( whileSorting, this ) );
 		}
 
+		/**
+		 * Used as a listener and called when mouse moves
+		 * It tells the post if it's welcome or rejected based on the max param.
+		 * @function
+		 * @name whileSorting
+		 * @returns {void}
+		 */
 		function whileSorting() {
 			var post = $( '.cursorial-post.ui-sortable-helper' );
 			var placeholder = $( this ).find( '.cursorial-post.ui-sortable-placeholder' );
@@ -765,6 +821,14 @@
 			$( document ).unbind( 'mousemove', $.proxy( whileSorting, this ) );
 		}
 
+		/**
+		 * Called when sorting stops
+		 * @function
+		 * @name stopSorting
+		 * @param {object} event The event being executed
+		 * @param {object} ui jQuery-ui-sortable ui-object
+		 * @returns {void}
+		 */
 		function stopSorting( event, ui ) {
 			outSorting.apply( this, [ event, ui ] );
 
@@ -776,6 +840,8 @@
 
 		/**
 		 * Called when a post has been dragged into the block.
+		 * Tells the from-sortable if it's ok and applies settings
+		 * to the coming post.
 		 * @function
 		 * @name receivePost
 		 * @param {object} post The post being received
@@ -796,6 +862,12 @@
 			} );
 		}
 
+		/**
+		 * Sets block to be sortable and connects it with other blocks
+		 * @function
+		 * @name setSortable
+		 * @returns {void}
+		 */
 		function setSortable() {
 			var block = this;
 			var options = getOptions.apply( this );
@@ -823,6 +895,13 @@
 			} );
 		}
 
+		/**
+		 * Changes the saved status indicator - if it has unsaved changes or not
+		 * @function
+		 * @name setSavedStatus
+		 * @param {boolean} status
+		 * @returns {void}
+		 */
 		function setSavedStatus( status ) {
 			if ( $( this ).data( 'cursorial-block-status' ) !== status ) {
 				$( this ).data( 'cursorial-block-status', status );
@@ -843,15 +922,34 @@
 			}
 		}
 
+		/**
+		 * Returns the current saved status
+		 * @function
+		 * @name getSavedStatus
+		 * @returns {boolean}
+		 */
 		function getSavedStatus() {
 			return $( this ).data( 'cursorial-block-status' );
 		}
 
+		/**
+		 * Applies click event listeners to save buttons through the buttons jQuery
+		 * selector applied in the options param fot this plugin.
+		 * @function
+		 * @name setSavedStatus
+		 * @returns {void}
+		 */
 		function setSavingButtons() {
 			$( this ).find( getOptions.apply( this ).buttons.save ).unbind( 'click', $.proxy( save, this ) );
 			$( this ).find( getOptions.apply( this ).buttons.save ).bind( 'click', $.proxy( save, this ) );
 		}
 
+		/**
+		 * Returns the options set through the options param for this plugin
+		 * @function
+		 * @name getOptions
+		 * @returns {object}
+		 */
 		function getOptions() {
 			return $( this ).data( 'cursorial-block-options' );
 		}
@@ -872,7 +970,6 @@
 					post_save: '',
 					post_remove: ''
 				},
-				show: {},
 				blocks: '',
 				statusIndicator: ''
 			}, $( this ).data( 'cursorial-block-options' ), options ) );
@@ -918,7 +1015,16 @@
 
 	/**
 	 * Handles content searching
-	 * @param object options Search options
+	 * @function
+	 * @name cursorialSearch
+	 * @memberOf $.fn
+	 * @param {object} options Search options
+	 *	timeout: integer in milliseconds between last keystroke and server request,
+	 *	templates: {
+	 *		post: 'jQuery selector where to find a post template',
+	 *	},
+	 *	target: 'jQuery selector where to place all posts',
+	 *	blocks: 'jQuery selector where to find blocks to connect to'
 	 */
 	$.fn.cursorialSearch = function( options ) {
 
@@ -933,7 +1039,10 @@
 		}, options );
 
 		/**
-		 * Executes a search
+		 * Executes the search with a server request
+		 * @function
+		 * @name search
+		 * @returns {void}
 		 */
 		function search() {
 			var e = $( this ), val = e.val().replace( /\s+/g, ' ' ).replace( /^\s|\s$/, '' );
@@ -955,6 +1064,11 @@
 
 		/**
 		 * Sets a timeout until next search
+		 * If there's a keystroke, the timeout will be recreated.
+		 * If there's no keystroke, the timeout will call search()
+		 * @function
+		 * @name searchByTimeout
+		 * @returns {void}
 		 */
 		function searchByTimeout() {
 			var e = $( this );
@@ -968,6 +1082,9 @@
 		/**
 		 * Renders the search result data in specified target with specified
 		 * template.
+		 * @function
+		 * @name results
+		 * @returns {void}
 		 */
 		function results( data ) {
 			var target = $( options.target );
@@ -1016,12 +1133,18 @@
 
 	/**
 	 * Creates a ui-loader
-	 * @param string action Either start or stop
+	 * @function
+	 * @name cursorialLoader
+	 * @memberOf $.fn
+	 * @param {string} action Either start or stop
+	 * @returns {object}
 	 */
 	$.fn.cursorialLoader = function( action ) {
 		/**
 		 * Starts the ui-loader
-		 * @return void
+		 * @function
+		 * @name start
+		 * @returns {void}
 		 */
 		function start() {
 			var loader = $( '<div class="cursorial-block-loader"></div>' );
@@ -1037,7 +1160,9 @@
 
 		/**
 		 * Ends the ui-loader
-		 * @return void
+		 * @function
+		 * @name stop
+		 * @returns {void}
 		 */
 		function stop() {
 			$( $( this ).data( 'cursorial-loader' ) ).fadeOut( 'fast', function() {
@@ -1065,6 +1190,7 @@
 	 * and then create a show-link.
 	 * @function
 	 * @name cursorialHideLongContent
+	 * @memberOf $.fn
 	 * @param {string} action Can be 'show' or the default 'hide'
 	 * @param {object|string|number} options Can be all arguments as an object or the delay argument
 	 * @param {function} callback Called then show/hide been done
@@ -1269,7 +1395,7 @@ if ( typeof( WPSetThumbnailHTML ) == 'undefined' ) {
 	 * Image-picker-popup calls this function when an image is chosen.
 	 * This function sets the image HTML with the chosen image.
 	 * @function
-	 * @name
+	 * @name WPSetThumbnailHTML
 	 * @param {object} e The DOM-element where the image is places
 	 * @return {void}
 	 */
