@@ -5,7 +5,7 @@ Cursorial
 * Tags: cursorial, content, post, custom, editing, loops
 * Requires at least: 3.2.1
 * Tested up to: 3.3.1
-* Stable tag: 0.9.3
+* Stable tag: 1.0
 * License: GPLv2
 
 Create custom loops with an easy drag-and-drop interface.
@@ -20,15 +20,16 @@ and manage them with a simple drag-and-drop interface.
 Register one or more loops in your theme's `function.php` and then use
 them as any other loop in your theme with `have_posts()`, `the_post()`
 etc. Editors can then manage these loops in the administration by simply
-drag posts to these loops or between them and override the posts content
+drag posts to these loops or between them and override the posts' content
 if they like. They'll find posts in a search box just next to the loops.
 
 The loops can be configured to
 
 * allow just a limited number of posts,
 * to have posts with children (like nested loops, related content etc),
-* make posts' content overrideable and optional
-* and be set together in the administration.
+* make posts' content overrideable and optional,
+* be set together in the administration,
+* and use images fetched from content or the featured image.
 
 ### No additional database tables or writeable directories are added
 
@@ -180,7 +181,7 @@ Example:
 		</div>
 	<?php endwhile; ?>
 
-Or why not use another template:
+Here with the `get_template_part()`:
 
 	<?php query_cursorial_posts( 'main-feed' ); ?>
 	<?php while( have_posts() ): the_post(); ?>
@@ -211,7 +212,7 @@ this image you need to call `the_cursorial_image()` or
 `get_the_cursorial_image()` (witch will return the image tag instead of
 printing it).
 
-If you've set a loop to support childs posts, then you'll need to know
+If you've set a loop to support child posts, then you'll need to know
 what posts are childs or not. With `the_cursorial_depth()` and
 `get_the_cursorial_depth()` you'll get an integer for what depth the
 current post has. 0 for parents and 1 for childs. An important thing to
@@ -279,7 +280,7 @@ First stable beta release with some of the main features.
 	from outside.
 * Swedish translation.
 
-### v?
+### v1.0
 
 #### Bugfixes
 
