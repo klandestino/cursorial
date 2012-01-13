@@ -1,6 +1,6 @@
 === Cursorial ===
 
-* Contributors: spurge, redundans, alfred
+* Contributors: spurge, redundans, alfreddatakillen
 * Tags: cursorial, content, post, custom, editing, loops
 * Requires at least: 3.2.1
 * Tested up to: 3.3.1
@@ -36,6 +36,10 @@ type](http://codex.wordpress.org/Post_Types "Post Types « Wordpress
 Codex") and a [custom taxonomy](http://codex.wordpress.org/Taxonomies
 "Taxonomies « Wordpress Codex"). It's therefore installable/runnable on
 most kinds of web hosts/environments.
+
+= More info, wiki and issue tracker =
+
+https://github.com/klandestino/cursorial
 
 == Installation ==
 
