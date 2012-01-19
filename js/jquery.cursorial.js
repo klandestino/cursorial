@@ -310,7 +310,6 @@
 											field = $(
 												'<input class="cursorial-field cursorial-field-' + i + '" type="hidden" value="' + imageId + '"/>' +
 												'<a class="cursorial-field cursorial-image-link thickbox" href="media-upload.php?post_id=' + postId + '&amp;type=image&amp;TB_iframe=1width=640&height=546" title="' + cursorial_i18n( 'Set featured image' ) + '">' + cursorial_i18n( 'Set featured image' ) + '</a>'
-//http://cursorial.spurge.hacks.ath.cx/wp-admin/media-upload.php?post_id=2&type=image&TB_iframe=1&width=640&height=546
 											);
 										} else {
 											field = $( '<p class="cursorial-field description">' + cursorial_i18n( 'You need to save this block before you can change image.' ) + '</p>' );
@@ -676,7 +675,7 @@
 		function save() {
 			var data = {
 				action: 'save-block',
-				posts: {},
+				posts: [],
 				block: $( this ).data( 'cursorial-block-name' )
 			};
 
@@ -689,7 +688,7 @@
 				// therefore we've stored the post id in a class name :(
 				var id = $( posts[ i ] ).attr( 'id' ).match( /cursorial-post-([0-9]+)/ );
 				if ( id ) {
-					data.posts[ id[ 1 ] ] = {
+					var post = {
 						id: id[ 1 ],
 						depth: $( posts[ i ] ).data( 'cursorial-child-status' ) === true ? 1 : 0
 					};
@@ -699,14 +698,16 @@
 					for( var ii in settings ) {
 						if ( typeof( fields[ ii ] ) != 'undefined' ) {
 							if ( settings[ ii ].overridable ) {
-								data.posts[ id[ 1 ] ][ ii ] = fields[ ii ];
+								post[ ii ] = fields[ ii ];
 							}
 
 							if ( settings[ ii ].optional && typeof( fields[ ii + '_hidden' ] ) != 'undefined' ) {
-								data.posts[ id[ 1 ] ][ ii + '_hidden' ] = true;
+								post[ ii + '_hidden' ] = true;
 							}
 						}
 					}
+
+					data.posts.push( post );
 				}
 			}
 
