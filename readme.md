@@ -253,37 +253,6 @@ Screenshots
 Changelog
 ---------
 
-### v0.9
-
-First stable beta release with some of the main features.
-
-* Register blocks with custom loops and gather them in the administration.
-* Search posts in the administration and drag posts into cursorial
-	blocks.
-* Drag posts between blocks.
-* Override posts' contents.
-* Images will be set by wordpress' own image library.
-* Posts can be set to have childs.
-* Admin pages templates are overridable.
-* Loops for displaying block posts are available through both a query
-	method and a template fetcher.
-
-### v0.9.1
-
-* Maximum number of posts can be set for both blocks and post childs.
-
-### v0.9.2
-
-* An optional show/hide option on fields.
-
-### v0.9.3
-
-* Administration interface have a saved/unsaved status indicator.
-* There's a save all blocks button.
-* The jQuery block plugin have some of it's internal functions available
-	from outside.
-* Swedish translation.
-
 ### v1.0
 
 #### Bugfixes
@@ -304,6 +273,37 @@ First stable beta release with some of the main features.
 	get_cursorial_block() and query_cursorial_posts().
 * Search result is limited.
 
+### v0.9.3
+
+* Administration interface have a saved/unsaved status indicator.
+* There's a save all blocks button.
+* The jQuery block plugin have some of it's internal functions available
+	from outside.
+* Swedish translation.
+
+### v0.9.2
+
+* An optional show/hide option on fields.
+
+### v0.9.1
+
+* Maximum number of posts can be set for both blocks and post childs.
+
+### v0.9
+
+First stable beta release with some of the main features.
+
+* Register blocks with custom loops and gather them in the administration.
+* Search posts in the administration and drag posts into cursorial
+	blocks.
+* Drag posts between blocks.
+* Override posts' contents.
+* Images will be set by wordpress' own image library.
+* Posts can be set to have childs.
+* Admin pages templates are overridable.
+* Loops for displaying block posts are available through both a query
+	method and a template fetcher.
+
 Upcoming
 --------
 
@@ -314,3 +314,4 @@ Upcoming
 ### v1.1
 
 * An included widget that shows chosen block.
+* Support for different post types.
