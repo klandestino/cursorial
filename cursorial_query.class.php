@@ -158,10 +158,11 @@ class Cursorial_Query {
 		) as $field => $args ) {
 			if ( is_string( $args ) ) {
 				add_filter( 'posts_where', array( &$this, $args ) );
-				$query = new WP_Query();
+				$query = new WP_Query( 'post_type=any' );
 				$posts = $query->get_posts();
 				remove_filter( 'posts_where', array( &$this, $args ) );
 			} else {
+				$args[ 'post_type' ] = 'any';
 				$query = new WP_Query( $args );
 				$posts = $query->get_posts();
 			}
@@ -170,7 +171,10 @@ class Cursorial_Query {
 				if ( count( $this->results ) >= $this->search_numberposts ) {
 					break;
 				}
-				$this->populate_results( $post );
+
+				if ( $post->post_type != Cursorial::POST_TYPE ) {
+					$this->populate_results( $post );
+				}
 			}
 		}
 	}
