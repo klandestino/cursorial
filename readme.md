@@ -258,6 +258,8 @@ Changelog
 
 * Fixed issue with hidden image selector.
 * Posts' order failed in chrome and maybe some other browsers.
+* Fixed issue with using the "Insert into Post"-button in image
+	selector.
 
 #### New features
 
