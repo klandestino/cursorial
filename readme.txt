@@ -111,7 +111,6 @@ Here's some lines of code:
 							)
 						)
 					)
-					)
 				),
 				array( // Second argument is an array with some admin config
 					__( 'Home' ) => array( // The key is the name of the page where editors can edit specified loops
@@ -246,6 +245,18 @@ directory to see how the jQuery plugins are applied.
 1. An overview of the administration.
 
 == Changelog ==
+
+= v1.0.1 =
+
+**Bugfixes**
+
+* Fixed issue with hidden image selector.
+* Posts' order failed in chrome and maybe some other browsers.
+
+**New features**
+
+* Search queries looks for all post types except cursorials. Thereby you
+	can add pages and custom post types to your cursorial loops.
 
 = v1.0 =
 
