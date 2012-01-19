@@ -309,7 +309,8 @@
 											var imageId = $( this ).data( 'cursorial-post-data' ).image;
 											field = $(
 												'<input class="cursorial-field cursorial-field-' + i + '" type="hidden" value="' + imageId + '"/>' +
-												'<a class="cursorial-field cursorial-image-link thickbox" href="media-upload.php?post_id=' + postId + '&amp;type=image&amp;TB_iframe=1" title="' + cursorial_i18n( 'Set featured image' ) + '">' + cursorial_i18n( 'Set featured image' ) + '</a>'
+												'<a class="cursorial-field cursorial-image-link thickbox" href="media-upload.php?post_id=' + postId + '&amp;type=image&amp;TB_iframe=1width=640&height=546" title="' + cursorial_i18n( 'Set featured image' ) + '">' + cursorial_i18n( 'Set featured image' ) + '</a>'
+//http://cursorial.spurge.hacks.ath.cx/wp-admin/media-upload.php?post_id=2&type=image&TB_iframe=1&width=640&height=546
 											);
 										} else {
 											field = $( '<p class="cursorial-field description">' + cursorial_i18n( 'You need to save this block before you can change image.' ) + '</p>' );
@@ -1252,6 +1253,12 @@
 			$( this ).data( 'cursorial-hide-long-content-link', link );
 		}
 
+		/**
+		 * Removes show/hide links
+		 * @function
+		 * @name removeLink
+		 * @returns {void}
+		 */
 		function removeLink() {
 			$( this ).nextUntil( ':not(a.cursorial-hide-long-content-link)' ).remove();
 			$( this ).parent( '.cursorial-hide-long-content-wrapper' ).nextUntil( ':not(a.cursorial-hide-long-content-link)' ).remove();
