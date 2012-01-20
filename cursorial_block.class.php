@@ -99,9 +99,14 @@ class Cursorial_Block {
 		$time = current_time( 'timestamp' );
 		$count = 0;
 
-		foreach( $posts as $ref_id => $post_data ) {
-			$post = get_post( $ref_id );
-			setup_postdata( &$post );
+		foreach( $posts as $post_data ) {
+			$post = null;
+
+			if ( array_key_exists( 'id', $post_data ) ) {
+				$ref_id = $post_data[ 'id' ];
+				$post = get_post( $ref_id );
+				setup_postdata( &$post );
+			}
 
 			if ( ! empty( $post ) ) {
 				$fields = array(

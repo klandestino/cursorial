@@ -4,7 +4,7 @@
 * Tags: cursorial, content, post, custom, editing, loops
 * Requires at least: 3.2.1
 * Tested up to: 3.3.1
-* Stable tag: 1.0
+* Stable tag: 1.0.1
 * License: GPLv2
 
 Create custom loops with an easy drag-and-drop interface.
@@ -110,7 +110,6 @@ Here's some lines of code:
 								'overridable' => false
 							)
 						)
-					)
 					)
 				),
 				array( // Second argument is an array with some admin config
@@ -247,36 +246,19 @@ directory to see how the jQuery plugins are applied.
 
 == Changelog ==
 
-= v0.9 =
+= v1.0.1 =
 
-First stable beta release with some of the main features.
+**Bugfixes**
 
-* Register blocks with custom loops and gather them in the administration.
-* Search posts in the administration and drag posts into cursorial
-	blocks.
-* Drag posts between blocks.
-* Override posts' contents.
-* Images will be set by wordpress' own image library.
-* Posts can be set to have childs.
-* Admin pages templates are overridable.
-* Loops for displaying block posts are available through both a query
-	method and a template fetcher.
+* Fixed issue with hidden image selector.
+* Posts' order failed in chrome and maybe some other browsers.
+* Fixed issue with using the "Insert into Post"-button in image
+	selector.
 
-= v0.9.1 =
+**New features**
 
-* Maximum number of posts can be set for both blocks and post childs.
-
-= v0.9.2 =
-
-* An optional show/hide option on fields.
-
-= v0.9.3 =
-
-* Administration interface have a saved/unsaved status indicator.
-* There's a save all blocks button.
-* The jQuery block plugin have some of it's internal functions available
-	from outside.
-* Swedish translation.
+* Search queries looks for all post types except cursorials. Thereby you
+	can add pages and custom post types to your cursorial loops.
 
 = v1.0 =
 
@@ -298,6 +280,37 @@ First stable beta release with some of the main features.
 	get_cursorial_block() and query_cursorial_posts().
 * Search result is limited.
 
+= v0.9.3 =
+
+* Administration interface have a saved/unsaved status indicator.
+* There's a save all blocks button.
+* The jQuery block plugin have some of it's internal functions available
+	from outside.
+* Swedish translation.
+
+= v0.9.2 =
+
+* An optional show/hide option on fields.
+
+= v0.9.1 =
+
+* Maximum number of posts can be set for both blocks and post childs.
+
+= v0.9 =
+
+First stable beta release with some of the main features.
+
+* Register blocks with custom loops and gather them in the administration.
+* Search posts in the administration and drag posts into cursorial
+	blocks.
+* Drag posts between blocks.
+* Override posts' contents.
+* Images will be set by wordpress' own image library.
+* Posts can be set to have childs.
+* Admin pages templates are overridable.
+* Loops for displaying block posts are available through both a query
+	method and a template fetcher.
+
 == Upcoming ==
 
 = Bugfixes =
@@ -307,3 +320,4 @@ First stable beta release with some of the main features.
 = v1.1 =
 
 * An included widget that shows chosen block.
+* Support for different post types.

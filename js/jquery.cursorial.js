@@ -304,16 +304,17 @@
 										field.height( element.height() > 100 ? element.height() : 100 );
 										break;
 									case 'image' :
-										var postId = $( this ).data( 'cursorial-post-data' ).cursorial_ID;
-										if ( postId ) {
-											var imageId = $( this ).data( 'cursorial-post-data' ).image;
-											field = $(
-												'<input class="cursorial-field cursorial-field-' + i + '" type="hidden" value="' + imageId + '"/>' +
-												'<a class="cursorial-field cursorial-image-link thickbox" href="media-upload.php?post_id=' + postId + '&amp;type=image&amp;TB_iframe=1" title="' + cursorial_i18n( 'Set featured image' ) + '">' + cursorial_i18n( 'Set featured image' ) + '</a>'
-											);
-										} else {
-											field = $( '<p class="cursorial-field description">' + cursorial_i18n( 'You need to save this block before you can change image.' ) + '</p>' );
+										var postId = 0;
+
+										if ( typeof( data[ 'cursorial_ID' ] ) != 'undefined' ) {
+											postId = data.cursorial_ID;
 										}
+
+										var imageId = $( this ).data( 'cursorial-post-data' ).image;
+										field = $(
+											'<input class="cursorial-field cursorial-field-' + i + '" type="hidden" value="' + imageId + '"/>' +
+											'<a class="cursorial-field cursorial-image-link thickbox" href="media-upload.php?post_id=' + postId + '&amp;type=image&amp;TB_iframe=1&amp;width=640&height=546" title="' + cursorial_i18n( 'Set featured image' ) + '">' + cursorial_i18n( 'Set featured image' ) + '</a>'
+										);
 										break;
 									default :
 										field = $( '<input class="cursorial-field cursorial-field-' + i + ' widefat" type="text"/>' );
@@ -675,7 +676,7 @@
 		function save() {
 			var data = {
 				action: 'save-block',
-				posts: {},
+				posts: [],
 				block: $( this ).data( 'cursorial-block-name' )
 			};
 
@@ -688,7 +689,7 @@
 				// therefore we've stored the post id in a class name :(
 				var id = $( posts[ i ] ).attr( 'id' ).match( /cursorial-post-([0-9]+)/ );
 				if ( id ) {
-					data.posts[ id[ 1 ] ] = {
+					var post = {
 						id: id[ 1 ],
 						depth: $( posts[ i ] ).data( 'cursorial-child-status' ) === true ? 1 : 0
 					};
@@ -698,14 +699,16 @@
 					for( var ii in settings ) {
 						if ( typeof( fields[ ii ] ) != 'undefined' ) {
 							if ( settings[ ii ].overridable ) {
-								data.posts[ id[ 1 ] ][ ii ] = fields[ ii ];
+								post[ ii ] = fields[ ii ];
 							}
 
 							if ( settings[ ii ].optional && typeof( fields[ ii + '_hidden' ] ) != 'undefined' ) {
-								data.posts[ id[ 1 ] ][ ii + '_hidden' ] = true;
+								post[ ii + '_hidden' ] = true;
 							}
 						}
 					}
+
+					data.posts.push( post );
 				}
 			}
 
@@ -1252,6 +1255,12 @@
 			$( this ).data( 'cursorial-hide-long-content-link', link );
 		}
 
+		/**
+		 * Removes show/hide links
+		 * @function
+		 * @name removeLink
+		 * @returns {void}
+		 */
 		function removeLink() {
 			$( this ).nextUntil( ':not(a.cursorial-hide-long-content-link)' ).remove();
 			$( this ).parent( '.cursorial-hide-long-content-wrapper' ).nextUntil( ':not(a.cursorial-hide-long-content-link)' ).remove();
@@ -1381,12 +1390,11 @@ if ( typeof( WPSetThumbnailID ) == 'undefined' ) {
 	 * This callback sets the post image field value to the chosen id.
 	 * @function
 	 * @name WPSetThumbnailID
-	 * @param {int|string} c The attachment id
-	 * @param {?} b I don't know
+	 * @param {int|string} id The attachment id
 	 * @return {void}
 	 */
-	WPSetThumbnailID = function( c, b ) {
-		jQuery( '.cursorial-post-edit .cursorial-field-image' ).val( c );
+	var WPSetThumbnailID = function( id ) {
+		jQuery( '.cursorial-post-edit .cursorial-field-image' ).val( id );
 	}
 }
 
@@ -1399,8 +1407,13 @@ if ( typeof( WPSetThumbnailHTML ) == 'undefined' ) {
 	 * @param {object} e The DOM-element where the image is places
 	 * @return {void}
 	 */
-	WPSetThumbnailHTML = function( e ) {
-		var image = jQuery( e ).find( 'img' );
+	var WPSetThumbnailHTML = function( e ) {
+		var image = jQuery( e );
+
+		if ( ! image.is( 'img' ) ) {
+			image = image.find( 'img' );
+		}
+
 		if ( image.length > 0 ) {
 			jQuery( 'a.cursorial-image-link-current' ).parents( '.cursorial-post-edit' ).each( function() {;
 				var data = jQuery( this ).data( 'cursorial-post-data' );
@@ -1411,5 +1424,34 @@ if ( typeof( WPSetThumbnailHTML ) == 'undefined' ) {
 				jQuery( this ).find( 'a.cursorial-image-link-current' ).removeClass( 'cursorial-image-link-current' );
 			} );
 		}
+	}
+}
+
+if ( typeof( send_to_editor ) == 'undefined' ) {
+	/**
+	 * Image-picker-popup calls this function when you hit the "Insert
+	 * into Post" button.
+	 * @function
+	 * @name send_to_editor
+	 * @param {string} e HTML element containing the image
+	 * @returns {void}
+	 */
+	var send_to_editor = function( e ) {
+		var image = jQuery( e );
+
+		if ( ! image.is( 'img' ) ) {
+			image = image.find( 'img' );
+		}
+
+		if ( image.length > 0 ) {
+			var id = image.attr( 'class' ).match( /wp-image-([0-9]+)/i );
+			if ( id ) {
+				image.width( 150 );
+				image.height( 150 );
+				WPSetThumbnailHTML( image );
+				WPSetThumbnailID( id[ 1 ] );
+			}
+		}
+		jQuery( '#TB_closeWindowButton' ).trigger( 'click' );
 	}
 }

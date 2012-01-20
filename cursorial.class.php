@@ -81,7 +81,10 @@ class Cursorial {
 
 		wp_enqueue_style(
 			'cursorial-admin',
-			CURSORIAL_PLUGIN_URL . 'css/admin.css'
+			CURSORIAL_PLUGIN_URL . 'css/admin.css',
+			array(
+				'thickbox'
+			)
 		);
 	}
 
@@ -154,7 +157,6 @@ class Cursorial {
 	 *	'label' => __( 'Stuff you must read' ),
 	 *	'max' => 4, // Maximum amount of posts
 	 *	'related' => array( // Related content, child-post support
-	 *		'post_types' => array( 'post' ), // Version 2
 	 *		'max' => 2,
 	 *		'fields' => array( // Fields added here is shown in admin and can set to be overridable
 	 *											 // and/or optional/required to be added into the block

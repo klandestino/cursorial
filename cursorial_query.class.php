@@ -33,7 +33,8 @@ class Cursorial_Query {
 					'field' => 'slug',
 					'terms' => array( $block_name )
 				)
-			)
+			),
+			'orderby' => 'date'
 		);
 	}
 
@@ -45,29 +46,33 @@ class Cursorial_Query {
 	 * @return void
 	 */
 	private function populate_results( $post ) {
-		if ( ! array_key_exists( $post->ID, $this->results ) ) {
-			setup_postdata( &$post );
-			$post_id = property_exists( $post, 'cursorial_ID' ) ? $post->cursorial_ID : $post->ID;
-			$post->post_title = apply_filters( 'the_title', $post->post_title );
-			$post->post_author = get_the_author();
-			$post->post_date = apply_filters( 'the_date', $post->post_date );
-			$post->post_excerpt = apply_filters( 'the_excerpt', $post->post_excerpt );
-			$post->post_content = apply_filters( 'the_content', $post->post_content );
-			$post->image = apply_filters( 'cursorial_image_id', get_post_thumbnail_id( $post_id ) );
-			$post->cursorial_image = wp_get_attachment_image_src( $post->image );
-			$post->cursorial_depth = apply_filters( 'cursorial_depth', ( int ) get_post_meta( $post_id, 'cursorial-post-depth', true ) );
-
-			$hidden_fields = get_post_meta( $post_id, 'cursorial-post-hidden-fields', true );
-
-			if ( is_array( $hidden_fields ) ) {
-				foreach( $hidden_fields as $field_name ) {
-					$hidden_field_name = $field_name . '_hidden';
-					$post->$hidden_field_name = true;
-				}
+		foreach( $this->results as $result ) {
+			if ( $result->ID === $post->ID ) {
+				return;
 			}
-
-			$this->results[ $post->ID ] = $post;
 		}
+
+		setup_postdata( &$post );
+		$post_id = property_exists( $post, 'cursorial_ID' ) ? $post->cursorial_ID : $post->ID;
+		$post->post_title = apply_filters( 'the_title', $post->post_title );
+		$post->post_author = get_the_author();
+		$post->post_date = apply_filters( 'the_date', $post->post_date );
+		$post->post_excerpt = apply_filters( 'the_excerpt', $post->post_excerpt );
+		$post->post_content = apply_filters( 'the_content', $post->post_content );
+		$post->image = apply_filters( 'cursorial_image_id', get_post_thumbnail_id( $post_id ) );
+		$post->cursorial_image = wp_get_attachment_image_src( $post->image );
+		$post->cursorial_depth = apply_filters( 'cursorial_depth', ( int ) get_post_meta( $post_id, 'cursorial-post-depth', true ) );
+
+		$hidden_fields = get_post_meta( $post_id, 'cursorial-post-hidden-fields', true );
+
+		if ( is_array( $hidden_fields ) ) {
+			foreach( $hidden_fields as $field_name ) {
+				$hidden_field_name = $field_name . '_hidden';
+				$post->$hidden_field_name = true;
+			}
+		}
+
+		$this->results[] = $post;
 	}
 
 	/**
@@ -153,10 +158,11 @@ class Cursorial_Query {
 		) as $field => $args ) {
 			if ( is_string( $args ) ) {
 				add_filter( 'posts_where', array( &$this, $args ) );
-				$query = new WP_Query();
+				$query = new WP_Query( 'post_type=any' );
 				$posts = $query->get_posts();
 				remove_filter( 'posts_where', array( &$this, $args ) );
 			} else {
+				$args[ 'post_type' ] = 'any';
 				$query = new WP_Query( $args );
 				$posts = $query->get_posts();
 			}
@@ -165,7 +171,10 @@ class Cursorial_Query {
 				if ( count( $this->results ) >= $this->search_numberposts ) {
 					break;
 				}
-				$this->populate_results( $post );
+
+				if ( $post->post_type != Cursorial::POST_TYPE ) {
+					$this->populate_results( $post );
+				}
 			}
 		}
 	}
