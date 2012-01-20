@@ -5,7 +5,7 @@ Cursorial
 * Tags: cursorial, content, post, custom, editing, loops
 * Requires at least: 3.2.1
 * Tested up to: 3.3.1
-* Stable tag: 1.0
+* Stable tag: 1.0.1
 * License: GPLv2
 
 Create custom loops with an easy drag-and-drop interface.
