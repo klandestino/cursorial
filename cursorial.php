@@ -38,7 +38,7 @@ if ( ! function_exists( 'add_action' ) ) {
 /**
  * Define plugin constants
  */
-define( 'CURSORIAL_VERSION', '0.9' );
+define( 'CURSORIAL_VERSION', '1.0.1' );
 define( 'CURSORIAL_PLUGIN_DIR_NAME', dirname( plugin_basename( $plugin ) ) );
 define( 'CURSORIAL_PLUGIN_URL', plugin_dir_url( plugin_basename( $plugin ) ) );
 define( 'CURSORIAL_TEMPLATE_DIR', dirname( __FILE__ ) . '/templates' );
