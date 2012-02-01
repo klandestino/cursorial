@@ -156,8 +156,10 @@ class Cursorial {
 	 * 'main-feed' => array(
 	 *	'label' => __( 'Stuff you must read' ),
 	 *	'max' => 4, // Maximum amount of posts
-	 *	'related' => array( // Related content, child-post support
+	 *	'post_type' => array( 'page', 'post' ), // Limit posts in the feed with specified post types
+	 *	'childs' => array( // Related content, child-post support
 	 *		'max' => 2,
+	 *		'post_type' => 'page', // Limit child posts by post type
 	 *		'fields' => array( // Fields added here is shown in admin and can set to be overridable
 	 *											 // and/or optional/required to be added into the block
 	 *			'post_title' => array( // Post field
@@ -167,7 +169,7 @@ class Cursorial {
 	 *		)
 	 *	),
 	 *	'fields' => array(
-	 *		'title' => array(
+	 *		'post_title' => array(
 	 *			'optional' => false,
 	 *			'overridable' => true
 	 *		),
@@ -180,7 +182,7 @@ class Cursorial {
 	 * 'second-feed' => array(
 	 *	'max' => 4,
 	 *	'fields' => array(
-	 *		'title' => array(
+	 *		'post_title' => array(
 	 *			'optional' => false,
 	 *			'overridable' => true
 	 *		)
@@ -372,7 +374,10 @@ class Cursorial {
 	}
 
 	/**
-	 * Action hook that adds data to the $post-object if it's a cursorial-post
+	 * Action hook that adds data to the $post-object if it's a cursorial-post.
+	 * It replaces the ID property with the original and stores the
+	 * cursorial post id in cursorial_ID. The original post type is stored
+	 * in cursorial_post_type.
 	 * @param object $post The post reference
 	 * @return void
 	 */
@@ -383,6 +388,11 @@ class Cursorial {
 		if ( $ref_id && $post->post_type == Cursorial::POST_TYPE ) {
 			$post->cursorial_ID = $post->ID;
 			$post->ID = $ref_id;
+
+			$original = $this->get_original( $post->cursorial_ID );
+			if ( $original ) {
+				$post->cursorial_post_type = $original->post_type;
+			}
 		}
 	}
 
