@@ -318,15 +318,3 @@ First stable beta release with some of the main features.
 * Admin pages templates are overridable.
 * Loops for displaying block posts are available through both a query
 	method and a template fetcher.
-
-Upcoming
---------
-
-### Bugfixes
-
-* Bugs?
-
-### v1.1
-
-* An included widget that shows chosen block.
-* Support for different post types.
