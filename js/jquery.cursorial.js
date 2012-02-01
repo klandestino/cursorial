@@ -1166,10 +1166,10 @@
 			// Connect to blocks
 			$( options.target ).sortable( {
 				start: function( event, ui ) {
-					$( ui.item ).trigger( 'sortstart' );
+					$( ui.item ).trigger( 'sortstart', [ ui ] );
 				},
 				stop: function( event, ui ) {
-					$( ui.item ).trigger( 'sortstop' );
+					$( ui.item ).trigger( 'sortstop', [ ui ] );
 				},
 				revert: true,
 				connectWith: options.blocks,
