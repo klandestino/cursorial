@@ -68,8 +68,10 @@ Here's some lines of code:
 					'main-feed' => array( // The key is the name of the loop
 						'label' => __( 'Main Feed' ), // The official label of the loop
 						'max' => 2, // The maximum amount of allowed posts
+						'post_type' => array( 'page' ), // Limit posts with post type. Can be defined as an array or a string
 						'childs' => array( // If set, all posts in this loop can have childs
 							'max' => 2, // The maximum amount of allowed childs posts
+							'post_type' => 'post', // Limit child posts with post type
 							'fields' => array( // Set the displayable child post field
 								'post_title' => array( // The key is the name of the post field
 									'optional' => false, // If set to true, the field can be hidden by the editor in the admin
