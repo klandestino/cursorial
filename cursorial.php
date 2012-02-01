@@ -50,6 +50,7 @@ require_once( dirname( __FILE__ ) . '/cursorial.class.php' );
 require_once( dirname( __FILE__ ) . '/cursorial_block.class.php' );
 require_once( dirname( __FILE__ ) . '/cursorial_admin.class.php' );
 require_once( dirname( __FILE__ ) . '/cursorial_query.class.php' );
+require_once( dirname( __FILE__ ) . '/widgets/cursorial_widget.php' );
 
 $cursorial = new Cursorial();
 
@@ -151,6 +152,14 @@ function the_cursorial_depth() {
 	echo get_the_cursorial_depth();
 }
 
+/**
+ * Widgets init hook that register cursorial widgets
+ * @return void
+ */
+function cursorial_register_widgets() {
+	register_widget( 'Cursorial_Widget' );
+}
+
 // Add the plugin initiator function to Wordpress
 add_action( 'init', array( $cursorial, 'init' ) );
 
@@ -160,3 +169,6 @@ add_action( 'wp_head', array( $cursorial, 'head' ) );
 // Add content filters
 add_action( 'the_post', array( $cursorial, 'the_post' ) );
 $cursorial->set_content_filters();
+
+// Add widget init hook
+add_action( 'widgets_init', 'cursorial_register_widgets' );
