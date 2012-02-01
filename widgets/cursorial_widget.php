@@ -45,6 +45,7 @@ class Cursorial_Widget extends WP_Widget {
 		echo $args[ 'before_title' ];
 		printf( $instance[ 'title' ] );
 		echo $args[ 'after_title' ];
+
 		?><ul>
 			<?php query_cursorial_posts( $blockname ); ?>
 			<?php while ( have_posts() ) : the_post(); ?>
@@ -173,11 +174,22 @@ class Cursorial_Widget extends WP_Widget {
 			if ( ! empty( $new[ 'custom-block-name' ] ) && isset( $this->custom_widget_blocks[ $new[ 'custom-block-name' ] ] ) ) {
 				$instance[ 'custom-block-name' ] = $new[ 'custom-block-name' ];	
 			} else {
-				$instance[ 'custom-block-name' ] = '__custom-widget-block-' . count( $this->custom_widget_blocks ) . '__';
+				$length = get_option( 'cursorial_custom_widget_block_length' );
+
+				if ( ! $length ) {
+					$length = 1;
+				} else {
+					$length++;
+				}
+
+				delete_option( 'cursorial_custom_widget_block_length' );
+				add_option( 'cursorial_custom_widget_block_length', $length );
+
+				$instance[ 'custom-block-name' ] = '__custom-widget-block-' . $length . '__';
 			}
 
 			foreach( array(
-				array( 'name' => 'custom-label', 'default' => 'Custom Widget Block' . count( $this->custom_widget_blocks ) ),
+				array( 'name' => 'custom-label', 'default' => 'Custom Widget Block' ),
 				array( 'name' => 'custom-max', 'default' => '5' )
 			) as $field ) {
 				if ( ! isset( $new[ $field[ 'name' ] ] ) ) {
@@ -208,6 +220,12 @@ class Cursorial_Widget extends WP_Widget {
 			);
 		} else {
 			$instance[ 'cursorial-block' ] = $new[ 'cursorial-block' ];
+
+			if ( $old[ 'cursorial-block' ] == '__custom-widget-block__' ) {
+				if ( ! empty( $old[ 'custom-block-name' ] ) && isset( $this->custom_widget_blocks[ $old[ 'custom-block-name' ] ] ) ) {
+					unset( $this->custom_widget_blocks[ $old[ 'custom-block-name' ] ] );
+				}
+			}
 		}
 
 		delete_option( 'cursorial_custom_widget_blocks' );
