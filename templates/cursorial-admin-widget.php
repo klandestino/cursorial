@@ -72,12 +72,13 @@
 	/>
 
 	<ul>
+		<li><input type="checkbox" checked="checked" disabled="disabled"/> <label><?php _e( 'Title', 'cursorial' ) ; ?></label></li>
 		<?php foreach( array(
-			array( 'name' => 'post_excerpt', 'title' => __( 'Excerpt', 'cursorial' ) ),
-			array( 'name' => 'post_content', 'title' => __( 'Content', 'cursorial' ) ),
-			array( 'name' => 'image', 'title' => __( 'Image', 'cursorial' ) ),
 			array( 'name' => 'post_date', 'title' => __( 'Date', 'cursorial' ) ),
-			array( 'name' => 'post_author', 'title' => __( 'Author', 'cursorial' ) )
+			array( 'name' => 'post_author', 'title' => __( 'Author', 'cursorial' ) ),
+			array( 'name' => 'image', 'title' => __( 'Image', 'cursorial' ) ),
+			array( 'name' => 'post_excerpt', 'title' => __( 'Excerpt', 'cursorial' ) ),
+			array( 'name' => 'post_content', 'title' => __( 'Content', 'cursorial' ) )
 		) as $field ) : ?>
 			<li><input
 				id="<?php echo $cursorial_widget->get_field_id( 'custom-field-' . $field[ 'name' ] ); ?>"
