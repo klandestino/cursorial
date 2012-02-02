@@ -3,6 +3,7 @@
 class Cursorial_Widget extends WP_Widget {
 
 	const CUSTOM_BLOCK_NAME = '__custom-widget-block__';
+	const CUSTOM_BLOCK_ID_BASE = '__custom-widget-block-[id]__';
 
 	private $custom_widget_blocks = array();
 
@@ -40,7 +41,7 @@ class Cursorial_Widget extends WP_Widget {
 						foreach( $instance[ 'custom-fields' ] as $field_name ) {
 							$fields[ $field_name ] = array(
 								'optional' => true,
-								'overridable' => true
+								'overridable' => ( $field_name == 'post_content' || $field_name == 'post_excerpt' || $field_name == 'image' )
 							);
 						}
 
@@ -70,7 +71,7 @@ class Cursorial_Widget extends WP_Widget {
 				$x++;
 			}
 
-			register_cursorial( $blocks, array( __( 'Custom Widget Blocks' ) => $admin ) );
+			register_cursorial( $blocks, array( __( 'Custom Widget Blocks', 'cursorial' ) => $admin ) );
 		}
 	}
 
@@ -121,7 +122,7 @@ class Cursorial_Widget extends WP_Widget {
 
 		echo '<script language="javascript" type="text/javascript">
 			jQuery(\'input.' . $this->get_field_id( 'cursorial-block' ) . '\').live(\'change\',function(){
-				if(jQuery(this).val()=="__custom-widget-block__")jQuery(\'#' . $this->get_field_id( 'cursorial-custom-block' ) . '\').show(\'fast\');
+				if(jQuery(this).val()=="' . self::CUSTOM_BLOCK_NAME . '")jQuery(\'#' . $this->get_field_id( 'cursorial-custom-block' ) . '\').show(\'fast\');
 				else jQuery(\'#' . $this->get_field_id( 'cursorial-custom-block' ) . '\').hide(\'fast\');
 			});
 		</script>';
@@ -138,7 +139,7 @@ class Cursorial_Widget extends WP_Widget {
 		echo '<ul>';
 
 		foreach( $cursorial->blocks as $name => $block ) {
-			if ( ! preg_match( '/__custom-widget-block-(?:[0-9]+)__/', $name ) ) {
+			if ( ! preg_match( '/' . str_replace( self::CUSTOM_BLOCK_ID_BASE, '[id]', '(?:[0-9]+)' ) . '/', $name ) ) {
 				echo '<li><input
 						id="' . $this->get_field_id( 'cursorial-block' ) . '-' . $name . '"
 						class="' . $this->get_field_id( 'cursorial-block' ) . '"
@@ -150,16 +151,16 @@ class Cursorial_Widget extends WP_Widget {
 		}
 
 		echo '<input
-				id="' . $this->get_field_id( 'cursorial-block' ) . '-__custom-widget-block__"
+				id="' . $this->get_field_id( 'cursorial-block' ) . '-' . self::CUSTOM_BLOCK_NAME . '"
 				class="' . $this->get_field_id( 'cursorial-block' ) . '"
 				type="radio" name="' . $this->get_field_name( 'cursorial-block' ) . '"
-				value="__custom-widget-block__"
-				' . ( isset( $instance[ 'cursorial-block' ] ) && $instance[ 'cursorial-block' ] == '__custom-widget-block__' ? 'checked="checked"' : '' ) . '
-			/> <label for="' . $this->get_field_id( 'cursorial-block' ) . '-__custom-widget-block__">' . __( 'Custom block' ) . '</label><br/>';
+				value="' . self::CUSTOM_BLOCK_NAME . '"
+				' . ( isset( $instance[ 'cursorial-block' ] ) && $instance[ 'cursorial-block' ] == self::CUSTOM_BLOCK_NAME ? 'checked="checked"' : '' ) . '
+			/> <label for="' . $this->get_field_id( 'cursorial-block' ) . '-' . self::CUSTOM_BLOCK_NAME . '">' . __( 'Custom block' ) . '</label><br/>';
 		echo '</ul>';
 		echo '<div
 				id="' . $this->get_field_id( 'cursorial-custom-block' ) . '"
-				' . ( isset( $instance[ 'cursorial-block' ] ) && $instance[ 'cursorial-block' ] == '__custom-widget-block__' ? '' : 'style="display:none;"' ) . '
+				' . ( isset( $instance[ 'cursorial-block' ] ) && $instance[ 'cursorial-block' ] == self::CUSTOM_BLOCK_NAME ? '' : 'style="display:none;"' ) . '
 			>';
 		echo '<h3>' . __( 'Add new custom cursorial block', 'cursorial' ) . '</h3>';
 
@@ -206,7 +207,7 @@ class Cursorial_Widget extends WP_Widget {
 		$instance = $old;
 		$instance[ 'title' ] = strip_tags( $new[ 'title' ] );
 
-		if ( $new[ 'cursorial-block' ] == '__custom-widget-block__' ) {
+		if ( $new[ 'cursorial-block' ] == self::CUSTOM_BLOCK_NAME ) {
 			$instance[ 'cursorial-block' ] = $new[ 'cursorial-block' ];
 
 			if ( ! empty( $new[ 'custom-block-name' ] ) && isset( $this->custom_widget_blocks[ $new[ 'custom-block-name' ] ] ) ) {
@@ -223,11 +224,17 @@ class Cursorial_Widget extends WP_Widget {
 				delete_option( 'cursorial_custom_widget_block_length' );
 				add_option( 'cursorial_custom_widget_block_length', $length );
 
-				$instance[ 'custom-block-name' ] = '__custom-widget-block-' . $length . '__';
+				$instance[ 'custom-block-name' ] = str_replace( self::CUSTOM_BLOCK_ID_BASE, '[id]', $length );
+			}
+
+			$id = '';
+
+			if ( preg_match( '/' . str_replace( self::CUSTOM_BLOCK_ID_BASE, '[id]', '([0-9]+)' ) . '/', $instance[ 'custom-block-name' ], $match ) ) {
+				$id = $match[ 1 ];
 			}
 
 			foreach( array(
-				array( 'name' => 'custom-label', 'default' => 'Custom Widget Block' ),
+				array( 'name' => 'custom-label', 'default' => 'Custom Widget Block ' . $id ),
 				array( 'name' => 'custom-max', 'default' => '5' )
 			) as $field ) {
 				if ( ! isset( $new[ $field[ 'name' ] ] ) || empty( $new[ $field[ 'name' ] ] ) ) {
