@@ -2,6 +2,8 @@
 
 class Cursorial_Widget extends WP_Widget {
 
+	const CUSTOM_BLOCK_NAME = '__custom-widget-block__';
+
 	private $custom_widget_blocks = array();
 
 	function Cursorial_Widget() {
@@ -10,17 +12,55 @@ class Cursorial_Widget extends WP_Widget {
 			get_class( $this ),
 			__( 'Cursorial Widget', 'cursorial' ),
 			array(
-				'description' => __( 'Display an existing cursorial blocks or add a new one' )
+				'description' => __( 'Display an existing cursorial block or add a new one' )
 			)
 		);
 
-		$this->custom_widget_blocks = get_option( 'cursorial_custom_widget_blocks' );
+		$this->set_custom_widget_blocks_by_settings( $this->get_settings() );
+		$this->register_custom_widget_blocks( $this->custom_widget_blocks );
+	}
 
-		if ( is_array( $this->custom_widget_blocks ) ) {
+	function set_custom_widget_blocks_by_settings( $settings ) {
+		if ( is_array( $settings ) ) {
+			foreach( $settings as $instance ) {
+				if ( is_array( $instance ) ) {
+					if (
+						isset( $instance[ 'cursorial-block' ] ) && $instance[ 'cursorial-block' ] == self::CUSTOM_BLOCK_NAME
+						&& isset( $instance[ 'custom-block-name' ] )
+						&& isset( $instance[ 'custom-label' ] )
+						&& isset( $instance[ 'custom-max' ] )
+						&& isset( $instance[ 'custom-fields' ] )
+					) {
+						$fields = array(
+							'post_title' => array(
+								'overridable' => true
+							)
+						);
+
+						foreach( $instance[ 'custom-fields' ] as $field_name ) {
+							$fields[ $field_name ] = array(
+								'optional' => true,
+								'overridable' => true
+							);
+						}
+
+						$this->custom_widget_blocks[ $instance[ 'custom-block-name' ] ] = array(
+							'label' => $instance[ 'custom-label' ],
+							'max' => $instance[ 'custom-max' ],
+							'fields' => $fields
+						);
+					}
+				}
+			}
+		}
+	}
+
+	function register_custom_widget_blocks( $blocks ) {
+		if ( count( $blocks ) ) {
 			$admin = array();
 			$x = 0;
 
-			foreach( $this->custom_widget_blocks as $name => $widget ) {
+			foreach( $blocks as $name => $block ) {
 				$admin[ $name ] = array(
 					'x' => $x,
 					'y' => 0,
@@ -30,16 +70,14 @@ class Cursorial_Widget extends WP_Widget {
 				$x++;
 			}
 
-			register_cursorial( $this->custom_widget_blocks, array( __( 'Custom widget blocks' ) => $admin ) );
-		} else {
-			$this->custom_widget_blocks = array();
+			register_cursorial( $blocks, array( __( 'Custom Widget Blocks' ) => $admin ) );
 		}
 	}
 
 	function widget( $args, $instance ) {
 		global $cursorial;
 
-		$blockname = $instance[ 'cursorial-block' ] == '__custom-widget-block__' ? $instance[ 'custom-block-name' ] : $instance[ 'cursorial-block' ];
+		$blockname = $instance[ 'cursorial-block' ] == self::CUSTOM_BLOCK_NAME ? $instance[ 'custom-block-name' ] : $instance[ 'cursorial-block' ];
 
 		echo $args[ 'before_widget' ];
 		echo $args[ 'before_title' ];
@@ -192,44 +230,17 @@ class Cursorial_Widget extends WP_Widget {
 				array( 'name' => 'custom-label', 'default' => 'Custom Widget Block' ),
 				array( 'name' => 'custom-max', 'default' => '5' )
 			) as $field ) {
-				if ( ! isset( $new[ $field[ 'name' ] ] ) ) {
+				if ( ! isset( $new[ $field[ 'name' ] ] ) || empty( $new[ $field[ 'name' ] ] ) ) {
 					$instance[ $field[ 'name' ] ] = $field[ 'default' ];
 				} else {
 					$instance[ $field[ 'name' ] ] = $new[ $field[ 'name' ] ];
 				}
 			}
 
-			$fields = array(
-				'post_title' => array(
-					'overridable' => true
-				)
-			);
-
-			if ( isset( $new[ 'custom-fields' ] ) ) {
-				foreach( $new[ 'custom-fields' ] as $field ) {
-					$fields[ $field ] = array( 'overridable' => true );
-				}
-
-				$instance[ 'custom-fields' ] = $new[ 'custom-fields' ];
-			}
-
-			$this->custom_widget_blocks[ $instance[ 'custom-block-name' ] ] = array(
-				'label' => $instance[ 'custom-label' ],
-				'max' => $instance[ 'custom-max' ],
-				'fields' => $fields
-			);
+			$instance[ 'custom-fields' ] = $new[ 'custom-fields' ];
 		} else {
 			$instance[ 'cursorial-block' ] = $new[ 'cursorial-block' ];
-
-			if ( $old[ 'cursorial-block' ] == '__custom-widget-block__' ) {
-				if ( ! empty( $old[ 'custom-block-name' ] ) && isset( $this->custom_widget_blocks[ $old[ 'custom-block-name' ] ] ) ) {
-					unset( $this->custom_widget_blocks[ $old[ 'custom-block-name' ] ] );
-				}
-			}
 		}
-
-		delete_option( 'cursorial_custom_widget_blocks' );
-		add_option( 'cursorial_custom_widget_blocks', $this->custom_widget_blocks );
 
 		return $instance;
 	}
