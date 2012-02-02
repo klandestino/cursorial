@@ -267,12 +267,12 @@ class Cursorial {
 		if ( empty( $located ) ) {
 			foreach( $template_names as $name ) {
 				if ( file_exists( CURSORIAL_TEMPLATE_DIR . '/' . $name ) ) {
-					load_template( CURSORIAL_TEMPLATE_DIR . '/' . $name, true );
+					load_template( CURSORIAL_TEMPLATE_DIR . '/' . $name, false );
 					return;
 				}
 			}
 		} else {
-			load_template( $located );
+			load_template( $located, false );
 		}
 	}
 
