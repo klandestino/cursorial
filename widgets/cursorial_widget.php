@@ -1,14 +1,41 @@
 <?php
 
+/**
+ * This widget shows posts from registered cursorial block or a block 
+ * created by this widget.
+ *
+ * Both admin and public display are rendered through templates found in 
+ * the template directory. They're also overridable by themes.
+ * The admin template is called `cursorial-admin-widget.php` and the 
+ * public template `cursorial-widget.php`.
+ *
+ * Custom blocks are registered when this class is initiated. It'll loop 
+ * through all registered cursorial widgets and register blocks with 
+ * their's settings.
+ */
 class Cursorial_Widget extends WP_Widget {
 
+	/**
+	 * The block name value that defines a custom block
+	 */
 	const CUSTOM_BLOCK_NAME = '__custom-widget-block__';
+
+	/**
+	 * The block name pattern used by naming the custom blocks
+	 */
 	const CUSTOM_BLOCK_ID_BASE = '__custom-widget-block-[id]__';
 
+	/**
+	 * @private
+	 * Local array with custom blocks created by this widget
+	 */
 	private $custom_widget_blocks = array();
 
+	/**
+	 * The constructor – will get widget settings and register custom 
+	 * cursorial blocks if there are any.
+	 */
 	function Cursorial_Widget() {
-
 		parent::WP_Widget(
 			get_class( $this ),
 			__( 'Cursorial Widget', 'cursorial' ),
@@ -21,6 +48,13 @@ class Cursorial_Widget extends WP_Widget {
 		$this->register_custom_widget_blocks( $this->custom_widget_blocks );
 	}
 
+	/**
+	 * @private
+	 * Searches specified settings for any custom block settings and saves 
+	 * it to the local block array.
+	 * @param array $settings Settings to search for blocks in
+	 * @return void
+	 */
 	function set_custom_widget_blocks_by_settings( $settings ) {
 		if ( is_array( $settings ) ) {
 			foreach( $settings as $instance ) {
@@ -29,6 +63,7 @@ class Cursorial_Widget extends WP_Widget {
 						isset( $instance[ 'cursorial-block' ] ) && $instance[ 'cursorial-block' ] == self::CUSTOM_BLOCK_NAME
 						&& isset( $instance[ 'custom-block-name' ] )
 					) {
+						// Post titles are always visible
 						$fields = array(
 							'post_title' => array(
 								'overridable' => true
@@ -39,14 +74,21 @@ class Cursorial_Widget extends WP_Widget {
 							foreach( $instance[ 'custom-fields' ] as $field_name ) {
 								$fields[ $field_name ] = array(
 									'optional' => true,
+									// When this widget was written, this plugin could not 
+									// handle date and author overrides – therefor we'll 
+									// only apply override to content, excerpt and image 
+									// fields.
 									'overridable' => ( $field_name == 'post_content' || $field_name == 'post_excerpt' || $field_name == 'image' )
 								);
 							}
 						}
 
 						$this->custom_widget_blocks[ $instance[ 'custom-block-name' ] ] = array(
+							// Default label if it's not set
 							'label' => isset( $instance[ 'custom-label' ] ) ? $instance[ 'custom-label' ] : __( 'Custom Widget Block', 'cursorial' ),
+							// Same goes to maximum amount of posts
 							'max' => isset( $instance[ 'custom-max' ] ) && is_int( $instance[ 'custom-max' ] ) ? $instance[ 'custom-max' ] : 5,
+							// And then the fields...
 							'fields' => $fields
 						);
 					}
@@ -55,6 +97,14 @@ class Cursorial_Widget extends WP_Widget {
 		}
 	}
 
+	/**
+	 * @private
+	 * Registers the specified blocks and creates an admin settings array 
+	 * for them. All blocks are found on the same page horisontally 
+	 * aligned.
+	 * @param array $blocks Blocks to register
+	 * @return void
+	 */
 	function register_custom_widget_blocks( $blocks ) {
 		if ( count( $blocks ) ) {
 			$admin = array();
@@ -74,6 +124,15 @@ class Cursorial_Widget extends WP_Widget {
 		}
 	}
 
+	/**
+	 * Displays/echoes the widget by speficied arguments and instance.
+	 * It uses a template for rendering. The template is found in 
+	 * `templates/cursorial-widget.php` and can be overrided by a theme 
+	 * template with the same name.
+	 * @param array $args Display arguments
+	 * @param array $instance The widget instance settings
+	 * @return void
+	 */
 	function widget( $args, $instance ) {
 		global $cursorial;
 
@@ -85,6 +144,14 @@ class Cursorial_Widget extends WP_Widget {
 		echo $args[ 'after_widget' ];
 	}
 
+	/**
+	 * Displays/echoes the widget admin form for specified widget 
+	 * instance. It uses a template for rendering. The template is found 
+	 * in `templates/cursorial-admin-widget.php` and can be overrided by a 
+	 * theme template with the same name.
+	 * @param array $instance The widget instance settings
+	 * @return void
+	 */
 	function form( $instance ) {
 		global $cursorial, $cursorial_widget, $cursorial_widget_instance;
 
@@ -94,6 +161,12 @@ class Cursorial_Widget extends WP_Widget {
 		$cursorial->get_template( 'cursorial-admin-widget' );
 	}
 
+	/**
+	 * Updates a widget instance settings.
+	 * @param array $new The new instance settings
+	 * @param array $old The old instance settings
+	 * @return void
+	 */
 	function update( $new, $old ) {
 		$instance = $old;
 		$instance[ 'title' ] = strip_tags( $new[ 'title' ] );
@@ -104,6 +177,12 @@ class Cursorial_Widget extends WP_Widget {
 			if ( ! empty( $new[ 'custom-block-name' ] ) && isset( $this->custom_widget_blocks[ $new[ 'custom-block-name' ] ] ) ) {
 				$instance[ 'custom-block-name' ] = $new[ 'custom-block-name' ];	
 			} else {
+				/**
+				 * $length option is used to get an unique number for custom 
+				 * widget blocks. It's used together with CUSTOM_BLOCK_ID_BASE 
+				 * constant to create an unique blick id/name.
+				 */
+
 				$length = get_option( 'cursorial_custom_widget_block_length' );
 
 				if ( ! $length ) {
@@ -117,6 +196,11 @@ class Cursorial_Widget extends WP_Widget {
 
 				$instance[ 'custom-block-name' ] = str_replace( self::CUSTOM_BLOCK_ID_BASE, '[id]', $length );
 			}
+
+			/**
+			 * $id is only fetched to create an unique label as a 
+			 * fallback/default value when a label is not specified.
+			 */
 
 			$id = '';
 
