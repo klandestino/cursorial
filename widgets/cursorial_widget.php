@@ -87,7 +87,7 @@ class Cursorial_Widget extends WP_Widget {
 							// Default label if it's not set
 							'label' => isset( $instance[ 'custom-label' ] ) ? $instance[ 'custom-label' ] : __( 'Custom Widget Block', 'cursorial' ),
 							// Same goes to maximum amount of posts
-							'max' => isset( $instance[ 'custom-max' ] ) && is_int( $instance[ 'custom-max' ] ) ? $instance[ 'custom-max' ] : 5,
+							'max' => isset( $instance[ 'custom-max' ] ) && is_numeric( $instance[ 'custom-max' ] ) ? $instance[ 'custom-max' ] : 5,
 							// And then the fields...
 							'fields' => $fields
 						);
@@ -215,7 +215,7 @@ class Cursorial_Widget extends WP_Widget {
 				if (
 					! isset( $new[ $field[ 'name' ] ] )
 					|| empty( $new[ $field[ 'name' ] ] )
-					|| ( $field[ 'type' ] == 'int' && ! is_int( $new[ $field[ 'name' ] ] ) )
+					|| ( $field[ 'type' ] == 'int' && ! is_numeric( $new[ $field[ 'name' ] ] ) )
 				) {
 					$instance[ $field[ 'name' ] ] = $field[ 'default' ];
 				} else {
