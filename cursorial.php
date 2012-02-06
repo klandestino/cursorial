@@ -3,8 +3,8 @@
 /*
 Plugin Name: Cursorial
 Plugin URI: https://github.com/klandestino/cursorial
-Description: Create custom loops with an easy drag-and-drop interface.
-Version: 1.0.1
+Description: Create custom loops and edit it's posts with an easy drag-and-drop interface. Override the post's title, content, excerpt and images. Then display the loops' posts with a widget or a theme template file.
+Version: 1.1
 Author: Klandestino
 Author URI: http://klandestino.se
 License: GPLv2
@@ -38,7 +38,7 @@ if ( ! function_exists( 'add_action' ) ) {
 /**
  * Define plugin constants
  */
-define( 'CURSORIAL_VERSION', '0.9' );
+define( 'CURSORIAL_VERSION', '1.1' );
 define( 'CURSORIAL_PLUGIN_DIR_NAME', dirname( plugin_basename( $plugin ) ) );
 define( 'CURSORIAL_PLUGIN_URL', plugin_dir_url( plugin_basename( $plugin ) ) );
 define( 'CURSORIAL_TEMPLATE_DIR', dirname( __FILE__ ) . '/templates' );
@@ -50,6 +50,7 @@ require_once( dirname( __FILE__ ) . '/cursorial.class.php' );
 require_once( dirname( __FILE__ ) . '/cursorial_block.class.php' );
 require_once( dirname( __FILE__ ) . '/cursorial_admin.class.php' );
 require_once( dirname( __FILE__ ) . '/cursorial_query.class.php' );
+require_once( dirname( __FILE__ ) . '/widgets/cursorial_widget.php' );
 
 $cursorial = new Cursorial();
 
@@ -151,6 +152,14 @@ function the_cursorial_depth() {
 	echo get_the_cursorial_depth();
 }
 
+/**
+ * Widgets init hook that register cursorial widgets
+ * @return void
+ */
+function cursorial_register_widgets() {
+	register_widget( 'Cursorial_Widget' );
+}
+
 // Add the plugin initiator function to Wordpress
 add_action( 'init', array( $cursorial, 'init' ) );
 
@@ -160,3 +169,6 @@ add_action( 'wp_head', array( $cursorial, 'head' ) );
 // Add content filters
 add_action( 'the_post', array( $cursorial, 'the_post' ) );
 $cursorial->set_content_filters();
+
+// Add widget init hook
+add_action( 'widgets_init', 'cursorial_register_widgets' );

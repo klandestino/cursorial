@@ -125,16 +125,15 @@ class Cursorial_Block {
 				 * this solution? I need to rewrite this later on... Now it has be get finished.
 				 */
 
-				if ( empty( $post->post_excerpt ) ) {
-					$post->post_excerpt = apply_filters( 'the_excerpt', '' );
-				}
+				$post->post_excerpt = apply_filters( 'the_excerpt', $post->post_excerpt );
+				$post->post_content = apply_filters( 'the_content', $post->post_content );
 
 				// Stores the visibility for fields
 				$hidden_fields = array();
 
 				foreach( $post_data as $field_name => $field ) {
 					if ( $field_name != 'id' && property_exists( $post, $field_name ) ) {
-						if ( trim( $post->$field_name ) != trim( stripslashes( $field ) ) ) {
+						if ( trim( strip_tags( $post->$field_name ) ) != trim( strip_tags( stripslashes( $field ) ) ) ) {
 							$fields[ $field_name ] = trim( $field );
 						}
 					}

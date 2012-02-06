@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Cursorial\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-11 14:53+0100\n"
-"PO-Revision-Date: 2012-01-11 14:53+0100\n"
+"POT-Creation-Date: 2012-02-06 20:19+0100\n"
+"PO-Revision-Date: 2012-02-06 20:24+0100\n"
 "Last-Translator: spurge <olof@klandestino.se>\n"
 "Language-Team: Klandestino <olof@klandestino.se>\n"
 "MIME-Version: 1.0\n"
@@ -17,58 +17,59 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Poedit-SearchPath-0: ..\n"
 "X-Poedit-SearchPath-1: ../templates\n"
+"X-Poedit-SearchPath-2: ../widgets\n"
 
-#: ../cursorial.class.php:107
+#: ../cursorial.class.php:110
 #, php-format
 msgid "Edit cursorial blocks in %s"
 msgstr "Ändra cursorial-block i %s"
 
-#: ../cursorial.class.php:129
+#: ../cursorial.class.php:132
 msgid "Set featured image"
 msgstr "Ändra utvald bild"
 
-#: ../cursorial.class.php:130
+#: ../cursorial.class.php:133
 msgid "Show content"
 msgstr "Visa innehåll"
 
-#: ../cursorial.class.php:131
+#: ../cursorial.class.php:134
 msgid "Hide content"
 msgstr "Göm innehåll"
 
-#: ../cursorial.class.php:132
+#: ../cursorial.class.php:135
 msgid "Visible:"
 msgstr "Visa:"
 
-#: ../cursorial.class.php:133
+#: ../cursorial.class.php:136
 msgid "post title"
 msgstr "titel"
 
-#: ../cursorial.class.php:134
+#: ../cursorial.class.php:137
 msgid "image"
 msgstr "bild"
 
-#: ../cursorial.class.php:135
+#: ../cursorial.class.php:138
 msgid "post excerpt"
 msgstr "sammanfattning"
 
-#: ../cursorial.class.php:136
+#: ../cursorial.class.php:139
 msgid "post content"
 msgstr "innehåll"
 
-#: ../cursorial.class.php:137
+#: ../cursorial.class.php:140
 msgid "post date"
 msgstr "datum"
 
-#: ../cursorial.class.php:138
+#: ../cursorial.class.php:141
 #, php-format
 msgid "%s has some unsaved changes."
 msgstr "%s har några osparade förändringar."
 
-#: ../cursorial.class.php:139
+#: ../cursorial.class.php:142
 msgid "You need to save this block before you can change image."
 msgstr "Du måste spara det här blocket innan du kan ändra bild."
 
-#: ../cursorial.class.php:634
+#: ../cursorial.class.php:646
 msgid "Block"
 msgstr "Block"
 
@@ -133,6 +134,89 @@ msgstr "Ändra"
 #: ../templates/cursorial-admin-blocks.php:155
 msgid "Save"
 msgstr "Spara"
+
+#: ../templates/cursorial-admin-widget.php:14
+msgid "Title:"
+msgstr "Titel:"
+
+#: ../templates/cursorial-admin-widget.php:23
+msgid "Available cursorial blocks"
+msgstr "Tillgängliga cursorial-block"
+
+#: ../templates/cursorial-admin-widget.php:44
+msgid "Custom block"
+msgstr "Anpassat block"
+
+#: ../templates/cursorial-admin-widget.php:51
+msgid "Add new custom cursorial block"
+msgstr "Lägg till anpassat cursorial-block"
+
+#: ../templates/cursorial-admin-widget.php:54
+msgid "Block label:"
+msgstr "Blocknamn:"
+
+#: ../templates/cursorial-admin-widget.php:55
+msgid "Maximum number of posts:"
+msgstr "Maximalt antal inlägg"
+
+#: ../templates/cursorial-admin-widget.php:68
+msgid "What fields should be available?"
+msgstr "Vilka fält ska vara tillgängliga?"
+
+#: ../templates/cursorial-admin-widget.php:75
+msgid "Title"
+msgstr "Titel"
+
+#: ../templates/cursorial-admin-widget.php:77
+msgid "Date"
+msgstr "Datum"
+
+#: ../templates/cursorial-admin-widget.php:78
+msgid "Author"
+msgstr "Författare"
+
+#: ../templates/cursorial-admin-widget.php:79
+msgid "Image"
+msgstr "Bild"
+
+#: ../templates/cursorial-admin-widget.php:80
+msgid "Excerpt"
+msgstr "Sammanfattning"
+
+#: ../templates/cursorial-admin-widget.php:81
+msgid "Content"
+msgstr "Innehåll"
+
+#: ../templates/cursorial-widget.php:8
+#, php-format
+msgid "Posted on %1$s by %2$s"
+msgstr "Postad %1$s av %2$s"
+
+#: ../templates/cursorial-widget.php:15
+#, php-format
+msgid "Posted on %1$s"
+msgstr "Postad %1$s"
+
+#: ../templates/cursorial-widget.php:21
+#, php-format
+msgid "Written by %1$s"
+msgstr "Skriven av %1$s"
+
+#: ../widgets/cursorial_widget.php:41
+msgid "Cursorial Widget"
+msgstr "Cursorial WIdget"
+
+#: ../widgets/cursorial_widget.php:43
+msgid "Display an existing cursorial block or create one"
+msgstr "Visa existerande cursorial-block eller skapa en"
+
+#: ../widgets/cursorial_widget.php:88
+msgid "Custom Widget Block"
+msgstr "Anpassat widget-block"
+
+#: ../widgets/cursorial_widget.php:123
+msgid "Custom Widget Blocks"
+msgstr "Anpassade widget-block"
 
 #~ msgid "%s is unsaved"
 #~ msgstr "%s är osparad"

@@ -177,8 +177,12 @@
 
 			// If this post has been rejected and if was a child before dragging
 			// started, it'll go back as a child.
-			if ( $( this ).data( 'cursorial-post-dragging-child-status' ) && $( this ).hasClass( 'cursorial-post-rejected' ) ) {
+			if ( $( this ).data( 'cursorial-post-dragging-child-status' ) && $( ui.placeholder ).hasClass( 'cursorial-post-rejected' ) ) {
 				setChildStatus.apply( this, [ true ] );
+			// If this post has been rejected as a child and was not a child
+			// before dragging, it'll loose it's child status.
+			} else if ( ! $( this ).data( 'cursorial-post-dragging-child-status' ) && $( ui.placeholder ).hasClass( 'cursorial-post-rejected' ) ) {
+				setChildStatus.apply( this, [ false ] );
 			}
 
 			$( this ).data( 'cursorial-post-dragging-child-status', false );
@@ -409,7 +413,9 @@
 				$( this ).remove();
 			} );
 
-			getChilds.apply( this ).cursorialPost( 'remove' );
+			if ( ! getChildStatus.apply( this ) ) {
+				getChilds.apply( this ).cursorialPost( 'remove' );
+			}
 		}
 
 		/**
@@ -785,7 +791,8 @@
 
 		/**
 		 * Used as a listener and called when mouse moves
-		 * It tells the post if it's welcome or rejected based on the max param.
+		 * It tells the post if it's welcome or rejected based on the max param
+		 * and the post_type param.
 		 * @function
 		 * @name whileSorting
 		 * @returns {void}
@@ -794,12 +801,50 @@
 			var post = $( '.cursorial-post.ui-sortable-helper' );
 			var placeholder = $( this ).find( '.cursorial-post.ui-sortable-placeholder' );
 
-			if ( post.length > 0 && placeholder.length > 0 ) {
-				post.removeClass( 'cursorial-post-rejected' );
-				placeholder.removeClass( 'cursorial-post-rejected' );
-				var max = getSettings.apply( this, [ 'max' ] );
+			post.removeClass( 'cursorial-post-rejected' );
+			placeholder.removeClass( 'cursorial-post-rejected' );
 
-				if ( max ) {
+			if ( post.length > 0 ) {
+				var max = getSettings.apply( this, [ 'max' ] );
+				var childs = getSettings.apply( this, [ 'childs' ] );
+				var data = post.data( 'cursorial-post-data' );
+				var posttype = ( typeof( data[ 'cursorial_post_type' ] ) == 'string' ) ? data.cursorial_post_type : data.post_type;
+
+				function checkByType( type ) {
+					if ( type ) {
+						var typefound = false;
+
+						if ( typeof( type ) == 'string' ) {
+							type = [ type ];
+						}
+
+						for ( var i in type ) {
+							if ( type[ i ] == posttype ) {
+								typefound = true;
+								break;
+							}
+						}
+
+						if ( ! typefound ) {
+							post.addClass( 'cursorial-post-rejected' );
+							placeholder.addClass( 'cursorial-post-rejected' );
+						}
+					}
+				}
+
+				// Start check type for children. Child post type limit can
+				// be different from parents.
+				if ( childs && post.hasClass( 'cursorial-child-depth-1' ) ) {
+					if ( typeof( childs[ 'post_type' ] != 'undefined' ) ) {
+						checkByType( childs.post_type );
+					}
+				// Then check for parents/root posts
+				} else {
+					checkByType( getSettings.apply( this, [ 'post_type' ] ) );
+				}
+
+				// And then at last, check if there too many posts already
+				if ( max && ! post.hasClass( 'cursorial-post-rejected' ) ) {
 					if (
 						max < $( this ).find( getOptions.apply( this ).target ).children( '.cursorial-post:not(.cursorial-child-depth-1, #' + post.attr( 'id' ) + '):visible' ).length
 						&& ! post.hasClass( 'cursorial-child-depth-1' )
@@ -876,11 +921,11 @@
 			var options = getOptions.apply( this );
 			$( this ).find( options.target ).sortable( {
 				start: function( event, ui ) {
-					$( ui.item ).trigger( 'sortstart' );
+					$( ui.item ).trigger( 'sortstart', [ ui ] );
 					startSorting.apply( block, [ event, ui ] );
 				},
 				stop: function( event, ui ) {
-					$( ui.item ).trigger( 'sortstop' );
+					$( ui.item ).trigger( 'sortstop', [ ui ] );
 					stopSorting.apply( block, [ event, ui ] );
 				},
 				over: $.proxy( startSorting, this ),
@@ -1121,10 +1166,10 @@
 			// Connect to blocks
 			$( options.target ).sortable( {
 				start: function( event, ui ) {
-					$( ui.item ).trigger( 'sortstart' );
+					$( ui.item ).trigger( 'sortstart', [ ui ] );
 				},
 				stop: function( event, ui ) {
-					$( ui.item ).trigger( 'sortstop' );
+					$( ui.item ).trigger( 'sortstop', [ ui ] );
 				},
 				revert: true,
 				connectWith: options.blocks,
