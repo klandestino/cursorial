@@ -314,6 +314,21 @@ Screenshots
 Changelog
 ---------
 
+### v1.1
+
+#### Bugfixes
+
+* Fixed issue with siblings being removed when removing childs.
+* Even more content override that might solve some unwanted override
+	savings.
+* Fixed a javascript error that occured in some cases.
+
+#### New features
+
+* Added widget that displays existing blocks or creates new ones.
+* Widget have overridable widget templates for both public use and the admin.
+* Support for blocks to limit posts by post-type.
+
 ### v1.0.1
 
 #### Bugfixes
