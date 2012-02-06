@@ -2,13 +2,15 @@ Cursorial
 =========
 
 * Contributors: spurge, redundans, alfreddatakillen
-* Tags: cursorial, content, post, custom, editing, loops
+* Tags: cursorial, content, post, custom, editing, loops, widget
 * Requires at least: 3.2.1
 * Tested up to: 3.3.1
-* Stable tag: 1.0.1
+* Stable tag: 1.1
 * License: GPLv2
 
-Create custom loops with an easy drag-and-drop interface.
+Create custom loops and edit it's posts with an easy drag-and-drop
+interface. Override the post's title, content, excerpt and images. Then
+display the loops' posts with a widget or a theme template file.
 
 Description
 -----------
@@ -23,13 +25,19 @@ etc. Editors can then manage these loops in the administration by simply
 drag posts to these loops or between them and override the posts' content
 if they like. They'll find posts in a search box just next to the loops.
 
-The loops can be configured to
+**The loops can be configured to ...**
 
 * allow just a limited number of posts,
+* allow just a specified set of post types,
 * to have posts with children (like nested loops, related content etc),
 * make posts' content overrideable and optional,
 * be set together in the administration,
 * and use images fetched from content or the featured image.
+
+**This plugin also comes with a widget that ...**
+
+* displays a registered loop
+* or creates one for you.
 
 ### No additional database tables or writeable directories are added
 
@@ -48,9 +56,27 @@ Installation
 
 ### 1. Install the plugin
 
-Place this plugin in your plugin directory and then activate it.
+You can install Cursorial using the built in Wordpress plugin
+installer. If you wish to install Cursorial manually, make sure
+you've uploaded the plugin to `wp-content/plugins/cursorial`.
 
-### 2. Register your loops in the theme's function.php
+Activate the plugin in the _Plugins_ admin panel using the _Activate_
+link. You'll then be able to register your loops and use the widget that
+follows with this plugin.
+
+### 2. How to use the widget
+
+Drag the _Cursorial Widget_ to any preferable sidebar in _Widget_ admin
+panel found in _Appearence_. You'll then see a list of available
+loops, called blocks, if you've registered any. If not, you'll be able
+to create one for the current widget by checking the _Custom block_
+radio button. You can set the maximum number of posts and what fields
+that will be available.
+
+All widget-created blocks are then found in the _Custom Widget Blocks_
+admin panel found in the _Cursorial_ menu.
+
+### 3. Register your loops in the theme's function.php
 
 Use `register_cursorial()` to register loops. This function takes two
 arguments. First an array with the loops you want, and then another
@@ -161,7 +187,7 @@ Here's some lines of code:
 		}
 	}
 
-### 3. Query the posts
+### 4. Query the posts
 
 There are two ways to print the posts from your customized loops.
 
@@ -207,7 +233,7 @@ Example:
 		<?php get_template_part( 'content', get_post_type() ); ?>
 	<?php endwhile; ?>
 
-### 4. Print images, get it's depth and check if a post field is hidden
+### 5. Print images, get it's depth and check if a post field is hidden
 
 If you are using the field `image` (witch is a non wordpress field,
 added by this plugin), an image is fetched either from a featured image
@@ -228,10 +254,44 @@ If you've set a field to be `optional`, an editor may have hidden some
 posts' fields. You'll notice that the template tag for that field will
 not return anything. But in some cases you may want to also hide some
 HTML that wraps the field. With `is_cursorial_field_hidden( 'field_name'
-)` you'll know if the field set to be hidden.
+)` you'll know if the field is set to be hidden.
+
+Example:
+
+	<?php while ( have_posts() ) : the_post(); ?>
+		<div class="post<?php echo get_the_cursorial_depth() ? ' post-child' : ' post-parent'; ?>
+			<h2><a href="<?php echo esc_url( get_permalink() ); ?>" title="<?php esc_attr( get_the_title() ); ?>"><?php the_title(); ?></a></h2>
+			<?php if ( ! is_cursorial_field_hidden( 'image' ) ) : ?>
+				<div class="image">
+					<?php the_cursorial_image(); ?>
+				</div>
+			<?php endif; ?>
+		</div>
+	<?php endwhile; ?>
 
 Frequently Asked Questions
 --------------------------
+
+### In what languages are this plugin available?
+
+* English (built-in)
+* Svenska
+
+### Can I override the widget output template?
+
+Yep. Create a template in your theme and call it `cursorial-widget.php`.
+The loop in the template file is already initiated. You'll just need to
+do the while loop like so ...
+
+	<ul>
+		<?php
+		# In cursorial-widget.php
+		while ( have_posts() ) : the_post(); ?>
+			<li>
+				<h4><a href="<?php echo esc_url( get_permalink() ); ?>" title="<?php echo esc_attr( get_the_title() ); ?>"><?php the_title(); ?></a></h4>
+			</li>
+		<?php endwhile; ?>
+	</ul>
 
 ### Can I override the administration templates?
 

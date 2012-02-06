@@ -3,8 +3,8 @@
 /*
 Plugin Name: Cursorial
 Plugin URI: https://github.com/klandestino/cursorial
-Description: Create custom loops with an easy drag-and-drop interface.
-Version: 1.0.1
+Description: Create custom loops and edit it's posts with an easy drag-and-drop interface. Override the post's title, content, excerpt and images. Then display the loops' posts with a widget or a theme template file.
+Version: 1.1
 Author: Klandestino
 Author URI: http://klandestino.se
 License: GPLv2
@@ -38,7 +38,7 @@ if ( ! function_exists( 'add_action' ) ) {
 /**
  * Define plugin constants
  */
-define( 'CURSORIAL_VERSION', '1.0.1' );
+define( 'CURSORIAL_VERSION', '1.1' );
 define( 'CURSORIAL_PLUGIN_DIR_NAME', dirname( plugin_basename( $plugin ) ) );
 define( 'CURSORIAL_PLUGIN_URL', plugin_dir_url( plugin_basename( $plugin ) ) );
 define( 'CURSORIAL_TEMPLATE_DIR', dirname( __FILE__ ) . '/templates' );
