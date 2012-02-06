@@ -40,7 +40,7 @@ class Cursorial_Widget extends WP_Widget {
 			get_class( $this ),
 			__( 'Cursorial Widget', 'cursorial' ),
 			array(
-				'description' => __( 'Display an existing cursorial block or add a new one' )
+				'description' => __( 'Display an existing cursorial block or create one', 'cursorial' )
 			)
 		);
 
